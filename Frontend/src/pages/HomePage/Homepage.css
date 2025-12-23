@@ -1,0 +1,52 @@
+.rules-container {
+    max-width: 600px;
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rules-container h2 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.rules-container ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.rules-container li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.tip {
+    margin-top: 15px;
+    font-style: italic;
+    color: #555;
+}
+
+.btn-room {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.create-room {
+    width: 30%;
+    height: 40px;
+    background-color: palevioletred;
+    color: black;
+    border: none;
+    cursor: pointer;
+}
+
+.invite-room {
+    width: 30%;
+    height: 40px;
+    background-color: palevioletred;
+    color: black;
+    border: none;
+    cursor: pointer;
+}
