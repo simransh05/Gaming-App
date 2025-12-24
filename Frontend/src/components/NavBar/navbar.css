@@ -1,6 +1,6 @@
 .navbar{
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     border-bottom: 1px solid grey;
     margin-bottom: 7px;
 }
@@ -12,7 +12,7 @@
 
 .right-side{
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     gap: 20px;
 }
 .btn-logout{

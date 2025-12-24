@@ -18,11 +18,13 @@ function HomePage() {
     useEffect(() => {
         if (!currentUser) navigate(`${ROUTES.LOGIN}`)
     }, [currentUser])
+
+    const handleSuccess = (roomId) => {
+        navigate(`${ROUTES.HOME}${roomId}`) 
+    }
     return (
         <>
-            {/* navbar */}
             <NavBar />
-            {/* rules and regulation */}
             <div className="rules-container">
                 <h2>🎮 Tic-Tac-Toe Rules</h2>
 
@@ -90,6 +92,7 @@ function HomePage() {
                     <InviteModal
                         open={() => setShowInvite(true)}
                         onClose={() => setShowInvite(false)}
+                        onSuccess={(roomId) => handleSuccess(roomId)}
                     />}
             </div>
 
