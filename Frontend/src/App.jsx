@@ -5,17 +5,22 @@ import ROUTES from './constant/Route/route'
 import Signup from './pages/Signup/Signup'
 import HomePage from './pages/HomePage/HomePage'
 import CurrentUserProvider from './context/UserContext'
+import SocketProvider from './context/SocketContext'
+import GameRoom from './pages/GameRoom/GameRoom'
 
-function App() { 
+function App() {
   return (
     <CurrentUserProvider>
-      <Router>
-        <Routes>
-          <Route path={`${ROUTES.SIGNUP}`} element={<Signup/>}/>
-          <Route path={`${ROUTES.LOGIN}`} element={<Login/>}/>
-          <Route path={`${ROUTES.HOME}`} element={<HomePage/>}/>
-        </Routes>
-      </Router>
+      <SocketProvider>
+        <Router>
+          <Routes>
+            <Route path={`${ROUTES.SIGNUP}`} element={<Signup />} />
+            <Route path={`${ROUTES.LOGIN}`} element={<Login />} />
+            <Route path={`${ROUTES.HOME}`} element={<HomePage />} />
+            <Route path={`/:roomId`} element={<GameRoom />} />
+          </Routes>
+        </Router>
+      </SocketProvider>
     </CurrentUserProvider>
   )
 }
