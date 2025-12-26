@@ -14,6 +14,9 @@ const api = {
     postLogout :async () => {
         return await apiInstance.post(`${ROUTES.LOGOUT}`)
     },
+    getHistory : async (player1 , player2) => {
+        return await apiInstance.get(`history?player1=${player1}&player2=${player2}`)
+    },
 }
 
 export default api;
