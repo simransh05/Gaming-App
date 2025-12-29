@@ -16,7 +16,7 @@ function GameRoom() {
         "", "", "",
         "", "", ""
     ]);
-    const [users, setUsers] = useState([]);
+    const [users, setUsers] = useState(null);
     const [currentPlayer, setCurrentPlayer] = useState(null);
     const [start, setStart] = useState(false);
     const [history, setHistory] = useState(null);
@@ -24,14 +24,15 @@ function GameRoom() {
     const { currentUser } = useContext(CurrentUserContext);
 
     const handleClick = (index) => {
-        console.log(index, currentPlayer)
+        // console.log(index, currentPlayer)
         if (!start) return;
-        console.log(currentPlayer !== currentUser?._id);
-        console.log(currentUser);
-        console.log(currentPlayer, currentUser?._id)
+        // console.log(currentPlayer !== currentUser?._id);
+        // console.log(currentUser);
+        // console.log(currentPlayer, currentUser?._id)
         if (currentPlayer !== currentUser?._id) return;
         socket.emit("move", { roomId, index });
     };
+    // console.log(currentUser);
 
     useEffect(() => {
         if (!roomId) return;
@@ -40,52 +41,66 @@ function GameRoom() {
         }
         socket.emit('refresh-room', { roomId }, (res) => {
             if (res.status === 200) {
-                setUsers(res.user)
+                // console.log(res);
+                setUsers(res.data.players);
+                setBoard(res.data.board);
+                setCurrentPlayer(res.data.turn);
+                setStart(res.data.start)
             }
         })
 
+        // socket.on('joined-room' , (players) =>{
+        //     setUsers(players)
+        // })
+
+        socket.on("player-joined", (players) => {
+            if (Array.isArray(players)) {
+                setUsers(players);
+            }
+        });
+
         socket.on("game-started", (FirstPlayer) => {
             setStart(true);
-            console.log(users[0])
+            // console.log(FirstPlayer)
             setCurrentPlayer(FirstPlayer);
         });
 
-
-        // when players join
-        socket.on("player-joined", (players) => {
-            setUsers(players);
-        });
-
         // when a move is done
-        socket.on("moveDone", (serverBoard) => {
-            console.log(serverBoard);
-            console.log(currentPlayer);
-            console.log(users);
-            setBoard(serverBoard.map((cellUserId) => {
-                if (!cellUserId || !users || users.length < 2) return "";
-                return cellUserId === users[0]._id ? "X" : "O";
-            }));
-
-            // toggle
-            setCurrentPlayer((prev) =>
-                prev === users[0]?._id ? users[1]?._id : users[0]?._id
-            );
+        socket.on("moveDone", ({ players, turn, board }) => {
+            // console.log(players, turn, board)
+            setBoard(board);
+            setUsers(players);
+            setCurrentPlayer(turn);
         });
 
         // winner
-        socket.on("winner", (winnerId) => {
+        socket.on("winner", async ({ winnerId, board, name }) => {
+            console.log(winnerId, currentUser?._id)
             Swal.fire(
-                winnerId === currentUser?._id ? "You Won!" : "You Lost!",
+                winnerId == currentUser?._id ? "You Won!" : "You Lost!",
                 "",
-                winnerId === currentUser?._id ? "success" : "error"
+                winnerId == currentUser?._id ? "success" : "error"
             );
+            setBoard(board);
             setStart(false);
+            setHistory((prev) => [
+                ...prev,
+                { winner: { name } }
+            ]);
+
         });
 
         // draw
-        socket.on("draw", () => {
+        socket.on("draw", async ({ board }) => {
+            // const data = { winnerId: null, player1: players[0]._id, player2: players[0]._id }
+            // const res = await api.postHistory(data);
             Swal.fire("Draw!", "", "info");
+            setBoard(board);
             setStart(false);
+            setHistory((prev) => [
+                ...prev,
+                { winner: null }
+            ]);
         });
 
         // opponent left
@@ -97,6 +112,7 @@ function GameRoom() {
         return () => {
             socket.off('refresh-room')
             socket.off('game-started')
+            // socket.off('joined-room')
             socket.off("player-joined");
             socket.off("moveDone");
             socket.off("winner");
@@ -107,7 +123,7 @@ function GameRoom() {
 
 
     const handleBtn = () => {
-        console.log(roomId)
+        // console.log(roomId)
         socket.emit('start', roomId);
     }
 
@@ -116,11 +132,11 @@ function GameRoom() {
             if (users?.length === 2) {
                 const player1 = users[0]?._id;
                 const player2 = users[1]?._id;
-                console.log(player1, player2);
+                // console.log(player1, player2);
                 const res = await api.getHistory(player1, player2)
-                console.log(res.status)
-                console.log(res.data);
-                setHistory(res.data);
+                // console.log(res.status)
+                // console.log(res.data);
+                setHistory(res.data.history);
             }
             else {
                 return;
@@ -149,7 +165,6 @@ function GameRoom() {
             })
         }
     }
-    console.log(users);
 
     return (
         <>
@@ -175,11 +190,13 @@ function GameRoom() {
                         </div>
                     ))}
                 </div>
-                {history?.length > 0 ?
-                    history.map((h, index) => (
-                        <div key={index} className='history'>{h}</div>
-                    )) : <div className='no-history'>No History Yet</div>
-                }
+                <div className="history-list">
+                    {history?.length > 0 ?
+                        history.map((h, index) => (
+                            <div key={index} className='history'>{h?.winner?.name === null ? 'Draw' : h?.winner?.name}</div>
+                        )) : <div className='no-history'>No History Yet</div>
+                    }
+                </div>
             </div>
             {start ?
                 <button disabled>Started</button> :

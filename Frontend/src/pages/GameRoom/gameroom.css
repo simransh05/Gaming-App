@@ -18,3 +18,12 @@
 .cell:hover {
   background-color: #f0f0f0;
 }
+.main-container{
+  display: flex;
+  justify-content: space-around;
+}
+
+.history{
+  border: 1px solid black;
+  padding: 5px;
+}
