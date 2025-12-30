@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogContent, DialogTitle, TextField } from '@mui/material'
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material'
 import React from 'react'
 import socket from '../../socket/socket'
 import { useState } from 'react'
@@ -38,13 +38,15 @@ function CreateModal({ open, onClose }) {
                 {showInput &&
                     <TextField
                         label='Room Id'
-                        fullWidth
+                        sx={{ mt: '8px' }}
                         value={inputValue}
                         InputProps={{ readOnly: true }}
                     />
                 }
-                <Button onClick={handleClick}>Create Room</Button>
             </DialogContent>
+            <DialogActions sx={{display:'flex',justifyContent:'center'}}>
+                <Button onClick={handleClick}>Create Room</Button>
+            </DialogActions>
         </Dialog>
     )
 }

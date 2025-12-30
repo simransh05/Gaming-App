@@ -30,7 +30,6 @@ module.exports = (io) => {
         });
 
         socket.on('join', async (roomId) => {
-            if (!socket.userId) return;
 
             if (!boards[roomId]) {
                 boards[roomId] = {
@@ -55,8 +54,8 @@ module.exports = (io) => {
             room.players.push(user);
 
             if (room.players.length === 2) {
-                const p1 = room.players[0]._id.toString();
-                const p2 = room.players[1]._id.toString();
+                const p1 = room.players[0]?._id.toString();
+                const p2 = room.players[1]?._id.toString();
                 room.symbols[p1] = "O";
                 room.symbols[p2] = "X";
                 room.turn = p1;
@@ -102,20 +101,20 @@ module.exports = (io) => {
                 room.turn = room.players[0]._id.toString();
                 // console.log('board 1', room.board)
                 const username = await User.findById(socket.userId).select('name').lean();
-                console.log('username', username);
+                // console.log('username', username);
                 io.to(roomId).emit('winner', {
                     winnerId: socket.userId,
                     board: room.board,
                     players: room.players,
                     name: username.name
                 });
-                console.log('here move')
+                // console.log('here move')
                 const data = await controller.saveHistory({
                     player1: room.players[0]._id,
                     player2: room.players[1]._id,
                     winnerId: socket.userId
                 })
-                console.log(data);
+                // console.log(data);
             } else if (!room.board.includes("")) {
                 room.board = ["", "", "", "", "", "", "", "", ""]
                 room.start = false;
@@ -141,14 +140,14 @@ module.exports = (io) => {
             // console.log('board 4', room.board)
         });
         socket.on('leave', async ({ roomId }, callback) => {
-            socket.broadcast.to(roomId).emit('player-left', socket.userId);
             if (boards[roomId]) {
                 boards[roomId].players = boards[roomId].players.filter(
                     u => u?._id.toString() !== socket.userId.toString()
                 );
                 boards[roomId].start = false;
             }
-
+            boards[roomId].board = ["", "", "", "", "", "", "", "", ""]
+            socket.broadcast.to(roomId).emit('player-left', { board: boards[roomId].board });
             // console.log(roomUsers[roomId]);
 
             socket.leave(roomId);

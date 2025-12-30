@@ -5,6 +5,7 @@ export const CurrentUserContext = createContext(null);
 
 const CurrentUserProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -15,8 +16,10 @@ const CurrentUserProvider = ({ children }) => {
                 } else {
                     setCurrentUser(null);
                 }
+                setLoading(false);
             } catch (err) {
                 setCurrentUser(null);
+                setLoading(false);
             }
         };
 
@@ -24,7 +27,7 @@ const CurrentUserProvider = ({ children }) => {
     }, []);
 
     return (
-        <CurrentUserContext.Provider value={{ currentUser, setCurrentUser }}>
+        <CurrentUserContext.Provider value={{ currentUser, setCurrentUser, loading, setLoading }}>
             {children}
         </CurrentUserContext.Provider>
     );

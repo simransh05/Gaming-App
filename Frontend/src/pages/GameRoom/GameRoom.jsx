@@ -21,7 +21,22 @@ function GameRoom() {
     const [start, setStart] = useState(false);
     const [history, setHistory] = useState(null);
     const navigate = useNavigate()
-    const { currentUser } = useContext(CurrentUserContext);
+    const { currentUser, loading } = useContext(CurrentUserContext);
+
+    useEffect(() => {
+        if (loading) return;
+        // console.log(currentUser);
+        if (!currentUser) {
+            Swal.fire("Need to login first", "", "warning")
+            navigate(`${ROUTES.LOGIN}`)
+        } else if (currentUser) {
+            const notJoined = users?.find(u => u?._id !== currentUser?._id)
+            if (notJoined) {
+                Swal.fire({ title: 'Room is full' })
+                navigate(ROUTES.HOME)
+            }
+        }
+    }, [currentUser, loading])
 
     const handleClick = (index) => {
         // console.log(index, currentPlayer)
@@ -36,22 +51,6 @@ function GameRoom() {
 
     useEffect(() => {
         if (!roomId) return;
-        if (currentUser) {
-            socket.emit('register', currentUser?._id)
-        }
-        socket.emit('refresh-room', { roomId }, (res) => {
-            if (res.status === 200) {
-                // console.log(res);
-                setUsers(res.data.players);
-                setBoard(res.data.board);
-                setCurrentPlayer(res.data.turn);
-                setStart(res.data.start)
-            }
-        })
-
-        // socket.on('joined-room' , (players) =>{
-        //     setUsers(players)
-        // })
 
         socket.on("player-joined", (players) => {
             if (Array.isArray(players)) {
@@ -75,7 +74,7 @@ function GameRoom() {
 
         // winner
         socket.on("winner", async ({ winnerId, board, name }) => {
-            console.log(winnerId, currentUser?._id)
+            // console.log(winnerId, currentUser?._id)
             Swal.fire(
                 winnerId == currentUser?._id ? "You Won!" : "You Lost!",
                 "",
@@ -83,10 +82,11 @@ function GameRoom() {
             );
             setBoard(board);
             setStart(false);
-            setHistory((prev) => [
-                ...prev,
-                { winner: { name } }
-            ]);
+            setHistory(prev => {
+                const updated = [...prev, { winner: { name } }];
+                return updated.length > 10 ? updated.slice(1) : updated;
+            });
+
 
         });
 
@@ -97,27 +97,43 @@ function GameRoom() {
             Swal.fire("Draw!", "", "info");
             setBoard(board);
             setStart(false);
-            setHistory((prev) => [
-                ...prev,
-                { winner: null }
-            ]);
+            setHistory(prev => {
+                const updated = [...prev, { winner: null }];
+                return updated.length > 10 ? updated.slice(1) : updated;
+            });
+
         });
 
         // opponent left
-        socket.on("player-left", () => {
+        socket.on("player-left", (board) => {
             Swal.fire("Opponent left", "", "warning");
             setStart(false);
+            setBoard(board);
         });
 
+        if (currentUser) {
+            socket.emit('register', currentUser?._id)
+        }
+
+        socket.emit('refresh-room', { roomId }, (res) => {
+            if (res.status === 200) {
+                // console.log(res);
+                setUsers(res.data.players);
+                setBoard(res.data.board);
+                setCurrentPlayer(res.data.turn);
+                setStart(res.data.start)
+            }
+        })
+
         return () => {
-            socket.off('refresh-room')
             socket.off('game-started')
-            // socket.off('joined-room')
+            socket.off('room-full')
             socket.off("player-joined");
             socket.off("moveDone");
             socket.off("winner");
             socket.off("draw");
             socket.off("player-left");
+            socket.off('refresh-room')
         };
     }, [roomId]);
 
@@ -126,14 +142,15 @@ function GameRoom() {
         // console.log(roomId)
         socket.emit('start', roomId);
     }
+    console.log(users)
 
     useEffect(() => {
         const fetchData = async () => {
+            if (loading) return;
             if (users?.length === 2) {
                 const player1 = users[0]?._id;
                 const player2 = users[1]?._id;
-                // console.log(player1, player2);
-                const res = await api.getHistory(player1, player2)
+                const res = await api.getHistory(player1, player2, currentUser?._id)
                 // console.log(res.status)
                 // console.log(res.data);
                 setHistory(res.data.history);
@@ -143,7 +160,27 @@ function GameRoom() {
             }
         }
         fetchData();
-    }, [users])
+    }, [users, loading])
+
+    const handleDelete = async () => {
+        const result = await Swal.fire({
+            title: 'Delete History',
+            text: 'Are you sure u want to delete history',
+            cancelButtonText: 'No',
+            confirmButtonText: 'Yes',
+            showCancelButton: true,
+            reverseButtons: true,
+        })
+        if (result.isConfirmed) {
+            const player1 = users[0]?._id;
+            const player2 = users[1]?._id;
+            const data = { player1, player2, userId: currentUser?._id }
+            const res = await api.deleteHistory(data);
+            if (res.status === 200) {
+                setHistory(null);
+            }
+        }
+    }
 
     const leave = async () => {
         const result = await Swal.fire({
@@ -171,12 +208,15 @@ function GameRoom() {
             <NavBar />
             <div className="subheader">
                 <div className="names">
+                    <span>players in Game: </span>
                     {users?.map((user, index) => (
                         <span key={index}
-                            className='user-name'>{user?.name}</span>
+                            className={users.length === 2 ? 'two' : 'one'}>{user?.name}</span>
                     ))}
                 </div>
-                <button onClick={leave}>Leave Game Room</button>
+                {start &&
+                    <div className="currentTurn">Current Turn: {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name}</div>}
+                <button onClick={leave} className='leave-room'>Leave Game Room</button>
             </div>
             <div className="main-container">
                 <div className="grid">
@@ -193,15 +233,19 @@ function GameRoom() {
                 <div className="history-list">
                     {history?.length > 0 ?
                         history.map((h, index) => (
-                            <div key={index} className='history'>{h?.winner?.name === null ? 'Draw' : h?.winner?.name}</div>
-                        )) : <div className='no-history'>No History Yet</div>
+                            <div key={index} className='history'>{h?.winner === null ? 'Draw' : h?.winner?.name}</div>
+                        ))
+                        : <div className='no-history'>No History Yet</div>
                     }
+                    {history?.length > 0 && <button className="delete-btn" onClick={handleDelete}>Delete History</button>}
                 </div>
             </div>
-            {start ?
-                <button disabled>Started</button> :
-                <button onClick={handleBtn}>{history?.length > 0 ? 'Play again' : 'Play'}</button>
-            }
+            <div className="play-game">
+                {start ?
+                    <button disabled className='start-btn started'>Started</button> :
+                    <button onClick={handleBtn} className='start-btn playing'>{history?.length > 0 ? 'Play again' : 'Play'}</button>
+                }
+            </div>
         </>
     )
 }

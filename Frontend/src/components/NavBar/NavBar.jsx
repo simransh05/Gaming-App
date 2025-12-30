@@ -37,13 +37,17 @@ function NavBar() {
         <div className='navbar'>
             <h1>Gaming Zone</h1>
             <div className="right-side">
-                <Avatar sx={{ width: '70px', height: '70px' ,backgroundColor:'black' ,color:'white'}}>{getInitial(currentUser?.name)}</Avatar>
+                <Avatar sx={{
+                    width: '60px',
+                    height: '60px',
+                    background: 'black',
+                    color: 'white'
+                }} className='avatar-dp'>{getInitial(currentUser?.name)}</Avatar>
                 <button onClick={logout} className='btn-logout'>
                     <FiLogOut className='logout' />
                 </button>
             </div>
-
-        </div>
+        </div >
     )
 }
 
