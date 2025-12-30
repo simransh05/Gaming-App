@@ -20,7 +20,8 @@ function InviteModal({ open, onClose, onSuccess }) {
 
   useEffect(() => {
     socket.on('room-full', async () => {
-      await Swal.fire({ title: 'Room is Full' });
+      onClose();
+      await Swal.fire({ title: 'Room is Full ' });
     });
 
     socket.on('joined-room', (roomId) => {
@@ -54,7 +55,7 @@ function InviteModal({ open, onClose, onSuccess }) {
           />
         </DialogContent>
 
-        <DialogActions>
+        <DialogActions sx={{display:'flex',justifyContent:'center'}}>
           <Button onClick={handleClose}>Cancel</Button>
           <Button type="submit">Join Room</Button>
         </DialogActions>

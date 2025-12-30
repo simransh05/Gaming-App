@@ -1,8 +1,21 @@
+.subheader {
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 1px solid grey;
+  margin: 10px;
+  padding: 5px;
+}
+
+.two:not(:last-child)::after {
+  content: " & ";
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 100px);
   grid-template-rows: repeat(3, 100px);
   gap: 5px;
+  margin: auto 0;
 }
 
 .cell {
@@ -18,12 +31,75 @@
 .cell:hover {
   background-color: #f0f0f0;
 }
-.main-container{
+
+.main-container {
   display: flex;
   justify-content: space-around;
 }
 
-.history{
+.history {
   border: 1px solid black;
+  border-radius: 8px;
   padding: 5px;
+  display: flex;
+  margin: 2px 0;
+  justify-content: center;
+  width: 100%;
+}
+
+.no-history {
+  border: 1px solid grey;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  margin: 10px;
+}
+
+.delete-btn {
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  margin: 10px;
+  width: 100%;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.play-game {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+}
+.leave-room{
+  border: none;
+  padding: 5px;
+  background-color: red;
+  color: white;
+  border-radius: 5px;
+  margin-bottom: 4px;
+  height: 30px;
+  cursor: pointer;
+}
+.start-btn {
+  height: 50px;
+  width: 220px;
+}
+
+.playing {
+  background-color: blueviolet;
+  color: white;
+  border: none;
+  border-radius: 8px;
+}
+
+.started{
+  border-radius: 5px;
 }

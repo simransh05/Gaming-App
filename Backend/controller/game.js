@@ -1,34 +1,36 @@
 const Game = require('../model/Game')
 const User = require('../model/user')
 module.exports.getHistory = async (req, res) => {
-    const { player1, player2 } = req.params;
+    const { player1, player2, userId } = req.params;
 
     if (!player1 || !player2) {
         return res.status(400).json({ message: "Players required" });
     }
-    console.log('here')
+    // console.log('here')
 
     try {
-        console.log(player1, player2);
-        const history = await Game.findOne({
+        // console.log(player1, player2, userId);
+        const gameHistory = await Game.findOne({
             $or: [
                 { playerI: player1, playerII: player2 },
                 { playerI: player2, playerII: player1 }
             ]
-        }, {
-            history: { $slice: -10 }
         })
             .populate("playerI playerII", "name")
             .populate({
                 path: "history.winner",
                 select: "name _id"
             });
-        // console.log(history);
-        if (!history) {
+        // console.log(gameHistory);
+        if (!gameHistory) {
             return res.status(200).json({ history: [] })
         }
+        const filteredHistory = gameHistory.history
+            .filter(h => !h.deletedBy?.includes(userId))
+            .slice(-10);
 
-        res.status(200).json(history);
+        // console.log(filteredHistory)
+        res.status(200).json({ history: filteredHistory });
     } catch (err) {
         res.status(500).json({ message: "Internal error" });
     }
@@ -42,7 +44,6 @@ module.exports.getName = async (req, res) => {
     } catch (err) {
         return res.status(500).json({ message: 'internal error' })
     }
-    // get user name by id 
 }
 
 module.exports.saveHistory = async ({ player1, player2, winnerId }) => {
@@ -71,3 +72,39 @@ module.exports.saveHistory = async ({ player1, player2, winnerId }) => {
         throw err;
     }
 }
+
+module.exports.deleteHistory = async (req, res) => {
+    const { player1, player2, userId } = req.body;
+
+    try {
+        if (!userId) {
+            return res.status(400).json({ message: "No user found" });
+        }
+
+        const game = await Game.findOneAndUpdate(
+            {
+                $or: [
+                    { playerI: player1, playerII: player2 },
+                    { playerI: player2, playerII: player1 }
+                ]
+            },
+            {
+                $addToSet: {
+                    "history.$[].deletedBy": userId
+                }
+            },
+            { new: true }
+        );
+
+        if (!game) {
+            return res.status(404).json({ message: "Game not found" });
+        }
+
+        return res.status(200).json({
+            message: "History deleted for this user"
+        });
+
+    } catch (err) {
+        return res.status(500).json({ message: "Internal error" });
+    }
+};

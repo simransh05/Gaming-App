@@ -14,11 +14,14 @@ const api = {
     postLogout: async () => {
         return await apiInstance.post(`${ROUTES.LOGOUT}`)
     },
-    getHistory: async (player1, player2) => {
-        return await apiInstance.get(`history/${player1}/${player2}`)
+    getHistory: async (player1, player2, userId) => {
+        return await apiInstance.get(`${ROUTES.HISTORY}/${player1}/${player2}/${userId}`)
     },
     postHistory: async (data) => {
-        return await apiInstance.post(`history`, data)
+        return await apiInstance.post(`${ROUTES.HISTORY}`, data)
+    },
+    deleteHistory: async (data) => {
+        return await apiInstance.post(`${ROUTES.HISTORY}/delete`, data)
     },
 }
 
