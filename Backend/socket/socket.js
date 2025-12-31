@@ -90,12 +90,16 @@ module.exports = (io) => {
             room.board[index] = symbol;
             // console.log('socket', socket.userId);
             // console.log(board[index], index);
-            const winner = patterns.find(([a, b, c]) =>
+            const winner = patterns.some(([a, b, c]) =>
                 room.board[a] && room.board[a] === room.board[b] && room.board[a] === room.board[c]
             );
-            // console.log('here');
+            // console.log(winner);
+            const findValue = patterns.find(([a, b, c]) =>
+                room.board[a] && room.board[a] === room.board[b] && room.board[a] === room.board[c]
+            );
 
             if (winner) {
+                const lastMove = room.board;
                 room.board = ["", "", "", "", "", "", "", "", ""]
                 room.start = false;
                 room.turn = room.players[0]._id.toString();
@@ -106,7 +110,9 @@ module.exports = (io) => {
                     winnerId: socket.userId,
                     board: room.board,
                     players: room.players,
-                    name: username.name
+                    name: username.name,
+                    pattern: findValue,
+                    lastMove: lastMove
                 });
                 // console.log('here move')
                 const data = await controller.saveHistory({
@@ -116,11 +122,12 @@ module.exports = (io) => {
                 })
                 // console.log(data);
             } else if (!room.board.includes("")) {
+                const lastMove = room.board;
                 room.board = ["", "", "", "", "", "", "", "", ""]
                 room.start = false;
                 room.turn = room.players[0]._id.toString();
                 // console.log('board 2', room.board)
-                io.to(roomId).emit('draw', { board: room.board, players: room.players });
+                io.to(roomId).emit('draw', { board: room.board, players: room.players , lastMove });
                 await controller.saveHistory({
                     player1: room.players[0]._id,
                     player2: room.players[1]._id,
