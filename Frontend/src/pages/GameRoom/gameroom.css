@@ -4,6 +4,8 @@
   border-bottom: 1px solid grey;
   margin: 10px;
   padding: 5px;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .two:not(:last-child)::after {
@@ -15,7 +17,76 @@
   grid-template-columns: repeat(3, 100px);
   grid-template-rows: repeat(3, 100px);
   gap: 5px;
-  margin: auto 0;
+  margin: 20px auto;
+  position: relative;
+}
+
+.winner-index {
+  color: green;
+}
+
+.line {
+  position: absolute;
+  background-color: red;
+  z-index: 10;
+}
+
+.row-1 {
+  top: 16%;
+  left: 5%;
+  width: 90%;
+  height: 4px;
+}
+
+.row-2 {
+  top: 50%;
+  left: 5%;
+  width: 90%;
+  height: 4px;
+}
+
+.row-3 {
+  top: 83%;
+  left: 5%;
+  width: 90%;
+  height: 4px;
+}
+
+.col-1 {
+  left: 16%;
+  top: 5%;
+  height: 90%;
+  width: 4px;
+}
+
+.col-2 {
+  left: 50%;
+  top: 5%;
+  height: 90%;
+  width: 4px;
+}
+
+.col-3 {
+  left: 83%;
+  top: 5%;
+  height: 90%;
+  width: 4px;
+}
+
+.diag-1 {
+  top: 50%;
+  left: 5%;
+  width: 90%;
+  height: 4px;
+  transform: rotate(45deg);
+}
+
+.diag-2 {
+  top: 50%;
+  left: 5%;
+  width: 90%;
+  height: 4px;
+  transform: rotate(-45deg);
 }
 
 .cell {
@@ -28,13 +99,14 @@
   cursor: pointer;
 }
 
-.cell:hover {
-  background-color: #f0f0f0;
-}
-
 .main-container {
   display: flex;
   justify-content: space-around;
+  background-image: url('https://cdn.aptoide.com/imgs/8/3/1/83152e7891e0d578211e2b96d93d35f7_feature_graphic.jpg');
+}
+
+.main-container::before {
+  filter: blur(8px);
 }
 
 .history {
@@ -44,20 +116,22 @@
   display: flex;
   margin: 2px 0;
   justify-content: center;
-  width: 100%;
+  width: 65%;
 }
 
 .no-history {
   border: 1px solid grey;
   border-radius: 10px;
   padding: 10px;
+  text-align: center;
 }
 
 .history-list {
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  margin: 10px;
+  padding: 10px 0;
+  margin: 10px 0;
+  width: 20%;
 }
 
 .delete-btn {
@@ -67,7 +141,7 @@
   border-radius: 6px;
   padding: 8px;
   margin: 10px;
-  width: 100%;
+  width: 65%;
   font-weight: 400;
   cursor: pointer;
 }
@@ -76,18 +150,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 5px;
+  margin-top: 20px;
 }
-.leave-room{
+
+.leave-room {
   border: none;
   padding: 5px;
   background-color: red;
   color: white;
   border-radius: 5px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   height: 30px;
   cursor: pointer;
+  width: 150px;
 }
+
 .start-btn {
   height: 50px;
   width: 220px;
@@ -100,6 +177,6 @@
   border-radius: 8px;
 }
 
-.started{
+.started {
   border-radius: 5px;
 }

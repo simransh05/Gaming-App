@@ -48,7 +48,8 @@ module.exports.postLogin = async (req, res) => {
         res.cookie("token", token, {
             httpOnly: true,
             sameSite: 'Lax',
-            secure: false
+            secure: false,
+            maxAge: 24 * 60 * 60 * 1000
         });
         return res.status(200).json({ message: 'successful', user })
     }
@@ -80,7 +81,7 @@ module.exports.postLogout = async (req, res) => {
             sameSite: "Lax",
             secure: false,
         });
-        return res.status(200).json({message:'successfully logout'})
+        return res.status(200).json({ message: 'successfully logout' })
     }
     catch (err) {
         return res.status(500).json({ message: 'internal error' })

@@ -20,7 +20,8 @@ function GameRoom() {
     const [currentPlayer, setCurrentPlayer] = useState(null);
     const [start, setStart] = useState(false);
     const [history, setHistory] = useState(null);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const [line, setLine] = useState(null);
     const { currentUser, loading } = useContext(CurrentUserContext);
 
     useEffect(() => {
@@ -29,21 +30,19 @@ function GameRoom() {
         if (!currentUser) {
             Swal.fire("Need to login first", "", "warning")
             navigate(`${ROUTES.LOGIN}`)
-        } else if (currentUser) {
-            const notJoined = users?.find(u => u?._id !== currentUser?._id)
-            if (notJoined) {
-                Swal.fire({ title: 'Room is full' })
+        } else if (currentUser && users?.length > 0) {
+            // console.log(users, currentUser)
+            const notJoined = users?.some(u => u?._id === currentUser?._id)
+            // console.log(notJoined, users.length === 0)
+            if (users?.length === 0 || !notJoined) {
+                Swal.fire({ title: 'You are not Joined' })
                 navigate(ROUTES.HOME)
             }
         }
     }, [currentUser, loading])
 
     const handleClick = (index) => {
-        // console.log(index, currentPlayer)
         if (!start) return;
-        // console.log(currentPlayer !== currentUser?._id);
-        // console.log(currentUser);
-        // console.log(currentPlayer, currentUser?._id)
         if (currentPlayer !== currentUser?._id) return;
         socket.emit("move", { roomId, index });
     };
@@ -73,35 +72,48 @@ function GameRoom() {
         });
 
         // winner
-        socket.on("winner", async ({ winnerId, board, name }) => {
-            // console.log(winnerId, currentUser?._id)
-            Swal.fire(
-                winnerId == currentUser?._id ? "You Won!" : "You Lost!",
-                "",
-                winnerId == currentUser?._id ? "success" : "error"
-            );
-            setBoard(board);
-            setStart(false);
-            setHistory(prev => {
-                const updated = [...prev, { winner: { name } }];
-                return updated.length > 10 ? updated.slice(1) : updated;
-            });
-
-
+        socket.on("winner", async ({ winnerId, board, name, pattern, lastMove }) => {
+            setBoard(lastMove)
+            // console.log(pattern);
+            setLine(pattern);
+            await Swal.fire({
+                title: winnerId === currentUser?._id ? "You Won!" : "You Lost!",
+                text: "",
+                icon: winnerId === currentUser?._id ? "success" : "error",
+                width: '300',
+                showConfirmButton: false,
+                timer: 2000
+            }).then(() => {
+                setBoard(board);
+                setStart(false);
+                setLine(null);
+                setHistory(prev => {
+                    const updated = [...prev, { winner: { name } }];
+                    return updated.length > 10 ? updated.slice(1) : updated;
+                });
+            })
         });
 
         // draw
-        socket.on("draw", async ({ board }) => {
+        socket.on("draw", async ({ board, lastMove }) => {
+            setBoard(lastMove)
             // const data = { winnerId: null, player1: players[0]._id, player2: players[0]._id }
             // const res = await api.postHistory(data);
-            Swal.fire("Draw!", "", "info");
-            setBoard(board);
-            setStart(false);
-            setHistory(prev => {
-                const updated = [...prev, { winner: null }];
-                return updated.length > 10 ? updated.slice(1) : updated;
-            });
-
+            Swal.fire({
+                title: "Draw!",
+                text: "",
+                icon: "info",
+                width: '300',
+                showConfirmButton: false,
+                timer: 2000
+            }).then(() => {
+                setBoard(board);
+                setStart(false);
+                setHistory(prev => {
+                    const updated = [...prev, { winner: null }];
+                    return updated.length > 10 ? updated.slice(1) : updated;
+                });
+            })
         });
 
         // opponent left
@@ -139,10 +151,9 @@ function GameRoom() {
 
 
     const handleBtn = () => {
-        // console.log(roomId)
         socket.emit('start', roomId);
     }
-    console.log(users)
+    // console.log(line)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -203,6 +214,22 @@ function GameRoom() {
         }
     }
 
+    const getLineClass = (pattern) => {
+        const key = pattern.join("-");
+        switch (key) {
+            case "0-1-2": return "line row-1";
+            case "3-4-5": return "line row-2";
+            case "6-7-8": return "line row-3";
+            case "0-3-6": return "line col-1";
+            case "1-4-7": return "line col-2";
+            case "2-5-8": return "line col-3";
+            case "0-4-8": return "line diag-1";
+            case "2-4-6": return "line diag-2";
+
+            default: return "";
+        }
+    };
+
     return (
         <>
             <NavBar />
@@ -219,17 +246,27 @@ function GameRoom() {
                 <button onClick={leave} className='leave-room'>Leave Game Room</button>
             </div>
             <div className="main-container">
-                <div className="grid">
-                    {board.map((cell, index) => (
-                        <div
-                            key={index}
-                            className="cell"
-                            onClick={() => handleClick(index)}
-                        >
-                            {cell}
-                        </div>
-                    ))}
+                <div className="left-side">
+                    <div className="grid">
+                        {board.map((cell, index) => (
+                            <div
+                                key={index}
+                                className={`cell ${line?.includes(index) ? 'winner-index' : ''}`}
+                                onClick={() => handleClick(index)}
+                            >
+                                {cell}
+                            </div>
+                        ))}
+                        {line && <div className={getLineClass(line)} />}
+                    </div>
+                    <div className="play-game">
+                        {start ?
+                            <button disabled className='start-btn started'>Started</button> :
+                            <button onClick={handleBtn} className='start-btn playing'>{history?.length > 0 ? 'Play Again' : 'Play'}</button>
+                        }
+                    </div>
                 </div>
+
                 <div className="history-list">
                     {history?.length > 0 ?
                         history.map((h, index) => (
@@ -239,12 +276,6 @@ function GameRoom() {
                     }
                     {history?.length > 0 && <button className="delete-btn" onClick={handleDelete}>Delete History</button>}
                 </div>
-            </div>
-            <div className="play-game">
-                {start ?
-                    <button disabled className='start-btn started'>Started</button> :
-                    <button onClick={handleBtn} className='start-btn playing'>{history?.length > 0 ? 'Play again' : 'Play'}</button>
-                }
             </div>
         </>
     )
