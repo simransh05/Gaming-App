@@ -56,9 +56,11 @@ module.exports = (io) => {
             if (room.players.length === 2) {
                 const p1 = room.players[0]?._id.toString();
                 const p2 = room.players[1]?._id.toString();
-                room.symbols[p1] = "O";
-                room.symbols[p2] = "X";
-                room.turn = p1;
+                const firstTurn = Math.random() < 0.5 ? p1 : p2;
+                const second = room.players.filter((u) => u._id !== firstTurn?._id)
+                room.turn = firstTurn;
+                room.symbols[firstTurn] = 'X';
+                room.symbols[second] = 'O'
             }
             socket.emit('joined-room', roomId);
             // console.log('players', room.players)
@@ -72,7 +74,7 @@ module.exports = (io) => {
                 callback({ status: 404 })
             }
             socket.join(roomId);
-            // console.log(roomUsers[roomId], roomId)
+            // console.log('refresh', boards[roomId])
             callback({ data: boards[roomId] || [], status: 200 })
         })
 
@@ -127,7 +129,7 @@ module.exports = (io) => {
                 room.start = false;
                 room.turn = room.players[0]._id.toString();
                 // console.log('board 2', room.board)
-                io.to(roomId).emit('draw', { board: room.board, players: room.players , lastMove });
+                io.to(roomId).emit('draw', { board: room.board, players: room.players, lastMove });
                 await controller.saveHistory({
                     player1: room.players[0]._id,
                     player2: room.players[1]._id,
@@ -146,6 +148,14 @@ module.exports = (io) => {
             }
             // console.log('board 4', room.board)
         });
+        socket.on('skip-turn', (roomId) => {
+            const room = boards[roomId];
+            if (!room) return;
+            const otherPlayer = room.players.find(p => p._id.toString() !== socket.userId);
+            room.turn = otherPlayer._id.toString();
+            io.to(roomId).emit('nextTurn', { turn: room.turn });
+        });
+
         socket.on('leave', async ({ roomId }, callback) => {
             if (boards[roomId]) {
                 boards[roomId].players = boards[roomId].players.filter(
@@ -153,12 +163,22 @@ module.exports = (io) => {
                 );
                 boards[roomId].start = false;
             }
-            boards[roomId].board = ["", "", "", "", "", "", "", "", ""]
-            socket.broadcast.to(roomId).emit('player-left', { board: boards[roomId].board });
-            // console.log(roomUsers[roomId]);
+            boards[roomId].board = ["", "", "", "", "", "", "", "", ""];
+            boards[roomId].turn = null;
+            boards[roomId].symbols = {};
+            // console.log(boards[roomId].players)
+            socket.broadcast.to(roomId).emit('player-left', {
+                board: boards[roomId].board,
+                start: boards[roomId].start,
+                players: boards[roomId].players,
+                turn: boards[roomId].turn
+            });
+            // console.log(boards[roomId]);
 
             socket.leave(roomId);
-            delete boards[roomId];
+            if (boards[roomId].players === 0) {
+                delete boards[roomId];
+            }
             callback({ status: 200 })
         })
 

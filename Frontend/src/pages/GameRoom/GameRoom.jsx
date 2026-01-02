@@ -23,6 +23,7 @@ function GameRoom() {
     const navigate = useNavigate();
     const [line, setLine] = useState(null);
     const { currentUser, loading } = useContext(CurrentUserContext);
+    const [timer, setTimer] = useState(10);
 
     useEffect(() => {
         if (loading) return;
@@ -43,7 +44,9 @@ function GameRoom() {
 
     const handleClick = (index) => {
         if (!start) return;
+        // console.log(index)
         if (currentPlayer !== currentUser?._id) return;
+        // console.log('here')
         socket.emit("move", { roomId, index });
     };
     // console.log(currentUser);
@@ -82,7 +85,7 @@ function GameRoom() {
                 icon: winnerId === currentUser?._id ? "success" : "error",
                 width: '300',
                 showConfirmButton: false,
-                timer: 2000
+                timer: 5000
             }).then(() => {
                 setBoard(board);
                 setStart(false);
@@ -105,7 +108,7 @@ function GameRoom() {
                 icon: "info",
                 width: '300',
                 showConfirmButton: false,
-                timer: 2000
+                timer: 5000
             }).then(() => {
                 setBoard(board);
                 setStart(false);
@@ -116,11 +119,28 @@ function GameRoom() {
             })
         });
 
+        socket.on('nextTurn', (turn) => {
+            console.log(turn)
+            setCurrentPlayer(turn);
+        })
+
         // opponent left
-        socket.on("player-left", (board) => {
-            Swal.fire("Opponent left", "", "warning");
-            setStart(false);
-            setBoard(board);
+        socket.on("player-left", ({ board, players, turn, start }) => {
+            Swal.fire({
+                title: "Opponent left",
+                text: "",
+                icon: "warning",
+                timer: 5000,
+                showConfirmButton: false
+            }).then(() => {
+                // console.log(board, start, players, turn)
+                setStart(start);
+                setBoard(board);
+                setUsers(players);
+                setCurrentPlayer(turn);
+                setHistory(null);
+            })
+
         });
 
         if (currentUser) {
@@ -144,6 +164,7 @@ function GameRoom() {
             socket.off("moveDone");
             socket.off("winner");
             socket.off("draw");
+            socket.off('nextTurn');
             socket.off("player-left");
             socket.off('refresh-room')
         };
@@ -151,9 +172,10 @@ function GameRoom() {
 
 
     const handleBtn = () => {
+        if (users?.length != 2) return;
         socket.emit('start', roomId);
     }
-    // console.log(line)
+    // console.log(users)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -230,12 +252,31 @@ function GameRoom() {
         }
     };
 
+    useEffect(() => {
+        if (!currentPlayer) return;
+
+        setTimer(10);
+
+        const id = setInterval(() => {
+            setTimer(prev => {
+                if (prev <= 1) {
+                    socket.emit('skip-turn', roomId);
+                    clearInterval(id);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(id);
+    }, [currentPlayer]);
+
     return (
         <>
             <NavBar />
             <div className="subheader">
                 <div className="names">
-                    <span>players in Game: </span>
+                    <span>Players in Game: </span>
                     {users?.map((user, index) => (
                         <span key={index}
                             className={users.length === 2 ? 'two' : 'one'}>{user?.name}</span>
@@ -248,7 +289,7 @@ function GameRoom() {
             <div className="main-container">
                 <div className="left-side">
                     <div className="grid">
-                        {board.map((cell, index) => (
+                        {board?.map((cell, index) => (
                             <div
                                 key={index}
                                 className={`cell ${line?.includes(index) ? 'winner-index' : ''}`}
@@ -262,10 +303,13 @@ function GameRoom() {
                     <div className="play-game">
                         {start ?
                             <button disabled className='start-btn started'>Started</button> :
-                            <button onClick={handleBtn} className='start-btn playing'>{history?.length > 0 ? 'Play Again' : 'Play'}</button>
+                            <button onClick={handleBtn} className='start-btn playing'>Toss</button>
                         }
                     </div>
                 </div>
+                {start && <div className="timer">
+                    Time remaining for {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name} : {timer}
+                </div>}
 
                 <div className="history-list">
                     {history?.length > 0 ?
