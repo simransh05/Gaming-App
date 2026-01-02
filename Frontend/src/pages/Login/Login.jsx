@@ -30,7 +30,7 @@ function Login() {
         e.preventDefault();
         try {
             const res = await api.postLogin(data);
-            console.log(res.data);
+            // console.log(res.data);
             setCurrentUser(res.data.user);
             navigate(`${ROUTES.HOME}`)
         } catch (err) {

@@ -19,6 +19,7 @@
   gap: 5px;
   margin: 20px auto;
   position: relative;
+  background-color: white;
 }
 
 .winner-index {
@@ -100,6 +101,7 @@
 }
 
 .main-container {
+  min-height: 72dvh;
   display: flex;
   justify-content: space-around;
   background-image: url('https://cdn.aptoide.com/imgs/8/3/1/83152e7891e0d578211e2b96d93d35f7_feature_graphic.jpg');

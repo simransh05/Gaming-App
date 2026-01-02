@@ -82,7 +82,7 @@ function HomePage() {
                 </div>
 
                 <div className="btn-room">
-                    <button className='create-room' onClick={() => setShowCreate(true)}>Create Invite</button>
+                    <button className='create-room' onClick={() => setShowCreate(true)}>Create Room</button>
                     {showCreate &&
                         <CreateModal
                             open={() => setShowCreate(true)}
