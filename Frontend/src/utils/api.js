@@ -23,6 +23,18 @@ const api = {
     deleteHistory: async (data) => {
         return await apiInstance.post(`${ROUTES.HISTORY}/delete`, data)
     },
+    getRanking : async () => {
+        return await apiInstance.get(`${ROUTES.RANKING}`)
+    },
+    getFriends: async (userId) => {
+        return await apiInstance.get(`${ROUTES.FRIEND}/${userId}`)
+    },
+    postFriend: async (userId,id) => {
+        return await apiInstance.post(`${ROUTES.FRIEND}/${userId}/${id}`)
+    },
+    getIndividualFriend : async (userId,id) => {
+        return await apiInstance.get(`${ROUTES.FRIEND}/${userId}/${id}`)
+    }
 }
 
 export default api;

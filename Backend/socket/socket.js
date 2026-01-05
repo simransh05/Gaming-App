@@ -8,11 +8,13 @@ module.exports = (io) => {
     ];
 
     const boards = {}; // room id : [index total 9]
-    // const roomUsers = {};
+    const activeUser = new Set();
 
     io.on('connection', (socket) => {
         socket.on('register', (userId) => {
             socket.userId = userId;
+            activeUser.add(socket.userId)
+            // console.log(activeUser)
             console.log('user connect', socket.userId)
         });
 
@@ -57,11 +59,15 @@ module.exports = (io) => {
                 const p1 = room.players[0]?._id.toString();
                 const p2 = room.players[1]?._id.toString();
                 const firstTurn = Math.random() < 0.5 ? p1 : p2;
-                const second = room.players.filter((u) => u._id !== firstTurn?._id)
+                // console.log('first', firstTurn);
+                // console.log('players', room.players); 
+                const secondTurn = firstTurn === p1 ? p2 : p1;
+                // console.log('second', secondTurn);
                 room.turn = firstTurn;
                 room.symbols[firstTurn] = 'X';
-                room.symbols[second] = 'O'
+                room.symbols[secondTurn] = 'O'
             }
+            // console.log('joined', room);
             socket.emit('joined-room', roomId);
             // console.log('players', room.players)
             io.to(roomId).emit('player-joined', room.players);
@@ -148,13 +154,25 @@ module.exports = (io) => {
             }
             // console.log('board 4', room.board)
         });
+
+        socket.on('askFriend', (roomId) => {
+            io.to(roomId).broadcast.emit('acceptFriend')
+        })
         socket.on('skip-turn', (roomId) => {
             const room = boards[roomId];
+            // console.log('room', room);
             if (!room) return;
-            const otherPlayer = room.players.find(p => p._id.toString() !== socket.userId);
+            const otherPlayer = room.players.find(p => p._id.toString() !== socket.userId.toString());
             room.turn = otherPlayer._id.toString();
+            console.log('other player', otherPlayer);
+            console.log('......................................')
             io.to(roomId).emit('nextTurn', { turn: room.turn });
         });
+
+        socket.on('activeUsers', () => {
+            // console.log(activeUser);
+            socket.emit('active', Array.from(activeUser))
+        })
 
         socket.on('leave', async ({ roomId }, callback) => {
             if (boards[roomId]) {
@@ -183,6 +201,7 @@ module.exports = (io) => {
         })
 
         socket.on('disconnect', () => {
+            activeUser.delete(socket.userId)
             console.log('user disconnect', socket.id)
         });
     });
