@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { FiLogOut } from "react-icons/fi";
 import { useContext } from 'react';
 import { CurrentUserContext } from '../../context/UserContext';
@@ -7,9 +7,11 @@ import Swal from 'sweetalert2'
 import { Avatar } from '@mui/material';
 import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
+import RankModal from '../Modals/RankModal';
 function NavBar() {
     const navigate = useNavigate()
     const { currentUser, setCurrentUser } = useContext(CurrentUserContext);
+    const [rankModal, setRankModal] = useState(false);
     const getInitial = (name) => {
         if (!name) return "";
         const parts = name.trim().split(" ");
@@ -33,10 +35,18 @@ function NavBar() {
             navigate('/');
         }
     };
+
     return (
         <div className='navbar'>
             <h1>Gaming Zone</h1>
             <div className="right-side">
+                {/* add btn ranking */}
+                <button onClick={() => setRankModal(true)}>Top Ranking</button>
+                {rankModal &&
+                    <RankModal
+                        open={() => setRankModal(true)}
+                        onClose={() => setRankModal(false)}
+                    />}
                 <Avatar sx={{
                     width: '60px',
                     height: '60px',

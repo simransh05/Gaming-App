@@ -9,18 +9,24 @@ import './Homepage.css'
 import { useState } from 'react'
 import CreateModal from '../../components/Modals/CreateModal'
 import InviteModal from '../../components/Modals/InviteModal'
+import MyFriendModal from '../../components/Modals/MyFriendModal'
 
 function HomePage() {
     const { currentUser } = useContext(CurrentUserContext)
     const [showCreate, setShowCreate] = useState(false);
     const [showInvite, setShowInvite] = useState(false);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const [showFriend, setShowFriend] = useState(false);
     useEffect(() => {
         if (!currentUser) navigate(`${ROUTES.LOGIN}`)
     }, [currentUser])
 
     const handleSuccess = (roomId) => {
         navigate(`${ROUTES.HOME}${roomId}`)
+    }
+
+    const handleFriend = (userId) => {
+        // idea socket join for the me and send to the person whose id is this userId
     }
     return (
         <>
@@ -87,6 +93,14 @@ function HomePage() {
                         <CreateModal
                             open={() => setShowCreate(true)}
                             onClose={() => setShowCreate(false)}
+                        />}
+
+                    <button onClick={() => setShowFriend(true)} className='friends'>My Friends</button>
+                    {showFriend &&
+                        <MyFriendModal
+                            open={() => setShowFriend(true)}
+                            onClose={() => setShowFriend(false)}
+                            onSuccess={(userId) => handleFriend(userId)}
                         />}
                     <button className='invite-room' onClick={() => setShowInvite(true)}>Join Invite Room</button>
                     {showInvite &&

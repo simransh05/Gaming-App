@@ -4,7 +4,9 @@ const ROUTES = {
     HOME: '/',
     USER: '/user',
     LOGOUT: '/logout',
-    HISTORY: '/history'
+    HISTORY: '/history',
+    RANKING: '/rank',
+    FRIEND: '/friend',
 }
 
 export default ROUTES;

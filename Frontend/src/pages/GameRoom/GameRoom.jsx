@@ -24,6 +24,7 @@ function GameRoom() {
     const [line, setLine] = useState(null);
     const { currentUser, loading } = useContext(CurrentUserContext);
     const [timer, setTimer] = useState(10);
+    const [areFriend, setAreFriend] = useState(false);
 
     useEffect(() => {
         if (loading) return;
@@ -41,6 +42,19 @@ function GameRoom() {
             }
         }
     }, [currentUser, loading])
+
+    useEffect(() => {
+        const friendsCheck = async () => {
+            if (users.length === 2) {
+                const otherUser = users.find(u => u._id !== currentUser?._id)
+                const res = await api.getIndividualFriend({ userId: currentUser?._id, id: otherUser?._id })
+                console.log(res);
+            }
+
+        }
+        friendsCheck();
+        // check for the user if they are friend or not
+    }, [users])
 
     const handleClick = (index) => {
         if (!start) return;
@@ -71,6 +85,7 @@ function GameRoom() {
             // console.log(players, turn, board)
             setBoard(board);
             setUsers(players);
+            setTimer(10);
             setCurrentPlayer(turn);
         });
 
@@ -94,6 +109,7 @@ function GameRoom() {
                     const updated = [...prev, { winner: { name } }];
                     return updated.length > 10 ? updated.slice(1) : updated;
                 });
+                setTimer(10);
             })
         });
 
@@ -116,12 +132,42 @@ function GameRoom() {
                     const updated = [...prev, { winner: null }];
                     return updated.length > 10 ? updated.slice(1) : updated;
                 });
+                setTimer(10)
             })
         });
 
-        socket.on('nextTurn', (turn) => {
+        socket.on('nextTurn', ({ turn }) => {
+            console.log('here', currentPlayer, currentUser?._id)
+            if (currentPlayer === currentUser?._id) {
+                Swal.fire({
+                    title: 'turn skip',
+                    text: '',
+                    icon: 'info',
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+            }
             console.log(turn)
             setCurrentPlayer(turn);
+            setTimer(10);
+        })
+
+        socket.on('acceptFriend', () => {
+            Swal.fire({
+                title: 'Ask to be Friend',
+                text: '',
+                icon: 'question',
+                cancelButtonText: 'Deny',
+                confirmButtonText: 'Accept',
+                showConfirmButton: true,
+                showCancelButton: true
+            }).then(() => {
+                if (isConfirmed) {
+                    setAreFriend(true)
+                } else {
+                    setAreFriend(false)
+                }
+            })
         })
 
         // opponent left
@@ -149,11 +195,12 @@ function GameRoom() {
 
         socket.emit('refresh-room', { roomId }, (res) => {
             if (res.status === 200) {
-                // console.log(res);
+                console.log(res);
                 setUsers(res.data.players);
                 setBoard(res.data.board);
                 setCurrentPlayer(res.data.turn);
-                setStart(res.data.start)
+                setStart(res.data.start);
+                setTimer(timer)
             }
         })
 
@@ -175,7 +222,8 @@ function GameRoom() {
         if (users?.length != 2) return;
         socket.emit('start', roomId);
     }
-    // console.log(users)
+    console.log(currentUser);
+    console.log(currentPlayer)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -236,6 +284,10 @@ function GameRoom() {
         }
     }
 
+    const handleFriend = () => {
+        socket.emit('askFriend', roomId);
+    }
+
     const getLineClass = (pattern) => {
         const key = pattern.join("-");
         switch (key) {
@@ -255,11 +307,15 @@ function GameRoom() {
     useEffect(() => {
         if (!currentPlayer) return;
 
-        setTimer(10);
+        if (start) {
+            setTimer(10);
+        }
 
         const id = setInterval(() => {
             setTimer(prev => {
+                console.log(prev)
                 if (prev <= 1) {
+                    console.log('here')
                     socket.emit('skip-turn', roomId);
                     clearInterval(id);
                     return 0;
@@ -282,6 +338,11 @@ function GameRoom() {
                             className={users.length === 2 ? 'two' : 'one'}>{user?.name}</span>
                     ))}
                 </div>
+                {start && areFriend ?
+                    <button disabled className='already-friend'>Friends</button> :
+                    <button onClick={handleFriend} className='ask-friend'>
+                        Ask to be Friend
+                    </button>}
                 {start &&
                     <div className="currentTurn">Current Turn: {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name}</div>}
                 <button onClick={leave} className='leave-room'>Leave Game Room</button>
