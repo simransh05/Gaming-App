@@ -5,9 +5,9 @@ const Game = require('../model/Game');
 module.exports.postFriend = async (req, res) => {
     const { userId, id } = req.params;
     try {
-        await Friends.findByIdAndUpdate({ userId },
+        await Friends.findOneAndUpdate({ userId },
             { $addToSet: { myFriends: id } },
-            { new: true }
+            { new: true, upsert: true }
         )
         return res.status(200).json({ message: 'successfully added' })
     }
@@ -19,9 +19,9 @@ module.exports.postFriend = async (req, res) => {
 module.exports.getFriends = async (req, res) => {
     const { userId } = req.params;
     try {
-        const friend = await Friends.findById(userId);
-        console.log('friend',friend);
-        return res.status(200).json(friend);
+        const friend = await Friends.findOne({userId}).populate('myFriends' , 'name _id');
+        console.log('friend', friend);
+        return res.status(200).json(friend || { myFriends: [] });
     }
     catch (err) {
         return res.status(500).json({ message: 'internal error' })
@@ -31,7 +31,11 @@ module.exports.getFriends = async (req, res) => {
 module.exports.getIndividualFriend = async (req, res) => {
     const { userId, id } = req.params;
     try {
-        const friend = await Friends.findById(userId)
+        const friend = await Friends.findOne({userId})
+        if(!friend){
+            console.log('no user friend')
+            return res.status(200).json(false);
+        }
         console.log('friend', friend);
         const isFriend = friend.myFriends.includes(id);
         console.log('isFriend', isFriend)

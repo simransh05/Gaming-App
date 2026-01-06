@@ -35,3 +35,11 @@ h1{
     border: none;
     cursor: pointer;
 }
+
+.rank-btn{
+    background-color: black;
+    color: white;
+    height: 40px;
+    width: auto;
+    margin: auto 0;
+}
