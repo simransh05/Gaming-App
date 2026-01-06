@@ -9,11 +9,13 @@ module.exports = (io) => {
 
     const boards = {}; // room id : [index total 9]
     const activeUser = new Set();
+    const activeMap = new Map();
 
     io.on('connection', (socket) => {
         socket.on('register', (userId) => {
             socket.userId = userId;
             activeUser.add(socket.userId)
+            activeMap.set(userId, socket.id);
             // console.log(activeUser)
             console.log('user connect', socket.userId)
         });
@@ -89,6 +91,49 @@ module.exports = (io) => {
             io.to(roomId).emit('game-started', boards[roomId].turn);
         })
 
+        socket.on('send-invite', async ({ from, to }) => {
+            // console.log('from,to', from, to)
+            const toId = activeMap.get(to);
+            const fromName = await User.findById(from).lean();
+            // console.log('fromName', fromName)
+            if (toId) {
+                // console.log(from, to)
+                io.to(toId).emit('receive-invite', { from , fromName});
+            }
+        });
+
+        socket.on('accept-invite', async ({ from }) => {
+            const roomId = Math.floor(100000 + Math.random() * 900000);
+            socket.join(roomId);
+            // console.log('here');
+            boards[roomId] = {
+                board: ["", "", "", "", "", "", "", "", ""],
+                players: [],
+                turn: null,
+                symbols: {},
+                start: false
+            };
+            const fromId = activeMap.get(from);
+            // console.log(fromId);
+            if (fromId) {
+                io.to(fromId).socketsJoin(roomId);
+            }
+            const room = boards[roomId];
+            const user1 = await User.findById(from).lean();
+            room.players.push(user1);
+            const user2 = await User.findById(socket.userId).lean();
+            room.players.push(user2);
+            const p1 = room.players[0]?._id.toString();
+            const p2 = room.players[1]?._id.toString();
+            const firstTurn = Math.random() < 0.5 ? p1 : p2;
+            const secondTurn = firstTurn === p1 ? p2 : p1;
+            room.turn = firstTurn;
+            room.symbols[firstTurn] = 'X';
+            room.symbols[secondTurn] = 'O';
+            // console.log(boards[roomId])
+            io.to(roomId).emit('room-created', { roomId });
+        });
+
         socket.on('move', async (data) => {
             const { roomId, index } = data;
             const room = boards[roomId];
@@ -156,16 +201,16 @@ module.exports = (io) => {
         });
 
         socket.on('askFriend', (roomId) => {
-            io.to(roomId).broadcast.emit('acceptFriend')
+            socket.broadcast.to(roomId).emit('acceptFriend', { players: boards[roomId].players })
         })
         socket.on('skip-turn', (roomId) => {
             const room = boards[roomId];
             // console.log('room', room);
             if (!room) return;
             const otherPlayer = room.players.find(p => p._id.toString() !== socket.userId.toString());
-            room.turn = otherPlayer._id.toString();
-            console.log('other player', otherPlayer);
-            console.log('......................................')
+            room.turn = otherPlayer?._id.toString();
+            // console.log('other player', otherPlayer);
+            // console.log('......................................')
             io.to(roomId).emit('nextTurn', { turn: room.turn });
         });
 
@@ -201,7 +246,8 @@ module.exports = (io) => {
         })
 
         socket.on('disconnect', () => {
-            activeUser.delete(socket.userId)
+            activeUser.delete(socket.userId);
+            activeMap.delete(socket.userId);
             console.log('user disconnect', socket.id)
         });
     });

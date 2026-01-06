@@ -10,23 +10,60 @@ import { useState } from 'react'
 import CreateModal from '../../components/Modals/CreateModal'
 import InviteModal from '../../components/Modals/InviteModal'
 import MyFriendModal from '../../components/Modals/MyFriendModal'
+import Swal from 'sweetalert2'
+import socket from '../../socket/socket'
 
 function HomePage() {
-    const { currentUser } = useContext(CurrentUserContext)
+    const { currentUser, loading } = useContext(CurrentUserContext)
     const [showCreate, setShowCreate] = useState(false);
     const [showInvite, setShowInvite] = useState(false);
     const navigate = useNavigate();
     const [showFriend, setShowFriend] = useState(false);
     useEffect(() => {
+        if (loading) return;
         if (!currentUser) navigate(`${ROUTES.LOGIN}`)
-    }, [currentUser])
+
+        socket.on('receive-invite', async ({ from , fromName}) => {
+            console.log('here', from , fromName.name)
+            const result = await Swal.fire({
+                title: `${fromName.name} ask to join`,
+                text: '',
+                icon: 'info',
+                showCancelButton: true,
+                showConfirmButton: true,
+                confirmButtonText: 'Accept',
+                cancelButtonText: 'Reject'
+            })
+            if (result.isConfirmed) {
+                socket.emit('accept-invite', { from });
+            } else if(result.isDismissed) {
+                if (currentUser._id === from) {
+                    Swal.fire({
+                        title: 'denied match',
+                        text: '',
+                        icon: 'info',
+                        showCancelButton: false,
+                        timer: 5000
+                    })
+                }
+            }
+        })
+        socket.on('room-created', ({ roomId }) => {
+            navigate(`${ROUTES.HOME}${roomId}`)
+        })
+        return () => {
+            socket.off('receive-invite');
+            socket.off('room-created')
+        }
+    }, [currentUser, loading])
 
     const handleSuccess = (roomId) => {
         navigate(`${ROUTES.HOME}${roomId}`)
     }
 
     const handleFriend = (userId) => {
-        // idea socket join for the me and send to the person whose id is this userId
+        const from = currentUser._id.toString();
+        socket.emit('send-invite', { from, to: userId })
     }
     return (
         <>
@@ -100,7 +137,7 @@ function HomePage() {
                         <MyFriendModal
                             open={() => setShowFriend(true)}
                             onClose={() => setShowFriend(false)}
-                            onSuccess={(userId) => handleFriend(userId)}
+                            onSuccess={(userId, roomId) => handleFriend(userId, roomId)}
                         />}
                     <button className='invite-room' onClick={() => setShowInvite(true)}>Join Invite Room</button>
                     {showInvite &&

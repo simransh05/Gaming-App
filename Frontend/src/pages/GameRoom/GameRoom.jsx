@@ -45,16 +45,20 @@ function GameRoom() {
 
     useEffect(() => {
         const friendsCheck = async () => {
-            if (users.length === 2) {
+            if (loading) return;
+            if (!users) return;
+            if (users?.length === 2) {
                 const otherUser = users.find(u => u._id !== currentUser?._id)
-                const res = await api.getIndividualFriend({ userId: currentUser?._id, id: otherUser?._id })
-                console.log(res);
+                const userId = currentUser._id;
+                const id = otherUser._id;
+                const res = await api.getIndividualFriend(userId, id)
+                setAreFriend(res.data);
             }
 
         }
         friendsCheck();
         // check for the user if they are friend or not
-    }, [users])
+    }, [users, loading])
 
     const handleClick = (index) => {
         if (!start) return;
@@ -68,6 +72,8 @@ function GameRoom() {
     useEffect(() => {
         if (!roomId) return;
 
+        if (loading) return;
+
         socket.on("player-joined", (players) => {
             if (Array.isArray(players)) {
                 setUsers(players);
@@ -78,6 +84,7 @@ function GameRoom() {
             setStart(true);
             // console.log(FirstPlayer)
             setCurrentPlayer(FirstPlayer);
+            setTimer(10)
         });
 
         // when a move is done
@@ -137,7 +144,7 @@ function GameRoom() {
         });
 
         socket.on('nextTurn', ({ turn }) => {
-            console.log('here', currentPlayer, currentUser?._id)
+            // console.log('here', currentPlayer, currentUser?._id)
             if (currentPlayer === currentUser?._id) {
                 Swal.fire({
                     title: 'turn skip',
@@ -147,13 +154,15 @@ function GameRoom() {
                     timer: 2000
                 })
             }
-            console.log(turn)
+            // console.log(turn)
             setCurrentPlayer(turn);
             setTimer(10);
         })
 
-        socket.on('acceptFriend', () => {
-            Swal.fire({
+        socket.on('acceptFriend', async ({ players }) => {
+            // console.log(players)
+            // setUsers(players)
+            const result = await Swal.fire({
                 title: 'Ask to be Friend',
                 text: '',
                 icon: 'question',
@@ -161,13 +170,23 @@ function GameRoom() {
                 confirmButtonText: 'Accept',
                 showConfirmButton: true,
                 showCancelButton: true
-            }).then(() => {
-                if (isConfirmed) {
-                    setAreFriend(true)
-                } else {
-                    setAreFriend(false)
-                }
             })
+            // console.log(result);
+            if (result.isConfirmed) {
+                // console.log(players);
+                setUsers(players)
+                // console.log(users)
+                const otherUser = players.find(u => u._id !== currentUser?._id);
+                // console.log(otherUser)
+                // console.log(currentUser._id, otherUser._id)
+                // console.log(currentUser)
+                const userId = currentUser._id;
+                const id = otherUser._id;
+                await api.postFriend(userId, id);
+                setAreFriend(true)
+            } else if (result.isDismissed) {
+                setAreFriend(false)
+            }
         })
 
         // opponent left
@@ -195,7 +214,7 @@ function GameRoom() {
 
         socket.emit('refresh-room', { roomId }, (res) => {
             if (res.status === 200) {
-                console.log(res);
+                // console.log(res);
                 setUsers(res.data.players);
                 setBoard(res.data.board);
                 setCurrentPlayer(res.data.turn);
@@ -215,15 +234,15 @@ function GameRoom() {
             socket.off("player-left");
             socket.off('refresh-room')
         };
-    }, [roomId]);
+    }, [roomId, loading]);
 
 
     const handleBtn = () => {
         if (users?.length != 2) return;
         socket.emit('start', roomId);
     }
-    console.log(currentUser);
-    console.log(currentPlayer)
+    // console.log(currentUser);
+    // console.log(currentPlayer)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -284,7 +303,13 @@ function GameRoom() {
         }
     }
 
-    const handleFriend = () => {
+    const handleFriend = async () => {
+        const otherUser = users.find(u => u._id !== currentUser?._id)
+        // console.log('here', currentUser._id, otherUser._id);
+        const res = await api.postFriend(currentUser._id, otherUser._id);
+        if (res.status === 200) {
+            setAreFriend(true);
+        }
         socket.emit('askFriend', roomId);
     }
 
@@ -308,14 +333,15 @@ function GameRoom() {
         if (!currentPlayer) return;
 
         if (start) {
+            // console.log('here')
             setTimer(10);
         }
 
         const id = setInterval(() => {
             setTimer(prev => {
-                console.log(prev)
+                // console.log(prev)
                 if (prev <= 1) {
-                    console.log('here')
+                    // console.log('here')
                     socket.emit('skip-turn', roomId);
                     clearInterval(id);
                     return 0;
@@ -326,6 +352,8 @@ function GameRoom() {
 
         return () => clearInterval(id);
     }, [currentPlayer]);
+
+    // console.log(areFriend)
 
     return (
         <>
@@ -338,9 +366,9 @@ function GameRoom() {
                             className={users.length === 2 ? 'two' : 'one'}>{user?.name}</span>
                     ))}
                 </div>
-                {start && areFriend ?
-                    <button disabled className='already-friend'>Friends</button> :
-                    <button onClick={handleFriend} className='ask-friend'>
+                {areFriend ?
+                    users && users.length === 2 && <button disabled className='already-friend'>Friends</button> :
+                    users && users.length === 2 && <button onClick={handleFriend} className='ask-friend'>
                         Ask to be Friend
                     </button>}
                 {start &&

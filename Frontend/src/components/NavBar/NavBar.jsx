@@ -41,7 +41,7 @@ function NavBar() {
             <h1>Gaming Zone</h1>
             <div className="right-side">
                 {/* add btn ranking */}
-                <button onClick={() => setRankModal(true)}>Top Ranking</button>
+                <button onClick={() => setRankModal(true)} className='rank-btn'>Top Ranking</button>
                 {rankModal &&
                     <RankModal
                         open={() => setRankModal(true)}
