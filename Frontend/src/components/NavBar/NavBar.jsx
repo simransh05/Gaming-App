@@ -8,6 +8,7 @@ import { Avatar } from '@mui/material';
 import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import RankModal from '../Modals/RankModal';
+import socket from '../../socket/socket';
 function NavBar() {
     const navigate = useNavigate()
     const { currentUser, setCurrentUser } = useContext(CurrentUserContext);
@@ -31,7 +32,8 @@ function NavBar() {
         })
         if (result.isConfirmed) {
             await api.postLogout();
-            setCurrentUser(null)
+            setCurrentUser(null);
+            socket.disconnect();
             navigate('/');
         }
     };

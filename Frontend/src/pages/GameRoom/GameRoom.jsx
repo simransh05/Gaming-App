@@ -98,7 +98,8 @@ function GameRoom() {
 
         // winner
         socket.on("winner", async ({ winnerId, board, name, pattern, lastMove }) => {
-            setBoard(lastMove)
+            setBoard(lastMove);
+            setStart(false);
             // console.log(pattern);
             setLine(pattern);
             await Swal.fire({
@@ -110,7 +111,6 @@ function GameRoom() {
                 timer: 5000
             }).then(() => {
                 setBoard(board);
-                setStart(false);
                 setLine(null);
                 setHistory(prev => {
                     const updated = [...prev, { winner: { name } }];
@@ -122,9 +122,8 @@ function GameRoom() {
 
         // draw
         socket.on("draw", async ({ board, lastMove }) => {
-            setBoard(lastMove)
-            // const data = { winnerId: null, player1: players[0]._id, player2: players[0]._id }
-            // const res = await api.postHistory(data);
+            setBoard(lastMove);
+            setStart(false);
             Swal.fire({
                 title: "Draw!",
                 text: "",
@@ -134,7 +133,6 @@ function GameRoom() {
                 timer: 5000
             }).then(() => {
                 setBoard(board);
-                setStart(false);
                 setHistory(prev => {
                     const updated = [...prev, { winner: null }];
                     return updated.length > 10 ? updated.slice(1) : updated;
@@ -143,9 +141,8 @@ function GameRoom() {
             })
         });
 
-        socket.on('nextTurn', ({ turn }) => {
-            // console.log('here', currentPlayer, currentUser?._id)
-            if (currentPlayer === currentUser?._id) {
+        socket.on('nextTurn', ({ prevTurn , turn }) => {
+            if (prevTurn === currentUser._id) {
                 Swal.fire({
                     title: 'turn skip',
                     text: '',
@@ -171,15 +168,11 @@ function GameRoom() {
                 showConfirmButton: true,
                 showCancelButton: true
             })
-            // console.log(result);
             if (result.isConfirmed) {
                 // console.log(players);
                 setUsers(players)
                 // console.log(users)
                 const otherUser = players.find(u => u._id !== currentUser?._id);
-                // console.log(otherUser)
-                // console.log(currentUser._id, otherUser._id)
-                // console.log(currentUser)
                 const userId = currentUser._id;
                 const id = otherUser._id;
                 await api.postFriend(userId, id);
@@ -191,21 +184,18 @@ function GameRoom() {
 
         // opponent left
         socket.on("player-left", ({ board, players, turn, start }) => {
+            setStart(start);
+            setBoard(board);
+            setUsers(players);
+            setCurrentPlayer(turn);
+            setHistory(null);
             Swal.fire({
                 title: "Opponent left",
                 text: "",
                 icon: "warning",
                 timer: 5000,
                 showConfirmButton: false
-            }).then(() => {
-                // console.log(board, start, players, turn)
-                setStart(start);
-                setBoard(board);
-                setUsers(players);
-                setCurrentPlayer(turn);
-                setHistory(null);
             })
-
         });
 
         if (currentUser) {
@@ -333,7 +323,6 @@ function GameRoom() {
         if (!currentPlayer) return;
 
         if (start) {
-            // console.log('here')
             setTimer(10);
         }
 

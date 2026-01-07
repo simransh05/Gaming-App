@@ -1,0 +1,18 @@
+.no-rank {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.ind-rank {
+    margin: 5px;
+}
+
+.rank-num {
+    padding-right: 8px;
+    font-size: 20px;
+}
+
+.rank-name {
+    font-size: 20px;
+}

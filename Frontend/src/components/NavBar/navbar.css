@@ -42,4 +42,5 @@ h1{
     height: 40px;
     width: auto;
     margin: auto 0;
+    cursor: pointer;
 }

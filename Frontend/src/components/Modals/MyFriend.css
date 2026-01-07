@@ -1,23 +1,32 @@
-.ind-friend{
+.ind-friend {
     margin: 10px;
     display: flex;
     justify-content: space-around;
 }
 
-.name-friend{
+.name-friend {
     padding-right: 14px;
+    font-size: 22px;
+    font-weight: 600;
 }
 
-.active{
+.active {
     border: none;
-    background-color: blue;
+    background-color: blueviolet;
     color: white;
-    border-radius: 8px;
+    border-radius: 5px;
     cursor: pointer;
 }
 
-.non-active{
+.non-active {
     border: 1px solid grey;
     color: white;
     background-color: gray;
+    border-radius: 5px;
+}
+
+.no-friend{
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
 }

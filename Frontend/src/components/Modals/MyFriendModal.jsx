@@ -18,7 +18,6 @@ function MyFriendModal({ open, onClose, onSuccess }) {
             if (loading) return;
             const userId = currentUser?._id;
             const res = await api.getFriends(userId)
-            console.log(res.data)
             setFriends(res.data.myFriends || [])
         }
         fetchFriends();
@@ -29,7 +28,7 @@ function MyFriendModal({ open, onClose, onSuccess }) {
 
         socket.on('active', (activeUser) => {
             setActiveUsers(activeUser)
-            console.log(activeUser)
+            // console.log(activeUser)
         })
 
         socket.on('joined-room', (roomId) => {
@@ -47,16 +46,16 @@ function MyFriendModal({ open, onClose, onSuccess }) {
         onClose();
     }
 
-    console.log(friends)
+    // console.log(friends, activeUsers)
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogTitle>My Friends</DialogTitle>
+            <DialogTitle sx={{textAlign:'center'}}>My Friends</DialogTitle>
             <DialogContent>
-                {friends === null || friends.length === 0 ? <div>No Friend</div> : (
+                {friends === null || friends.length === 0 ? <div className='no-friend'>No Friend</div> : (
                     friends?.map((f, idx) => (
                         <div key={idx} className='ind-friend'>
                             <span className='name-friend'>{f?.name}</span>
-                            {activeUsers.includes(f?._id) ?
+                            {activeUsers?.includes(f?._id) ?
                                 <button onClick={() => handleClick(f._id)} className='active'>
                                     Active send Invite
                                 </button>
