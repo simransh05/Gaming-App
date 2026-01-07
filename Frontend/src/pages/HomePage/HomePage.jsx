@@ -23,8 +23,8 @@ function HomePage() {
         if (loading) return;
         if (!currentUser) navigate(`${ROUTES.LOGIN}`)
 
-        socket.on('receive-invite', async ({ from , fromName}) => {
-            console.log('here', from , fromName.name)
+        socket.on('receive-invite', async ({ from, fromName }) => {
+            // console.log('here', from, fromName.name)
             const result = await Swal.fire({
                 title: `${fromName.name} ask to join`,
                 text: '',
@@ -34,26 +34,41 @@ function HomePage() {
                 confirmButtonText: 'Accept',
                 cancelButtonText: 'Reject'
             })
+            // console.log(result)
             if (result.isConfirmed) {
                 socket.emit('accept-invite', { from });
-            } else if(result.isDismissed) {
-                if (currentUser._id === from) {
-                    Swal.fire({
-                        title: 'denied match',
-                        text: '',
-                        icon: 'info',
-                        showCancelButton: false,
-                        timer: 5000
-                    })
-                }
             }
+            if (result.isDismissed) {
+                socket.emit('reject-invite', { from: currentUser._id, to: from })
+            }
+        })
+        socket.on('rejected' , ({name})=> {
+            Swal.fire({
+                title: `${name} rejected the invite`,
+                text: '',
+                icon: 'info',
+                timer: 5000,
+                showCancelButton: false,
+                showConfirmButton: false
+            })
+        })
+        socket.on('user-disconnected', ({ name }) => {
+            Swal.fire({
+                title: `${name} disconnected`,
+                text: '',
+                icon: 'info',
+                timer: 5000,
+                showCancelButton: false,
+                showConfirmButton: false
+            })
         })
         socket.on('room-created', ({ roomId }) => {
             navigate(`${ROUTES.HOME}${roomId}`)
         })
         return () => {
             socket.off('receive-invite');
-            socket.off('room-created')
+            socket.off('room-created');
+            socket.off('user-disconnected')
         }
     }, [currentUser, loading])
 

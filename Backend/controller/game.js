@@ -100,9 +100,7 @@ module.exports.deleteHistory = async (req, res) => {
             return res.status(404).json({ message: "Game not found" });
         }
 
-        return res.status(200).json({
-            message: "History deleted for this user"
-        });
+        return res.status(200).json({ message: "History deleted for this user" });
 
     } catch (err) {
         return res.status(500).json({ message: "Internal error" });

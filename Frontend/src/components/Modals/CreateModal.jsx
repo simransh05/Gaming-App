@@ -10,7 +10,6 @@ function CreateModal({ open, onClose }) {
     const [inputValue, setInputValue] = useState(null);
 
     const handleClick = () => {
-        console.log('here');
         socket.emit('create')
     }
 
