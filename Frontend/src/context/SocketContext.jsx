@@ -6,15 +6,16 @@ import { useContext } from "react";
 export const SocketContext = createContext(null);
 
 const SocketProvider = ({ children }) => {
-    const { currentUser } = useContext(CurrentUserContext);
+    const { currentUser, loading } = useContext(CurrentUserContext);
 
     useEffect(() => {
+        if (loading) return;
         if (currentUser?._id) {
             socket.emit("register", currentUser._id);
         } else {
             return;
         }
-    }, [currentUser?._id]);
+    }, [loading]);
 
 
     return (
