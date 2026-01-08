@@ -16,6 +16,7 @@ import {
 import api from '../../utils/api'
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useState } from 'react'
+import socket from '../../socket/socket'
 
 function Login() {
     const { currentUser, setCurrentUser } = useContext(CurrentUserContext)
@@ -33,6 +34,7 @@ function Login() {
             // console.log(res.data);
             setCurrentUser(res.data.user);
             navigate(`${ROUTES.HOME}`)
+            socket.connect();
         } catch (err) {
             if (err.response?.status == "404") {
                 navigate(ROUTES.SIGNUP);

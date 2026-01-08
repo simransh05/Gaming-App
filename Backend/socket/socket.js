@@ -33,6 +33,12 @@ module.exports = (io) => {
             socket.emit('receive-create', roomId);
         });
 
+        socket.on('refuse-friend', ({ to }) => {
+            const toId = activeMap.get(to)
+            if (toId) {
+                io.to(toId).emit('refused');
+            }
+        })
         socket.on('join', async (roomId) => {
 
             if (!boards[roomId]) {
@@ -181,7 +187,7 @@ module.exports = (io) => {
                     lastMove: lastMove
                 });
                 // console.log('here move')
-                const data = await controller.saveHistory({
+                await controller.saveHistory({
                     player1: room.players[0]._id,
                     player2: room.players[1]._id,
                     winnerId: socket.userId
@@ -224,9 +230,11 @@ module.exports = (io) => {
             room.turn = otherPlayer?._id.toString();
             // console.log('other player', otherPlayer);
             // console.log('......................................')
-            io.to(roomId).emit('nextTurn', { 
+            io.to(roomId).emit('nextTurn', {
+                start: room.start,
                 prevTurn: socket.userId,
-                turn: room.turn });
+                turn: room.turn
+            });
         });
 
         socket.on('activeUsers', () => {

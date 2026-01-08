@@ -42,7 +42,7 @@ function HomePage() {
                 socket.emit('reject-invite', { from: currentUser._id, to: from })
             }
         })
-        socket.on('rejected' , ({name})=> {
+        socket.on('rejected', ({ name }) => {
             Swal.fire({
                 title: `${name} rejected the invite`,
                 text: '',
@@ -140,13 +140,6 @@ function HomePage() {
                 </div>
 
                 <div className="btn-room">
-                    <button className='create-room' onClick={() => setShowCreate(true)}>Create Room</button>
-                    {showCreate &&
-                        <CreateModal
-                            open={() => setShowCreate(true)}
-                            onClose={() => setShowCreate(false)}
-                        />}
-
                     <button onClick={() => setShowFriend(true)} className='friends'>My Friends</button>
                     {showFriend &&
                         <MyFriendModal
@@ -154,6 +147,14 @@ function HomePage() {
                             onClose={() => setShowFriend(false)}
                             onSuccess={(userId, roomId) => handleFriend(userId, roomId)}
                         />}
+
+                    <button className='create-room' onClick={() => setShowCreate(true)}>Create Room</button>
+                    {showCreate &&
+                        <CreateModal
+                            open={() => setShowCreate(true)}
+                            onClose={() => setShowCreate(false)}
+                        />}
+
                     <button className='invite-room' onClick={() => setShowInvite(true)}>Join Invite Room</button>
                     {showInvite &&
                         <InviteModal

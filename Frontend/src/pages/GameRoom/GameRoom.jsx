@@ -141,8 +141,9 @@ function GameRoom() {
             })
         });
 
-        socket.on('nextTurn', ({ prevTurn , turn }) => {
-            if (prevTurn === currentUser._id) {
+        socket.on('nextTurn', ({ start, prevTurn, turn }) => {
+            // console.log(prevTurn, currentUser._id)
+            if (start && prevTurn === currentUser._id) {
                 Swal.fire({
                     title: 'turn skip',
                     text: '',
@@ -159,6 +160,7 @@ function GameRoom() {
         socket.on('acceptFriend', async ({ players }) => {
             // console.log(players)
             // setUsers(players)
+            // console.log('here')
             const result = await Swal.fire({
                 title: 'Ask to be Friend',
                 text: '',
@@ -168,20 +170,35 @@ function GameRoom() {
                 showConfirmButton: true,
                 showCancelButton: true
             })
+            // console.log('here')
+            const otherUser = players.find(u => u._id !== currentUser?._id);
+            // console.log(result);
             if (result.isConfirmed) {
                 // console.log(players);
                 setUsers(players)
                 // console.log(users)
-                const otherUser = players.find(u => u._id !== currentUser?._id);
                 const userId = currentUser._id;
                 const id = otherUser._id;
                 await api.postFriend(userId, id);
                 setAreFriend(true)
-            } else if (result.isDismissed) {
+            }
+            if (result.isDismissed) {
                 setAreFriend(false)
+                socket.emit('refuse-friend', { to: otherUser._id })
+
             }
         })
 
+        socket.on('refused', () => {
+            Swal.fire({
+                title: 'Refuse to be Friend',
+                text: '',
+                icon: 'info',
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 3000
+            })
+        })
         // opponent left
         socket.on("player-left", ({ board, players, turn, start }) => {
             setStart(start);
@@ -199,7 +216,9 @@ function GameRoom() {
         });
 
         if (currentUser) {
-            socket.emit('register', currentUser?._id)
+            if (!socket.connected) {
+                socket.emit('register', currentUser._id)
+            }
         }
 
         socket.emit('refresh-room', { roomId }, (res) => {
@@ -222,7 +241,9 @@ function GameRoom() {
             socket.off("draw");
             socket.off('nextTurn');
             socket.off("player-left");
-            socket.off('refresh-room')
+            socket.off('refresh-room');
+            socket.off('acceptFriend');
+            socket.off('refused');
         };
     }, [roomId, loading]);
 
