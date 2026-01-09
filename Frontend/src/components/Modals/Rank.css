@@ -3,9 +3,24 @@
     font-size: 20px;
     font-weight: 600;
 }
+.modal-container{
+    width: 95vw;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 10px;
+    padding: 10px;
+}
 
 .ind-rank {
-    margin: 5px;
+    width: 95vw;
+    display: flex;
+    justify-content: space-evenly;
+    border-bottom: 1px solid black;
+}
+
+h1{
+    align-content: center;
 }
 
 .rank-num {

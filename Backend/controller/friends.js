@@ -77,6 +77,29 @@ module.exports.getRanking = async (req, res) => {
                             ]
                         }
                     },
+                    totalLose: {
+                        $sum: {
+                            $cond: [
+                                {
+                                    $and: [
+                                        { $ne: ["$history.winner", "$players"] },
+                                        { $ne: ["$history.winner", null] }
+                                    ]
+                                },
+                                1,
+                                0
+                            ]
+                        }
+                    },
+                    totalDraw: {
+                        $sum: {
+                            $cond: [
+                                { $eq: ["$history.winner", null] },
+                                1,
+                                0
+                            ]
+                        }
+                    },
                 },
             },
             {
@@ -111,8 +134,11 @@ module.exports.getRanking = async (req, res) => {
                     _id: 0,
                     userId: "$user._id",
                     name: "$user.name",
+                    playerId: "$user.playerId",
                     totalGames: 1,
                     totalWins: 1,
+                    totalLose: 1,
+                    totalDraw: 1,
                     percentage: { $round: ['$percentage', 2] }
                 }
             },

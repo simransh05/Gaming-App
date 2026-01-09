@@ -9,10 +9,13 @@ import api from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import RankModal from '../Modals/RankModal';
 import socket from '../../socket/socket';
+import ROUTES from '../../constant/Route/route'
+import { useEffect } from 'react';
+import format from '../../utils/helper/formatRank';
 function NavBar() {
     const navigate = useNavigate()
-    const { currentUser, setCurrentUser } = useContext(CurrentUserContext);
-    const [rankModal, setRankModal] = useState(false);
+    const { currentUser, setCurrentUser, loading } = useContext(CurrentUserContext);
+    const [ranking, setRanking] = useState(null)
     const getInitial = (name) => {
         if (!name) return "";
         const parts = name.trim().split(" ");
@@ -34,21 +37,41 @@ function NavBar() {
             await api.postLogout();
             setCurrentUser(null);
             socket.disconnect();
-            navigate('/');
+            navigate(`${ROUTES.LOGIN}`);
         }
     };
+
+    useEffect(() => {
+        if (loading) return;
+        const fetchRank = async () => {
+            const res = await api.getRanking();
+            if (res.data.length === 0) {
+                setRanking([]);
+            } else {
+                const data = format(res.data);
+                console.log(data);
+                setRanking(data);
+            }
+        }
+        fetchRank()
+    }, [loading])
+
+    console.log(ranking, currentUser)
 
     return (
         <div className='navbar'>
             <h1>Gaming Zone</h1>
             <div className="right-side">
                 {/* add btn ranking */}
-                <button onClick={() => setRankModal(true)} className='rank-btn'>Top Ranking</button>
-                {rankModal &&
-                    <RankModal
-                        open={() => setRankModal(true)}
-                        onClose={() => setRankModal(false)}
-                    />}
+                {(!ranking || ranking.length === 0) ? <div className='my-rank'>No Rank</div> :
+                    (
+                        ranking.map((r, idx) => {
+                            { console.log('here') }
+                            { if(currentUser?._id === r.userId ) return <div key={idx} className='my-rank'>My Rank: {r.rank}</div> }
+                        })
+                    )}
+                <button onClick={() => navigate(`${ROUTES.TOP_RANKING}`)} className='rank-btn'>Top Ranking</button>
+
                 <Avatar sx={{
                     width: '60px',
                     height: '60px',

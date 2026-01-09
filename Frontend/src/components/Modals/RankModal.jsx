@@ -1,9 +1,10 @@
-import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import api from '../../utils/api'
 import './Rank.css'
+import NavBar from '../NavBar/NavBar'
+import format from '../../utils/helper/formatRank'
 
-function RankModal({ open, onClose }) {
+function RankModal() {
 
     const [ranking, setRanking] = useState(null)
 
@@ -13,56 +14,56 @@ function RankModal({ open, onClose }) {
             if (res.data.length === 0) {
                 setRanking([]);
             } else {
-                format(res.data);
+                const data = format(res.data);
+                console.log(data);
+                setRanking(data);
             }
         }
         fetchRank()
     }, [])
 
-    const format = (data) => {
-        let rank = 0;
-        let prev = null;
-        let skip = 1;
-        const formatted = data.map((d, idx) => {
-            if (prev && d.percentage === prev.percentage && d.totalGames === prev.totalGames) {
-                skip++;
-            } else {
-                rank = rank + skip;
-                skip = 1;
-            }
-            const item = {
-                ...d,
-                rank: rank
-            };
-
-            prev = d;
-            return item;
-        })
-        // console.log(formatted)
-        setRanking(formatted);
-    }
-
-    // console.log(ranking)
+    console.log(ranking)
     return (
-        <Dialog open={open} onClose={onClose} className='modal-container'>
-            <DialogTitle>
-                Leaderboard
-            </DialogTitle>
+        <>
+            <NavBar />
+            <div className='modal-container'>
+                <h1>
+                    Leaderboard
+                </h1>
 
-            <DialogContent>
-                {ranking === null || ranking.length === 0 ? <div className='no-rank'> No leaderboard</div> :
-                    <>
-                        {ranking?.map((r, index) => (
-                            <div key={index} className='ind-rank'>
-                                <span className='rank-num'>{r.rank}</span>
-                                <span className='rank-name'>{r.name}</span>
-                            </div>
-                        ))}
-                    </>
-                }
+                <table className="leaderboard">
+                    {(!ranking || ranking.length === 0) ? (
+                        <caption className="no-rank">No leaderboard</caption>
+                    ) : (
+                        <>
+                            <thead className='header-table'>
+                                <tr className='ind-rank'>
+                                    <th>Rank</th>
+                                    <th>Name</th>
+                                    <th>User Id</th>
+                                    <th>Total Win</th>
+                                    <th>Total Lose</th>
+                                    <th>Draw</th>
+                                </tr>
+                            </thead>
 
-            </DialogContent>
-        </Dialog>
+                            <tbody className='body-table'>
+                                {ranking.map((r, index) => (
+                                    <tr key={index} className='ind-rank'>
+                                        <td>{r.rank}</td>
+                                        <td>{r.name}</td>
+                                        <td>{r.playerId}</td>
+                                        <td>{r.totalWins}</td>
+                                        <td>{r.totalLose}</td>
+                                        <td>{r.totalDraw}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </>
+                    )}
+                </table>
+            </div>
+        </>
     )
 }
 

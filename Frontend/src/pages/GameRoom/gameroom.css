@@ -183,7 +183,7 @@
   border-radius: 5px;
 }
 
-.already-friend{
+.already-friend {
   padding: 5px;
   border-radius: 5px;
   margin-bottom: 6px;
@@ -191,7 +191,7 @@
   width: 150px;
 }
 
-.ask-friend{
+.ask-friend {
   padding: 5px;
   border-radius: 5px;
   margin-bottom: 6px;
@@ -200,4 +200,22 @@
   background-color: blueviolet;
   color: white;
   cursor: pointer;
+}
+
+.timer-container {
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.timer {
+  position: absolute;
+  top: 50%;
+  border: 1px solid black;
+  border-radius: 50%;
+  height: 80px;
+  width: 80px;
+  align-items: center;
+  margin: auto 0;
+  background-color: white;
 }

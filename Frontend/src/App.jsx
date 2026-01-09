@@ -7,6 +7,8 @@ import HomePage from './pages/HomePage/HomePage'
 import CurrentUserProvider from './context/UserContext'
 import SocketProvider from './context/SocketContext'
 import GameRoom from './pages/GameRoom/GameRoom'
+import RankModal from './components/Modals/RankModal'
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
@@ -18,8 +20,10 @@ function App() {
             <Route path={`${ROUTES.LOGIN}`} element={<Login />} />
             <Route path={`${ROUTES.HOME}`} element={<HomePage />} />
             <Route path={`/:roomId`} element={<GameRoom />} />
+            <Route path={`${ROUTES.TOP_RANKING}`} element={<RankModal />} />
           </Routes>
         </Router>
+        <ToastContainer position='top-right' autoClose={2000} />
       </SocketProvider>
     </CurrentUserProvider>
   )
