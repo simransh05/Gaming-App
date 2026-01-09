@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import NavBar from '../../components/NavBar/NavBar'
 import socket from '../../socket/socket'
 import { useState } from 'react';
 import './gameroom.css'
@@ -9,6 +8,9 @@ import api from '../../utils/api';
 import ROUTES from '../../constant/Route/route';
 import Swal from 'sweetalert2';
 import { CurrentUserContext } from '../../context/UserContext';
+import { toast } from 'react-toastify';
+import TimerSet from '../../components/Modals/TimerSet';
+import OpponentDrawer from '../../components/Drawer/OpponentDrawer';
 function GameRoom() {
     const { roomId } = useParams()
     const [board, setBoard] = useState([
@@ -23,8 +25,10 @@ function GameRoom() {
     const navigate = useNavigate();
     const [line, setLine] = useState(null);
     const { currentUser, loading } = useContext(CurrentUserContext);
-    const [timer, setTimer] = useState(10);
+    const [timer, setTimer] = useState(0);
+    const [defaultTime, setDefaultTime] = useState(false);
     const [areFriend, setAreFriend] = useState(false);
+    const [opponent, setOpponent] = useState(false)
 
     useEffect(() => {
         if (loading) return;
@@ -80,24 +84,34 @@ function GameRoom() {
             }
         });
 
-        socket.on("game-started", (FirstPlayer) => {
-            setStart(true);
-            // console.log(FirstPlayer)
-            setCurrentPlayer(FirstPlayer);
-            setTimer(10)
+        socket.on("game-started", ({ FirstPlayer, defaultTime }) => {
+            console.log(currentUser._id, FirstPlayer)
+            Swal.fire({
+                title: currentUser._id === FirstPlayer ? 'You win the toss got first move' : 'You lose the toss',
+                text: '',
+                icon: currentUser._id === FirstPlayer ? 'success' : 'error',
+                timer: 3000,
+                showCancelButton: false,
+                showConfirmButton: false,
+            }).then(() => {
+                setStart(true);
+                // console.log(FirstPlayer)
+                setCurrentPlayer(FirstPlayer);
+                setTimer(defaultTime)
+            })
         });
 
         // when a move is done
-        socket.on("moveDone", ({ players, turn, board }) => {
+        socket.on("moveDone", ({ players, turn, board, defaultTime }) => {
             // console.log(players, turn, board)
             setBoard(board);
             setUsers(players);
-            setTimer(10);
+            setTimer(defaultTime);
             setCurrentPlayer(turn);
         });
 
         // winner
-        socket.on("winner", async ({ winnerId, board, name, pattern, lastMove }) => {
+        socket.on("winner", async ({ winnerId, board, name, pattern, lastMove, defaultTime }) => {
             setBoard(lastMove);
             setStart(false);
             // console.log(pattern);
@@ -116,12 +130,12 @@ function GameRoom() {
                     const updated = [...prev, { winner: { name } }];
                     return updated.length > 10 ? updated.slice(1) : updated;
                 });
-                setTimer(10);
+                setTimer(defaultTime);
             })
         });
 
         // draw
-        socket.on("draw", async ({ board, lastMove }) => {
+        socket.on("draw", async ({ board, lastMove, defaultTime }) => {
             setBoard(lastMove);
             setStart(false);
             Swal.fire({
@@ -137,24 +151,18 @@ function GameRoom() {
                     const updated = [...prev, { winner: null }];
                     return updated.length > 10 ? updated.slice(1) : updated;
                 });
-                setTimer(10)
+                setTimer(defaultTime)
             })
         });
 
-        socket.on('nextTurn', ({ start, prevTurn, turn }) => {
+        socket.on('nextTurn', ({ start, prevTurn, turn, defaultTime }) => {
             // console.log(prevTurn, currentUser._id)
             if (start && prevTurn === currentUser._id) {
-                Swal.fire({
-                    title: 'turn skip',
-                    text: '',
-                    icon: 'info',
-                    showConfirmButton: false,
-                    timer: 2000
-                })
+                toast.info('your turn is skipped');
             }
             // console.log(turn)
             setCurrentPlayer(turn);
-            setTimer(10);
+            setTimer(defaultTime);
         })
 
         socket.on('acceptFriend', async ({ players }) => {
@@ -199,6 +207,10 @@ function GameRoom() {
                 timer: 3000
             })
         })
+
+        socket.on('getNewTime', ({ time }) => {
+            setTimer(time);
+        })
         // opponent left
         socket.on("player-left", ({ board, players, turn, start }) => {
             setStart(start);
@@ -215,6 +227,10 @@ function GameRoom() {
             })
         });
 
+        socket.emit('getTime', (roomId), (res) => {
+            setTimer(res.time);
+        })
+
         if (currentUser) {
             if (!socket.connected) {
                 socket.emit('register', currentUser._id)
@@ -223,12 +239,12 @@ function GameRoom() {
 
         socket.emit('refresh-room', { roomId }, (res) => {
             if (res.status === 200) {
-                // console.log(res);
+                console.log(res);
                 setUsers(res.data.players);
                 setBoard(res.data.board);
                 setCurrentPlayer(res.data.turn);
                 setStart(res.data.start);
-                setTimer(timer)
+                setTimer(res.data.defaultTime)
             }
         })
 
@@ -344,7 +360,7 @@ function GameRoom() {
         if (!currentPlayer) return;
 
         if (start) {
-            setTimer(10);
+            setTimer(timer);
         }
 
         const id = setInterval(() => {
@@ -363,11 +379,14 @@ function GameRoom() {
         return () => clearInterval(id);
     }, [currentPlayer]);
 
+    const handleTimer = (time) => {
+        socket.emit('setNewTime', { roomId, time })
+    }
+
     // console.log(areFriend)
 
     return (
         <>
-            <NavBar />
             <div className="subheader">
                 <div className="names">
                     <span>Players in Game: </span>
@@ -376,13 +395,30 @@ function GameRoom() {
                             className={users.length === 2 ? 'two' : 'one'}>{user?.name}</span>
                     ))}
                 </div>
+                {users && users.length === 1 && <>
+                    <button onClick={() => setDefaultTime(true)}>Change Timer</button>
+                    {defaultTime && <TimerSet
+                        open={() => setDefaultTime(true)}
+                        onClose={() => setDefaultTime(false)}
+                        onSuccess={(successTime) => handleTimer(successTime)}
+                    />}
+                    <button onClick={() => setOpponent(true)}>Choose opponent</button>
+                    {opponent &&
+                        <OpponentDrawer
+                            open={() => setOpponent(true)}
+                            onClose={() => setOpponent(false)}
+                            onSuccess={(data) => handleDrawer(data)}
+                        />
+                    }
+                </>
+                }
                 {areFriend ?
                     users && users.length === 2 && <button disabled className='already-friend'>Friends</button> :
                     users && users.length === 2 && <button onClick={handleFriend} className='ask-friend'>
                         Ask to be Friend
                     </button>}
-                {start &&
-                    <div className="currentTurn">Current Turn: {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name}</div>}
+                {/* {start &&
+                    <div className="currentTurn">Current Turn: {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name}</div>} */}
                 <button onClick={leave} className='leave-room'>Leave Game Room</button>
             </div>
             <div className="main-container">
@@ -406,9 +442,13 @@ function GameRoom() {
                         }
                     </div>
                 </div>
-                {start && <div className="timer">
-                    Time remaining for {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name} : {timer}
-                </div>}
+                {start &&
+                    <div className='timer-container'>
+                        <div className="timer">
+                            {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name} <br />
+                            {timer}
+                        </div>
+                    </div>}
 
                 <div className="history-list">
                     {history?.length > 0 ?

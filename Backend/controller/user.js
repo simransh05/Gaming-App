@@ -12,10 +12,18 @@ module.exports.postSignup = async (req, res) => {
             return res.status(404).json({ message: 'user already exist' });
         }
         const hashed = await bycrpt.hash(password, 10);
+        let randomNum;
+        let exists = true;
+        while (exists) {
+            randomNum = Math.floor(1000000000 + Math.random() * 9000000000);
+            exists = await User.findOne({ playerId: randomNum });
+        }
+        console.log(randomNum);
         const user = new User({
             name,
             email,
-            password: hashed
+            password: hashed,
+            playerId: randomNum
         })
         await user.save();
         return res.status(200).json({ message: 'success' });

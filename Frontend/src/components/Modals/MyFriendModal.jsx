@@ -49,23 +49,23 @@ function MyFriendModal({ open, onClose, onSuccess }) {
     // console.log(friends, activeUsers)
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogTitle sx={{textAlign:'center'}}>My Friends</DialogTitle>
-            <DialogContent>
+            <h1 sx={{textAlign:'center'}}>My Friends</h1>
+            <ul className='friend-list'>
                 {friends === null || friends.length === 0 ? <div className='no-friend'>No Friend</div> : (
                     friends?.map((f, idx) => (
-                        <div key={idx} className='ind-friend'>
+                        <li key={idx} className={activeUsers?.includes(f?._id) ? 'active-now' :'not-active-now'}>
                             <span className='name-friend'>{f?.name}</span>
                             {activeUsers?.includes(f?._id) ?
                                 <button onClick={() => handleClick(f._id)} className='active'>
-                                    Active send Invite
+                                    Send Invite
                                 </button>
                                 : <button disabled className='non-active'>
-                                    Not Active
+                                    Send Invite
                                 </button>}
-                        </div>
+                        </li>
                     ))
                 )}
-            </DialogContent>
+            </ul>
         </Dialog>
     )
 }

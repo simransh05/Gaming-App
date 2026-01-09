@@ -17,9 +17,6 @@ const api = {
     getHistory: async (player1, player2, userId) => {
         return await apiInstance.get(`${ROUTES.HISTORY}/${player1}/${player2}/${userId}`)
     },
-    postHistory: async (data) => {
-        return await apiInstance.post(`${ROUTES.HISTORY}`, data)
-    },
     deleteHistory: async (data) => {
         return await apiInstance.post(`${ROUTES.HISTORY}/delete`, data)
     },

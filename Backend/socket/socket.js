@@ -27,7 +27,8 @@ module.exports = (io) => {
                 players: [],
                 turn: null,
                 symbols: {},
-                start: false
+                start: false,
+                defaultTime: 10
             };
             // console.log('room', boards[roomId])
             socket.emit('receive-create', roomId);
@@ -40,17 +41,18 @@ module.exports = (io) => {
             }
         })
         socket.on('join', async (roomId) => {
-
+            // console.log('here');
             if (!boards[roomId]) {
                 boards[roomId] = {
                     board: Array(9).fill(""),
                     players: [],
                     turn: null,
                     symbols: {},
-                    start: false
+                    start: false,
+                    defaultTime: 10
                 };
             }
-
+            // console.log('room', boards[roomId])
             const room = boards[roomId];
 
             if (room.players.length >= 2) {
@@ -68,7 +70,7 @@ module.exports = (io) => {
                 const p2 = room.players[1]?._id.toString();
                 const firstTurn = Math.random() < 0.5 ? p1 : p2;
                 // console.log('first', firstTurn);
-                // console.log('players', room.players); 
+                // console.log('players', room.players);
                 const secondTurn = firstTurn === p1 ? p2 : p1;
                 // console.log('second', secondTurn);
                 room.turn = firstTurn;
@@ -81,7 +83,27 @@ module.exports = (io) => {
             io.to(roomId).emit('player-joined', room.players);
         });
 
+        socket.on('getTime', ({ roomId }, callback) => {
+            // console.log('room', boards[roomId]);
+            if (!boards[roomId]) {
+                boards[roomId] = {
+                    board: Array(9).fill(""),
+                    players: [],
+                    turn: null,
+                    symbols: {},
+                    start: false,
+                    defaultTime: 10
+                };
+            }
+            const time = boards[roomId].defaultTime;
+            // console.log(time)
+            callback({ time })
+        });
 
+        socket.on('setNewTime', ({ roomId, time }) => {
+            boards[roomId].defaultTime = time;
+            io.to(roomId).emit('getNewTime', { time: boards[roomId].defaultTime })
+        })
         socket.on('refresh-room', ({ roomId }, callback) => {
             const room = boards[roomId];
             if (!room) {
@@ -94,7 +116,7 @@ module.exports = (io) => {
 
         socket.on('start', (roomId) => {
             boards[roomId].start = true;
-            io.to(roomId).emit('game-started', boards[roomId].turn);
+            io.to(roomId).emit('game-started', { FirstPlayer: boards[roomId].turn, defaultTime });
         })
 
         socket.on('send-invite', async ({ from, to }) => {
@@ -126,7 +148,8 @@ module.exports = (io) => {
                 players: [],
                 turn: null,
                 symbols: {},
-                start: false
+                start: false,
+                defaultTime: 10
             };
             const fromId = activeMap.get(from);
             // console.log(fromId);
@@ -184,7 +207,8 @@ module.exports = (io) => {
                     players: room.players,
                     name: username.name,
                     pattern: findValue,
-                    lastMove: lastMove
+                    lastMove: lastMove,
+                    defaultTime: room.defaultTime
                 });
                 // console.log('here move')
                 await controller.saveHistory({
@@ -199,7 +223,12 @@ module.exports = (io) => {
                 room.start = false;
                 room.turn = room.players[0]._id.toString();
                 // console.log('board 2', room.board)
-                io.to(roomId).emit('draw', { board: room.board, players: room.players, lastMove });
+                io.to(roomId).emit('draw', {
+                    board: room.board,
+                    players: room.players,
+                    lastMove,
+                    defaultTime: room.defaultTime
+                });
                 await controller.saveHistory({
                     player1: room.players[0]._id,
                     player2: room.players[1]._id,
@@ -213,7 +242,8 @@ module.exports = (io) => {
                 io.to(roomId).emit('moveDone', {
                     board: room.board,
                     turn: room.turn,
-                    players: room.players
+                    players: room.players,
+                    defaultTime: room.defaultTime
                 });
             }
             // console.log('board 4', room.board)
@@ -233,7 +263,8 @@ module.exports = (io) => {
             io.to(roomId).emit('nextTurn', {
                 start: room.start,
                 prevTurn: socket.userId,
-                turn: room.turn
+                turn: room.turn,
+                defaultTime: room.defaultTime
             });
         });
 
