@@ -1,17 +1,13 @@
-import { Dialog, DialogContent, DialogTitle } from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
 import api from '../../utils/api'
 import { CurrentUserContext } from '../../context/UserContext'
 import socket from '../../socket/socket';
-import { useNavigate } from 'react-router-dom';
-import ROUTES from '../../constant/Route/route';
 import './MyFriend.css'
 
-function MyFriendModal({ open, onClose, onSuccess }) {
+function MyFriendModal({ onSuccess }) {
     const { currentUser, loading } = useContext(CurrentUserContext);
     const [friends, setFriends] = useState(null);
     const [activeUsers, setActiveUsers] = useState(null);
-    const navigate = useNavigate()
 
     useEffect(() => {
         const fetchFriends = async () => {
@@ -28,32 +24,25 @@ function MyFriendModal({ open, onClose, onSuccess }) {
 
         socket.on('active', (activeUser) => {
             setActiveUsers(activeUser)
-            // console.log(activeUser)
         })
-
-        socket.on('joined-room', (roomId) => {
-            navigate(`${ROUTES.HOME}/${roomId}`)
-        });
 
         return () => {
             socket.off('active');
-            socket.off('joined-room');
         }
     }, [])
 
     const handleClick = (id) => {
         onSuccess(id);
-        onClose();
     }
 
     // console.log(friends, activeUsers)
     return (
-        <Dialog open={open} onClose={onClose}>
-            <h1 sx={{textAlign:'center'}}>My Friends</h1>
+        <div className='friends-info'>
+            {/* <h1 sx={{textAlign:'center'}}>My Friends</h1> */}
             <ul className='friend-list'>
                 {friends === null || friends.length === 0 ? <div className='no-friend'>No Friend</div> : (
                     friends?.map((f, idx) => (
-                        <li key={idx} className={activeUsers?.includes(f?._id) ? 'active-now' :'not-active-now'}>
+                        <li key={idx} className={activeUsers?.includes(f?._id) ? 'active-now' : 'not-active-now'}>
                             <span className='name-friend'>{f?.name}</span>
                             {activeUsers?.includes(f?._id) ?
                                 <button onClick={() => handleClick(f._id)} className='active'>
@@ -66,7 +55,7 @@ function MyFriendModal({ open, onClose, onSuccess }) {
                     ))
                 )}
             </ul>
-        </Dialog>
+        </div>
     )
 }
 

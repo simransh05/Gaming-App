@@ -8,6 +8,15 @@
   padding-bottom: 0;
 }
 
+.parentCount{
+  position: relative;
+}
+.currentPlayer{
+  position: absolute;
+  top: 5%;
+  right: 20%;
+}
+
 .two:not(:last-child)::after {
   content: " & ";
 }

@@ -11,6 +11,9 @@ import { CurrentUserContext } from '../../context/UserContext';
 import { toast } from 'react-toastify';
 import TimerSet from '../../components/Modals/TimerSet';
 import OpponentDrawer from '../../components/Drawer/OpponentDrawer';
+import { CircularProgress } from '@mui/material';
+import { CountdownCircleTimer } from 'react-countdown-circle-timer'
+import rejectedInvite from '../../utils/helper/rejectedInvite';
 function GameRoom() {
     const { roomId } = useParams()
     const [board, setBoard] = useState([
@@ -26,6 +29,7 @@ function GameRoom() {
     const [line, setLine] = useState(null);
     const { currentUser, loading } = useContext(CurrentUserContext);
     const [timer, setTimer] = useState(0);
+    const [defaultTimer, setDefaultTimer] = useState(0);
     const [defaultTime, setDefaultTime] = useState(false);
     const [areFriend, setAreFriend] = useState(false);
     const [opponent, setOpponent] = useState(false)
@@ -78,14 +82,17 @@ function GameRoom() {
 
         if (loading) return;
 
+        rejectedInvite();
+
         socket.on("player-joined", (players) => {
             if (Array.isArray(players)) {
+                // console.log(players)
                 setUsers(players);
             }
         });
 
         socket.on("game-started", ({ FirstPlayer, defaultTime }) => {
-            console.log(currentUser._id, FirstPlayer)
+            // console.log(currentUser._id, FirstPlayer)
             Swal.fire({
                 title: currentUser._id === FirstPlayer ? 'You win the toss got first move' : 'You lose the toss',
                 text: '',
@@ -97,6 +104,7 @@ function GameRoom() {
                 setStart(true);
                 // console.log(FirstPlayer)
                 setCurrentPlayer(FirstPlayer);
+                setDefaultTimer(defaultTime)
                 setTimer(defaultTime)
             })
         });
@@ -106,6 +114,7 @@ function GameRoom() {
             // console.log(players, turn, board)
             setBoard(board);
             setUsers(players);
+            setDefaultTimer(defaultTime);
             setTimer(defaultTime);
             setCurrentPlayer(turn);
         });
@@ -130,6 +139,7 @@ function GameRoom() {
                     const updated = [...prev, { winner: { name } }];
                     return updated.length > 10 ? updated.slice(1) : updated;
                 });
+                setDefaultTimer(defaultTime)
                 setTimer(defaultTime);
             })
         });
@@ -151,6 +161,7 @@ function GameRoom() {
                     const updated = [...prev, { winner: null }];
                     return updated.length > 10 ? updated.slice(1) : updated;
                 });
+                setDefaultTimer(defaultTime)
                 setTimer(defaultTime)
             })
         });
@@ -163,6 +174,7 @@ function GameRoom() {
             // console.log(turn)
             setCurrentPlayer(turn);
             setTimer(defaultTime);
+            setDefaultTimer(defaultTime)
         })
 
         socket.on('acceptFriend', async ({ players }) => {
@@ -210,6 +222,7 @@ function GameRoom() {
 
         socket.on('getNewTime', ({ time }) => {
             setTimer(time);
+            setDefaultTimer(time)
         })
         // opponent left
         socket.on("player-left", ({ board, players, turn, start }) => {
@@ -229,6 +242,7 @@ function GameRoom() {
 
         socket.emit('getTime', (roomId), (res) => {
             setTimer(res.time);
+            setDefaultTimer(res.time)
         })
 
         if (currentUser) {
@@ -239,12 +253,13 @@ function GameRoom() {
 
         socket.emit('refresh-room', { roomId }, (res) => {
             if (res.status === 200) {
-                console.log(res);
+                // console.log(res);
                 setUsers(res.data.players);
                 setBoard(res.data.board);
                 setCurrentPlayer(res.data.turn);
                 setStart(res.data.start);
                 setTimer(res.data.defaultTime)
+                setDefaultTimer(res.data.defaultTime);
             }
         })
 
@@ -269,7 +284,7 @@ function GameRoom() {
         socket.emit('start', roomId);
     }
     // console.log(currentUser);
-    // console.log(currentPlayer)
+    console.log(users)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -356,6 +371,10 @@ function GameRoom() {
         }
     };
 
+    // const handleDrawer = (id) => {
+    //  socket.emit()   
+    // }
+
     useEffect(() => {
         if (!currentPlayer) return;
 
@@ -383,7 +402,7 @@ function GameRoom() {
         socket.emit('setNewTime', { roomId, time })
     }
 
-    // console.log(areFriend)
+    console.log(start)
 
     return (
         <>
@@ -443,12 +462,48 @@ function GameRoom() {
                     </div>
                 </div>
                 {start &&
-                    <div className='timer-container'>
-                        <div className="timer">
-                            {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name} <br />
+                    currentPlayer === currentUser?._id ?
+                    <div className='parentCount'>
+                        <CountdownCircleTimer
+                            key={currentPlayer}
+                            isPlaying
+                            duration={defaultTimer}
+                            remainingTime={timer}
+                            colors={["#22c55e", "#facc15", "#ef4444"]}
+                            colorsTime={[defaultTimer, defaultTimer / 2, 3]}
+                            strokeWidth={6}
+                            size={80}
+                            className='parentCount'
+                        >
                             {timer}
+                        </CountdownCircleTimer>
+                        <div className='currentPlayer'>
+                            <div>
+                                {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name}
+                            </div>
+                            <div>{timer}</div>
                         </div>
-                    </div>}
+                    </div> :
+                    <>
+                        {start &&
+                            <div>
+                                <div>
+                                    {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name}
+                                </div>
+                                <div>{timer}</div>
+                            </div>
+                        }
+                    </>
+                }
+
+                {/* <CircularProgress
+                    enableTrackSlot
+                    variant="determinate"
+                    color="secondary"
+                    value={timer}
+
+                // size={timer}
+                /> */}
 
                 <div className="history-list">
                     {history?.length > 0 ?

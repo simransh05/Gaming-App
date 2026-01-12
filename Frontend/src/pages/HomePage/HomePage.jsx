@@ -12,74 +12,28 @@ import InviteModal from '../../components/Modals/InviteModal'
 import MyFriendModal from '../../components/Modals/MyFriendModal'
 import Swal from 'sweetalert2'
 import socket from '../../socket/socket'
+import requestInvite from '../../utils/helper/requestInvite'
+import rejectedInvite from '../../utils/helper/rejectedInvite'
+import userDisconnected from '../../utils/helper/userDisconnected'
 
 function HomePage() {
     const { currentUser, loading } = useContext(CurrentUserContext)
     const [showCreate, setShowCreate] = useState(false);
     const [showInvite, setShowInvite] = useState(false);
     const navigate = useNavigate();
-    const [showFriend, setShowFriend] = useState(false);
     useEffect(() => {
         if (loading) return;
         if (!currentUser) navigate(`${ROUTES.LOGIN}`)
 
-        socket.on('receive-invite', async ({ from, fromName }) => {
-            // console.log('here', from, fromName.name)
-            const result = await Swal.fire({
-                title: `${fromName.name} ask to join`,
-                text: '',
-                icon: 'info',
-                showCancelButton: true,
-                showConfirmButton: true,
-                confirmButtonText: 'Accept',
-                cancelButtonText: 'Reject'
-            })
-            // console.log(result)
-            if (result.isConfirmed) {
-                socket.emit('accept-invite', { from });
-            }
-            if (result.isDismissed) {
-                socket.emit('reject-invite', { from: currentUser._id, to: from })
-            }
-        })
-        socket.on('rejected', ({ name }) => {
-            Swal.fire({
-                title: `${name} rejected the invite`,
-                text: '',
-                icon: 'info',
-                timer: 5000,
-                showCancelButton: false,
-                showConfirmButton: false
-            })
-        })
-        socket.on('user-disconnected', ({ name }) => {
-            Swal.fire({
-                title: `${name} disconnected`,
-                text: '',
-                icon: 'info',
-                timer: 5000,
-                showCancelButton: false,
-                showConfirmButton: false
-            })
-        })
-        socket.on('room-created', ({ roomId }) => {
-            navigate(`${ROUTES.HOME}${roomId}`)
-        })
-        return () => {
-            socket.off('receive-invite');
-            socket.off('room-created');
-            socket.off('user-disconnected')
-        }
+        requestInvite(currentUser, navigate);
+        rejectedInvite();
+        userDisconnected();
     }, [currentUser, loading])
 
     const handleSuccess = (roomId) => {
         navigate(`${ROUTES.HOME}${roomId}`)
     }
 
-    const handleFriend = (userId) => {
-        const from = currentUser._id.toString();
-        socket.emit('send-invite', { from, to: userId })
-    }
     return (
         <>
             <NavBar />
@@ -140,13 +94,6 @@ function HomePage() {
                 </div>
 
                 <div className="btn-room">
-                    <button onClick={() => setShowFriend(true)} className='friends'>My Friends</button>
-                    {showFriend &&
-                        <MyFriendModal
-                            open={() => setShowFriend(true)}
-                            onClose={() => setShowFriend(false)}
-                            onSuccess={(userId, roomId) => handleFriend(userId, roomId)}
-                        />}
 
                     <button className='create-room' onClick={() => setShowCreate(true)}>Create Room</button>
                     {showCreate &&
