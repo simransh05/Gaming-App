@@ -7,7 +7,8 @@ const ROUTES = {
     HISTORY: '/history',
     RANKING: '/rank',
     FRIEND: '/friend',
-    TOP_RANKING:'/top-ranking',
+    TOP_RANKING: '/top-ranking',
+    USERS: '/users'
 }
 
 export default ROUTES;
