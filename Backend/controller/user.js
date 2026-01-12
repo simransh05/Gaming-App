@@ -82,6 +82,20 @@ module.exports.getUser = async (req, res) => {
     }
 }
 
+module.exports.getAllUsers = async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const users = await User.find({
+            _id: { $ne: userId }
+        })
+
+        return res.status(200).json(users);
+    }
+    catch (err) {
+        return res.status(500).json({ message: 'internal error' })
+    }
+}
+
 module.exports.postLogout = async (req, res) => {
     try {
         res.clearCookie("token", {

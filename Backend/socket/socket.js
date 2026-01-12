@@ -116,17 +116,18 @@ module.exports = (io) => {
 
         socket.on('start', (roomId) => {
             boards[roomId].start = true;
-            io.to(roomId).emit('game-started', { FirstPlayer: boards[roomId].turn, defaultTime });
+            console.log('defaulTIME', boards[roomId])
+            io.to(roomId).emit('game-started', { FirstPlayer: boards[roomId].turn, defaultTime: boards[roomId].defaultTime });
         })
 
-        socket.on('send-invite', async ({ from, to }) => {
+        socket.on('send-invite', async ({ from, to, roomId }) => {
             // console.log('from,to', from, to)
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
             // console.log('fromName', fromName)
             if (toId) {
                 // console.log(from, to)
-                io.to(toId).emit('receive-invite', { from, fromName });
+                io.to(toId).emit('receive-invite', { from, fromName, roomId });
             }
         });
 
@@ -138,43 +139,6 @@ module.exports = (io) => {
 
             io.to(toId).emit('rejected', { name: fromName.name })
         })
-
-        socket.on('accept-invite', async ({ from }) => {
-            const roomId = Math.floor(100000 + Math.random() * 900000);
-            socket.join(roomId);
-            // console.log('here');
-            boards[roomId] = {
-                board: ["", "", "", "", "", "", "", "", ""],
-                players: [],
-                turn: null,
-                symbols: {},
-                start: false,
-                defaultTime: 10
-            };
-            const fromId = activeMap.get(from);
-            // console.log(fromId);
-            if (fromId) {
-                io.to(fromId).socketsJoin(roomId);
-            }
-            const room = boards[roomId];
-            const user1 = await User.findById(from).lean();
-            room.players.push(user1);
-            const user2 = await User.findById(socket.userId).lean();
-            room.players.push(user2);
-            const p1 = room.players[0]?._id.toString();
-            const p2 = room.players[1]?._id.toString();
-            const firstTurn = Math.random() < 0.5 ? p1 : p2;
-            const secondTurn = firstTurn === p1 ? p2 : p1;
-            room.turn = firstTurn;
-            room.symbols[firstTurn] = 'X';
-            room.symbols[secondTurn] = 'O';
-            // console.log(boards[roomId])
-            if (!activeUser.has(from)) {
-                socket.emit('user-disconnected', { name: user1.name });
-                return;
-            }
-            io.to(roomId).emit('room-created', { roomId });
-        });
 
         socket.on('move', async (data) => {
             const { roomId, index } = data;

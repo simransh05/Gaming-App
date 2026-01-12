@@ -23,6 +23,8 @@ router.get('/friend/:userId/:id', controller3.getIndividualFriend);
 
 router.post('/friend/:userId/:id', controller3.postFriend);
 
+router.get('/users/:userId', controller1.getAllUsers);
+
 router.get('/:userId', controller2.getName);
 
 module.exports = router;
