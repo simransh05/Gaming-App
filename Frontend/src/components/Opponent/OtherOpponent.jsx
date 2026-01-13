@@ -5,28 +5,15 @@ import { CurrentUserContext } from '../../context/UserContext'
 import { useContext } from 'react'
 import { useState } from 'react'
 import socket from '../../socket/socket'
+import { friendStore } from '../Zustand/Friends'
+import { userStore } from '../Zustand/AllUsers'
 
 function OtherOpponent({ onSuccess }) {
-    const { currentUser, loading } = useContext(CurrentUserContext);
-    const [users, setUsers] = useState(null);
+    const { currentUser } = useContext(CurrentUserContext);
     const [activeUsers, setActiveUsers] = useState(null);
-    const [friends, setFriends] = useState(null);
-
-    useEffect(() => {
-        if (loading) return;
-        const fetchData = async () => {
-            const res = await api.getAllUsers(currentUser?._id);
-            const res1 = await api.getFriends(currentUser?._id)
-            setFriends(res1.data.myFriends || [])
-            console.log(res.data)
-            if (res.data.length != 0) {
-                setUsers(res.data);
-            } else {
-                setUsers([])
-            }
-        }
-        fetchData();
-    }, [loading])
+    const { friends } = friendStore();
+    const { allUsers } = userStore();
+    const [search, setSearch] = useState('');
 
     useEffect(() => {
         socket.emit('activeUsers');
@@ -43,19 +30,26 @@ function OtherOpponent({ onSuccess }) {
     const friendIds = new Set(friends?.map(f => f._id));
 
     const handleFriend = async (id) => {
-        await api.postFriend(currentUser._id, id)
-        // socket.emit('askFriend')
+        await api.postFriend(currentUser._id, id);
+        friendIds.add(id);
+        socket.emit('askFriend', { from: currentUser._id, to: id })
     }
 
     const handleClick = (id) => {
         onSuccess(id);
     }
+    console.log(activeUsers, allUsers, currentUser._id);
 
-    console.log(activeUsers, users, currentUser._id);
+    const handleChange = (e) => {
+        setSearch(e.target.value)
+        // display according to filter by playerid who's start with the same char display the 
+        // result not the entire thing 
+    }
     return (
         <div>
+            <input type="text" onChange={handleChange} value={search} placeholder='Search by playerId' />
             <ul>
-                {users && users?.map((u, idx) => (
+                {allUsers && allUsers?.map((u, idx) => (
                     <li key={idx} className={activeUsers?.includes(u._id) ? 'active-now' : 'not-active-now'}>
                         <span className='name-friend'>{u.name}</span>
                         {activeUsers?.includes(u._id) ?
@@ -72,8 +66,6 @@ function OtherOpponent({ onSuccess }) {
                     </li>
                 ))}
             </ul>
-
-            {/* if active users then dot accordingly  */}
         </div>
     )
 }

@@ -11,11 +11,15 @@ import socket from '../../socket/socket';
 import Swal from 'sweetalert2';
 
 function InviteModal({ open, onClose, onSuccess }) {
-  const [inputValue, setInputValue] = useState('');
+  const [roomId, setRoomId] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    socket.emit('join', inputValue);
+    socket.emit('join', { roomId }, (res) => {
+      if (res.alreadyIn) {
+        onSuccess(roomId)
+      }
+    });
   };
 
   useEffect(() => {
@@ -36,7 +40,7 @@ function InviteModal({ open, onClose, onSuccess }) {
   }, [onSuccess, onClose]);
 
   const handleClose = () => {
-    setInputValue('');
+    setRoomId('');
     onClose();
   };
 
@@ -49,13 +53,13 @@ function InviteModal({ open, onClose, onSuccess }) {
           <TextField
             label="Room ID"
             fullWidth
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            value={roomId}
+            onChange={(e) => setRoomId(e.target.value)}
             required
           />
         </DialogContent>
 
-        <DialogActions sx={{display:'flex',justifyContent:'center'}}>
+        <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
           <Button onClick={handleClose}>Cancel</Button>
           <Button type="submit">Join Room</Button>
         </DialogActions>

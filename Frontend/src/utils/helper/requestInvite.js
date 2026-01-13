@@ -1,9 +1,8 @@
 import Swal from "sweetalert2";
 import socket from "../../socket/socket";
-import { useNavigate } from "react-router-dom";
 import ROUTES from "../../constant/Route/route";
 
-const requestInvite = (currentUser , navigate) => {
+const requestInvite = (currentUser, navigate) => {
     socket.on('receive-invite', async ({ from, fromName, roomId }) => {
         // console.log('here', from, fromName.name)
         const result = await Swal.fire({
@@ -17,8 +16,15 @@ const requestInvite = (currentUser , navigate) => {
         })
         // console.log(result)
         if (result.isConfirmed) {
-            socket.emit('join', roomId);
-            navigate(`${ROUTES.HOME}${roomId}`)
+            // here add check if get the one socket emit if there is already 2 users then return message
+            socket.emit('join', { roomId }, (res) => {
+                // console.log(res.players);
+                if (res.players.length >= 2) {
+                    return Swal.fire({ title: 'Room is Full ' });
+                } else {
+                    navigate(`${ROUTES.HOME}${roomId}`)
+                }
+            });
         }
         if (result.isDismissed) {
             socket.emit('reject-invite', { from: currentUser._id, to: from })

@@ -14,6 +14,10 @@ import OpponentDrawer from '../../components/Drawer/OpponentDrawer';
 import { CircularProgress } from '@mui/material';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import rejectedInvite from '../../utils/helper/rejectedInvite';
+import { userStore } from '../../components/Zustand/AllUsers'
+import { friendStore } from '../../components/Zustand/Friends'
+import acceptFriend from '../../utils/helper/acceptFriend';
+import refuseFriend from '../../utils/helper/refuseFriend';
 function GameRoom() {
     const { roomId } = useParams()
     const [board, setBoard] = useState([
@@ -32,7 +36,9 @@ function GameRoom() {
     const [defaultTimer, setDefaultTimer] = useState(0);
     const [defaultTime, setDefaultTime] = useState(false);
     const [areFriend, setAreFriend] = useState(false);
-    const [opponent, setOpponent] = useState(false)
+    const [opponent, setOpponent] = useState(false);
+    const { fetchAllUsers } = userStore();
+    const { fetchFriends } = friendStore();
 
     useEffect(() => {
         if (loading) return;
@@ -50,6 +56,17 @@ function GameRoom() {
             }
         }
     }, [currentUser, loading])
+
+    // console.log(users);
+
+    useEffect(() => {
+        if (loading) return;
+        fetchAllUsers(currentUser?._id);
+        fetchFriends(currentUser?._id);
+    }, [loading])
+
+    // console.log(allUsers);
+    // console.log(friends);
 
     useEffect(() => {
         const friendsCheck = async () => {
@@ -177,48 +194,9 @@ function GameRoom() {
             setDefaultTimer(defaultTime)
         })
 
-        socket.on('acceptFriend', async ({ players }) => {
-            // console.log(players)
-            // setUsers(players)
-            // console.log('here')
-            const result = await Swal.fire({
-                title: 'Ask to be Friend',
-                text: '',
-                icon: 'question',
-                cancelButtonText: 'Deny',
-                confirmButtonText: 'Accept',
-                showConfirmButton: true,
-                showCancelButton: true
-            })
-            // console.log('here')
-            const otherUser = players.find(u => u._id !== currentUser?._id);
-            // console.log(result);
-            if (result.isConfirmed) {
-                // console.log(players);
-                setUsers(players)
-                // console.log(users)
-                const userId = currentUser._id;
-                const id = otherUser._id;
-                await api.postFriend(userId, id);
-                setAreFriend(true)
-            }
-            if (result.isDismissed) {
-                setAreFriend(false)
-                socket.emit('refuse-friend', { to: otherUser._id })
+        acceptFriend(setAreFriend)
 
-            }
-        })
-
-        socket.on('refused', () => {
-            Swal.fire({
-                title: 'Refuse to be Friend',
-                text: '',
-                icon: 'info',
-                showCancelButton: false,
-                showConfirmButton: false,
-                timer: 3000
-            })
-        })
+        refuseFriend();
 
         socket.on('getNewTime', ({ time }) => {
             setTimer(time);
@@ -273,8 +251,6 @@ function GameRoom() {
             socket.off('nextTurn');
             socket.off("player-left");
             socket.off('refresh-room');
-            socket.off('acceptFriend');
-            socket.off('refused');
         };
     }, [roomId, loading]);
 
@@ -284,7 +260,7 @@ function GameRoom() {
         socket.emit('start', roomId);
     }
     // console.log(currentUser);
-    console.log(users)
+    // console.log(users)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -352,7 +328,7 @@ function GameRoom() {
         if (res.status === 200) {
             setAreFriend(true);
         }
-        socket.emit('askFriend', roomId);
+        socket.emit('askFriend', { from: currentUser._id, to: otherUser._id });
     }
 
     const getLineClass = (pattern) => {
@@ -402,7 +378,7 @@ function GameRoom() {
         socket.emit('setNewTime', { roomId, time })
     }
 
-    console.log(start)
+    // console.log(start)
 
     return (
         <>
@@ -472,12 +448,11 @@ function GameRoom() {
                             colors={["#22c55e", "#facc15", "#ef4444"]}
                             colorsTime={[defaultTimer, defaultTimer / 2, 3]}
                             strokeWidth={6}
-                            size={80}
-                            className='parentCount'
+                            size={100}
                         >
                             {timer}
                         </CountdownCircleTimer>
-                        <div className='currentPlayer'>
+                        <div className='currentPlayer timer-text'>
                             <div>
                                 {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name}
                             </div>
@@ -486,7 +461,7 @@ function GameRoom() {
                     </div> :
                     <>
                         {start &&
-                            <div>
+                            <div className='parentCount timer-text'>
                                 <div>
                                     {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name}
                                 </div>
@@ -495,15 +470,6 @@ function GameRoom() {
                         }
                     </>
                 }
-
-                {/* <CircularProgress
-                    enableTrackSlot
-                    variant="determinate"
-                    color="secondary"
-                    value={timer}
-
-                // size={timer}
-                /> */}
 
                 <div className="history-list">
                     {history?.length > 0 ?
