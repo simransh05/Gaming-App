@@ -3,21 +3,14 @@ import api from '../../utils/api'
 import { CurrentUserContext } from '../../context/UserContext'
 import socket from '../../socket/socket';
 import './MyFriend.css'
+import { friendStore } from '../Zustand/Friends';
 
 function MyFriendModal({ onSuccess }) {
-    const { currentUser, loading } = useContext(CurrentUserContext);
-    const [friends, setFriends] = useState(null);
     const [activeUsers, setActiveUsers] = useState(null);
+    const [search, setSearch] = useState('');
+    const [searchResult, setSearchResult] = useState([]);
 
-    useEffect(() => {
-        const fetchFriends = async () => {
-            if (loading) return;
-            const userId = currentUser?._id;
-            const res = await api.getFriends(userId)
-            setFriends(res.data.myFriends || [])
-        }
-        fetchFriends();
-    }, [loading])
+    const { friends } = friendStore();
 
     useEffect(() => {
         socket.emit('activeUsers');
@@ -35,10 +28,15 @@ function MyFriendModal({ onSuccess }) {
         onSuccess(id);
     }
 
+    const handleChange = (e) => {
+        setSearch(e.target.value);
+        // filter according to the name or the player id
+    }
+
     // console.log(friends, activeUsers)
     return (
         <div className='friends-info'>
-            {/* <h1 sx={{textAlign:'center'}}>My Friends</h1> */}
+            <input type="text" onChange={handleChange} value={search} placeholder='Search by name or playerId' />
             <ul className='friend-list'>
                 {friends === null || friends.length === 0 ? <div className='no-friend'>No Friend</div> : (
                     friends?.map((f, idx) => (

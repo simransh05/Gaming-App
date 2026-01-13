@@ -22,8 +22,10 @@ function OpponentDrawer({ open, onClose }) {
         if (loading) return;
     }, [loading])
 
+    // console.log(currentUser._id , currentUser._id.toString())
+
     const handleFriend = (userId) => {
-        const from = currentUser._id.toString();
+        const from = currentUser._id;
         // console.log('here')
         socket.emit('send-invite', { from, to: userId, roomId })
     }

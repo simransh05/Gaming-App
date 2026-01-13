@@ -9,12 +9,12 @@ import './Homepage.css'
 import { useState } from 'react'
 import CreateModal from '../../components/Modals/CreateModal'
 import InviteModal from '../../components/Modals/InviteModal'
-import MyFriendModal from '../../components/Modals/MyFriendModal'
-import Swal from 'sweetalert2'
 import socket from '../../socket/socket'
 import requestInvite from '../../utils/helper/requestInvite'
 import rejectedInvite from '../../utils/helper/rejectedInvite'
 import userDisconnected from '../../utils/helper/userDisconnected'
+import acceptFriend from '../../utils/helper/acceptFriend'
+import refuseFriend from '../../utils/helper/refuseFriend'
 
 function HomePage() {
     const { currentUser, loading } = useContext(CurrentUserContext)
@@ -23,14 +23,20 @@ function HomePage() {
     const navigate = useNavigate();
     useEffect(() => {
         if (loading) return;
-        if (!currentUser) navigate(`${ROUTES.LOGIN}`)
-
+        if (!currentUser) return navigate(`${ROUTES.LOGIN}`);
+        if (!socket.connected) {
+            socket.emit("register", currentUser?._id);
+        }
+        // console.log(socket.connected)
         requestInvite(currentUser, navigate);
         rejectedInvite();
         userDisconnected();
+        acceptFriend();
+        refuseFriend();
     }, [currentUser, loading])
 
     const handleSuccess = (roomId) => {
+        // console.log(roomId)
         navigate(`${ROUTES.HOME}${roomId}`)
     }
 

@@ -49,14 +49,14 @@ function NavBar() {
                 setRanking([]);
             } else {
                 const data = format(res.data);
-                console.log(data);
+                // console.log(data);
                 setRanking(data);
             }
         }
         fetchRank()
     }, [loading])
 
-    console.log(ranking, currentUser)
+    // console.log(ranking, currentUser)
 
     return (
         <div className='navbar'>
@@ -66,7 +66,6 @@ function NavBar() {
                 {(!ranking || ranking.length === 0) ? <div className='my-rank'>No Rank</div> :
                     (
                         ranking.map((r, idx) => {
-                            { console.log('here') }
                             { if(currentUser?._id === r.userId ) return <div key={idx} className='my-rank'>My Rank: {r.rank}</div> }
                         })
                     )}
