@@ -1,6 +1,6 @@
 import Swal from "sweetalert2";
-import socket from "../../socket/socket";
-import ROUTES from "../../constant/Route/route";
+import socket from "../../../socket/socket";
+import ROUTES from "../../../constant/Route/route";
 
 const requestInvite = (currentUser, navigate) => {
     socket.on('receive-invite', async ({ from, fromName, roomId }) => {
@@ -14,11 +14,11 @@ const requestInvite = (currentUser, navigate) => {
             confirmButtonText: 'Accept',
             cancelButtonText: 'Reject'
         })
-        // console.log(result)
+        console.log(result)
         if (result.isConfirmed) {
             // here add check if get the one socket emit if there is already 2 users then return message
             socket.emit('join', { roomId }, (res) => {
-                // console.log(res.players);
+                console.log(res.players);
                 if (res.players.length >= 2) {
                     return Swal.fire({ title: 'Room is Full ' });
                 } else {

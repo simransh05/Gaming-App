@@ -11,7 +11,6 @@ import { CurrentUserContext } from '../../context/UserContext';
 import { toast } from 'react-toastify';
 import TimerSet from '../../components/Modals/TimerSet';
 import OpponentDrawer from '../../components/Drawer/OpponentDrawer';
-import { CircularProgress } from '@mui/material';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer'
 import rejectedInvite from '../../utils/helper/rejectedInvite';
 import { userStore } from '../../components/Zustand/AllUsers'
@@ -46,14 +45,14 @@ function GameRoom() {
         if (!currentUser) {
             Swal.fire("Need to login first", "", "warning")
             navigate(`${ROUTES.LOGIN}`)
-        } else if (currentUser && users?.length > 0) {
-            // console.log(users, currentUser)
-            const notJoined = users?.some(u => u?._id === currentUser?._id)
-            // console.log(notJoined, users.length === 0)
-            if (users?.length === 0 || !notJoined) {
-                Swal.fire({ title: 'You are not Joined' })
-                navigate(ROUTES.HOME)
-            }
+        } else if (currentUser) {
+            socket.emit('getUser', { roomId }, (res) => {
+                const isAlreadyIn = res.players.some(u => currentUser._id === u._id);
+                if (!isAlreadyIn) {
+                    Swal.fire({ title: 'You are not joined' })
+                    navigate(ROUTES.HOME)
+                }
+            })
         }
     }, [currentUser, loading])
 
@@ -92,19 +91,54 @@ function GameRoom() {
         // console.log('here')
         socket.emit("move", { roomId, index });
     };
-    // console.log(currentUser);
+    console.log(users);
 
     useEffect(() => {
         if (!roomId) return;
 
         if (loading) return;
 
+        // this is the problem 
+        // const anotherRoom = roomId;
+        // socket.on('receive-invite', async ({ from, fromName, roomId }) => {
+        //     console.log('here', roomId)
+
+        //     const result = await Swal.fire({
+        //         title: `${fromName.name} ask to join`,
+        //         text: '',
+        //         icon: 'info',
+        //         showCancelButton: true,
+        //         showConfirmButton: true,
+        //         confirmButtonText: 'Accept',
+        //         cancelButtonText: 'Reject'
+        //     })
+        //     if (result.isConfirmed) {
+        //         socket.emit('leave', { roomId: anotherRoom }, (res) => {
+        //             if (res.status === 200) {
+        //                 socket.emit('join', { roomId }, (res) => {
+        //                     console.log(res.players);
+        //                     if (res.players.length >= 2) {
+        //                         console.log('here');
+        //                         return Swal.fire({ title: 'Room is Full ' });
+        //                     } else {
+        //                         console.log('here', roomId);
+        //                         return navigate(`${ROUTES.HOME}${roomId}`)
+        //                     }
+        //                 });
+        //             }
+        //         })
+        //     }
+        //     if (result.isDismissed) {
+        //         socket.emit('reject-invite', { from: currentUser._id, to: from })
+        //     }
+        // })
         rejectedInvite();
 
         socket.on("player-joined", (players) => {
             if (Array.isArray(players)) {
-                // console.log(players)
+                // console.log('here', players)
                 setUsers(players);
+
             }
         });
 
@@ -203,14 +237,14 @@ function GameRoom() {
             setDefaultTimer(time)
         })
         // opponent left
-        socket.on("player-left", ({ board, players, turn, start }) => {
+        socket.on("player-left", ({ board, players, turn, start, beforeStart }) => {
             setStart(start);
             setBoard(board);
             setUsers(players);
             setCurrentPlayer(turn);
             setHistory(null);
             Swal.fire({
-                title: "Opponent left",
+                title: beforeStart ? "Opponent left you win" : "Opponent left",
                 text: "",
                 icon: "warning",
                 timer: 5000,
@@ -231,13 +265,28 @@ function GameRoom() {
 
         socket.emit('refresh-room', { roomId }, (res) => {
             if (res.status === 200) {
-                // console.log(res);
+                console.log(res);
                 setUsers(res.data.players);
                 setBoard(res.data.board);
                 setCurrentPlayer(res.data.turn);
                 setStart(res.data.start);
                 setTimer(res.data.defaultTime)
                 setDefaultTimer(res.data.defaultTime);
+                if (!res.data.start && currentUser._id === res.data.players[0]._id) {
+                    Swal.fire({
+                        title: 'Game rules',
+                        text: 'U can change the time of the game',
+                        icon: 'info',
+                        showConfirmButton: true
+                    })
+                } else if (!res.data.start) {
+                    Swal.fire({
+                        title: 'Game rules',
+                        text: res.data.defaultTime === 10 ? 'The game time is 10sec per person' : `the creator change the default time to ${res.data.defaultTime}sec`,
+                        icon: 'info',
+                        showConfirmButton: true
+                    })
+                }
             }
         })
 
@@ -412,8 +461,7 @@ function GameRoom() {
                     users && users.length === 2 && <button onClick={handleFriend} className='ask-friend'>
                         Ask to be Friend
                     </button>}
-                {/* {start &&
-                    <div className="currentTurn">Current Turn: {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name}</div>} */}
+
                 <button onClick={leave} className='leave-room'>Leave Game Room</button>
             </div>
             <div className="main-container">

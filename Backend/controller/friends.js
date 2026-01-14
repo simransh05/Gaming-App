@@ -19,7 +19,7 @@ module.exports.postFriend = async (req, res) => {
 module.exports.getFriends = async (req, res) => {
     const { userId } = req.params;
     try {
-        const friend = await Friends.findOne({ userId }).populate('myFriends', 'name _id');
+        const friend = await Friends.findOne({ userId }).populate('myFriends');
         // console.log('friend', friend);
         return res.status(200).json(friend || { myFriends: [] });
     }

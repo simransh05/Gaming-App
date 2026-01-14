@@ -10,11 +10,12 @@ import { useState } from 'react'
 import CreateModal from '../../components/Modals/CreateModal'
 import InviteModal from '../../components/Modals/InviteModal'
 import socket from '../../socket/socket'
-import requestInvite from '../../utils/helper/requestInvite'
 import rejectedInvite from '../../utils/helper/rejectedInvite'
 import userDisconnected from '../../utils/helper/userDisconnected'
 import acceptFriend from '../../utils/helper/acceptFriend'
 import refuseFriend from '../../utils/helper/refuseFriend'
+import Swal from 'sweetalert2'
+import requestInvite from '../../utils/helper/socketHelper/requestInvite'
 
 function HomePage() {
     const { currentUser, loading } = useContext(CurrentUserContext)
@@ -27,12 +28,15 @@ function HomePage() {
         if (!socket.connected) {
             socket.emit("register", currentUser?._id);
         }
-        // console.log(socket.connected)
         requestInvite(currentUser, navigate);
         rejectedInvite();
         userDisconnected();
         acceptFriend();
         refuseFriend();
+
+        return () => {
+            socket.off('receive-invite')
+        }
     }, [currentUser, loading])
 
     const handleSuccess = (roomId) => {
@@ -80,6 +84,11 @@ function HomePage() {
                         <li>
                             If all cells are filled and no player wins,
                             the game ends in a <strong>draw</strong>.
+                        </li>
+
+                        <li>
+                            If a player leaves the room during an active game,
+                            the remaining player is <strong>declared the winner</strong>.
                         </li>
 
                         <li>

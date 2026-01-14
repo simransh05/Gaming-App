@@ -29,28 +29,48 @@ function MyFriendModal({ onSuccess }) {
     }
 
     const handleChange = (e) => {
-        setSearch(e.target.value);
-        // filter according to the name or the player id
+        const value = e.target.value;
+        setSearch(value);
+        let lowerSearch = value.toLowerCase();
+        // console.log(lowerSearch)
+        const result = friends.filter(f => f.email.toLowerCase().includes(lowerSearch) ||
+            String(f.playerId).includes(lowerSearch));
+        // console.log('search result', result);
+        setSearchResult(result);
     }
 
-    // console.log(friends, activeUsers)
+    // console.log(friends)
     return (
         <div className='friends-info'>
-            <input type="text" onChange={handleChange} value={search} placeholder='Search by name or playerId' />
+            <input type="text" onChange={handleChange} value={search} placeholder='Search by email or playerId' />
             <ul className='friend-list'>
                 {friends === null || friends.length === 0 ? <div className='no-friend'>No Friend</div> : (
-                    friends?.map((f, idx) => (
-                        <li key={idx} className={activeUsers?.includes(f?._id) ? 'active-now' : 'not-active-now'}>
-                            <span className='name-friend'>{f?.name}</span>
-                            {activeUsers?.includes(f?._id) ?
-                                <button onClick={() => handleClick(f._id)} className='active'>
-                                    Send Invite
-                                </button>
-                                : <button disabled className='non-active'>
-                                    Send Invite
-                                </button>}
-                        </li>
-                    ))
+                    (search && search.length > 0) ? (
+                        searchResult?.map((f, idx) => (
+                            <li key={idx} className={activeUsers?.includes(f?._id) ? 'active-now' : 'not-active-now'}>
+                                <span className='name-friend'>{f?.name}</span>
+                                {activeUsers?.includes(f?._id) ?
+                                    <button onClick={() => handleClick(f._id)} className='active'>
+                                        Send Invite
+                                    </button>
+                                    : <button disabled className='non-active'>
+                                        Send Invite
+                                    </button>}
+                            </li>
+                        ))
+                    ) :
+                        friends?.map((f, idx) => (
+                            <li key={idx} className={activeUsers?.includes(f?._id) ? 'active-now' : 'not-active-now'}>
+                                <span className='name-friend'>{f?.name}</span>
+                                {activeUsers?.includes(f?._id) ?
+                                    <button onClick={() => handleClick(f._id)} className='active'>
+                                        Send Invite
+                                    </button>
+                                    : <button disabled className='non-active'>
+                                        Send Invite
+                                    </button>}
+                            </li>
+                        ))
                 )}
             </ul>
         </div>
