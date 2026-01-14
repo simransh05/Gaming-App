@@ -11,6 +11,7 @@ import { userStore } from '../Zustand/AllUsers'
 function OtherOpponent({ onSuccess }) {
     const { currentUser } = useContext(CurrentUserContext);
     const [activeUsers, setActiveUsers] = useState(null);
+    const [searchResult, setSearchResult] = useState([]);
     const { friends } = friendStore();
     const { allUsers } = userStore();
     const [search, setSearch] = useState('');
@@ -38,18 +39,22 @@ function OtherOpponent({ onSuccess }) {
     const handleClick = (id) => {
         onSuccess(id);
     }
-    console.log(activeUsers, allUsers, currentUser._id);
+    // console.log(activeUsers, allUsers, currentUser._id);
 
     const handleChange = (e) => {
-        setSearch(e.target.value)
-        // display according to filter by playerid who's start with the same char display the 
-        // result not the entire thing 
+        const value = e.target.value;
+        setSearch(value);
+        let lowerSearch = value.toLowerCase();
+        // console.log(lowerSearch)
+        const result = allUsers.filter(f => String(f.playerId).includes(lowerSearch));
+        // console.log('search result', result);
+        setSearchResult(result)
     }
     return (
         <div>
             <input type="text" onChange={handleChange} value={search} placeholder='Search by playerId' />
             <ul>
-                {allUsers && allUsers?.map((u, idx) => (
+                {search && search.length > 0 && searchResult?.map((u, idx) => (
                     <li key={idx} className={activeUsers?.includes(u._id) ? 'active-now' : 'not-active-now'}>
                         <span className='name-friend'>{u.name}</span>
                         {activeUsers?.includes(u._id) ?
@@ -61,7 +66,10 @@ function OtherOpponent({ onSuccess }) {
                             </button>
                         }
                         {friendIds.has(u._id) ? <button disabled>Friend</button> :
-                            <button onClick={() => handleFriend(u._id)}>Ask to be friend</button>
+                            <>
+                                {activeUsers?.includes(u._id) ? <button onClick={() => handleFriend(u._id)}>Ask to be friend</button> :
+                                    <button onClick={() => handleFriend(u._id)} disabled >Ask to be friend</button>}
+                            </>
                         }
                     </li>
                 ))}

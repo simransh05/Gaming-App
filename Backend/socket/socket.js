@@ -48,7 +48,7 @@ module.exports = (io) => {
             }
             const room = boards[roomId];
 
-            const alreadyIn = room.players.some(u => u._id.toString() === socket.userId);
+            const alreadyIn = room.players.some(u => u?._id.toString() === socket.userId);
             // console.log('here 67', alreadyIn)
             if (callback && alreadyIn) {
                 return callback({ alreadyIn })
@@ -68,7 +68,6 @@ module.exports = (io) => {
 
             const user = await User.findById(socket.userId).lean();
             room.players.push(user);
-            // console.log('players', room.players)
 
             if (room.players.length === 2) {
                 const p1 = room.players[0]?._id.toString();
@@ -126,7 +125,7 @@ module.exports = (io) => {
         })
 
         socket.on('send-invite', async ({ from, to, roomId }) => {
-            // console.log('from,to', from, to)
+            console.log('from,to', from, to, roomId)
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
             // console.log('fromName', fromName)
@@ -225,6 +224,10 @@ module.exports = (io) => {
             io.to(toId).emit('acceptFriend', { from: to, fromName, to: from })
         })
 
+        socket.on('getUser', ({ roomId }, callback) => {
+            callback({ players: boards[roomId].players });
+        })
+
         socket.on('refuse-friend', async ({ from, to }) => {
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
@@ -254,6 +257,7 @@ module.exports = (io) => {
         })
 
         socket.on('leave', async ({ roomId }, callback) => {
+            let beforeStart;
             if (boards[roomId]) {
                 boards[roomId].players = boards[roomId].players.filter(
                     u => u?._id.toString() !== socket.userId
@@ -265,6 +269,7 @@ module.exports = (io) => {
                         winnerId: boards[roomId].players[0]._id
                     })
                 }
+                beforeStart = boards[roomId].start
                 boards[roomId].start = false;
             }
             boards[roomId].board = ["", "", "", "", "", "", "", "", ""];
@@ -275,14 +280,17 @@ module.exports = (io) => {
                 board: boards[roomId].board,
                 start: boards[roomId].start,
                 players: boards[roomId].players,
-                turn: boards[roomId].turn
+                turn: boards[roomId].turn,
+                beforeStart
             });
             // console.log(boards[roomId]);
             socket.leave(roomId);
             if (boards[roomId].players === 0) {
                 delete boards[roomId];
             }
-            callback({ status: 200 })
+            if (callback) {
+                callback({ status: 200 })
+            }
         })
 
         socket.on('disconnect', () => {
