@@ -2,9 +2,10 @@ import Swal from "sweetalert2";
 import socket from "../../../socket/socket";
 import ROUTES from "../../../constant/Route/route";
 
-const requestInvite = (currentUser, navigate) => {
+const requestGameInvite = (currentUser, navigate, anotherRoom) => {
     socket.on('receive-invite', async ({ from, fromName, roomId }) => {
-        // console.log('here', from, fromName.name)
+        // console.log('here', roomId)
+
         const result = await Swal.fire({
             title: `${fromName.name} ask to join`,
             text: '',
@@ -14,16 +15,21 @@ const requestInvite = (currentUser, navigate) => {
             confirmButtonText: 'Accept',
             cancelButtonText: 'Reject'
         })
-        // console.log(result)
         if (result.isConfirmed) {
-            socket.emit('join', { roomId }, (res) => {
-                // console.log(res);
-                if (res.roomFull) {
-                    return Swal.fire({ title: 'Room is Full ' });
-                } else if (res.joined) {
-                    navigate(`${ROUTES.HOME}${roomId}`)
+            socket.emit('leave', { roomId: anotherRoom }, (res) => {
+                if (res.status === 200) {
+                    socket.emit('join', { roomId }, (res) => {
+                        // console.log(res);
+                        if (res.roomFull) {
+                            // console.log('here');
+                            return Swal.fire({ title: 'Room is Full ' });
+                        } else {
+                            // console.log('here', roomId);
+                            return navigate(`${ROUTES.HOME}${roomId}`)
+                        }
+                    });
                 }
-            });
+            })
         } else if (result.dismiss === Swal.DismissReason.cancel || result.dismiss === Swal.DismissReason.backdrop) {
             socket.emit('reject-invite', { from: currentUser._id, to: from })
         }
@@ -33,4 +39,4 @@ const requestInvite = (currentUser, navigate) => {
     }
 }
 
-export default requestInvite;
+export default requestGameInvite;

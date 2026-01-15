@@ -14,7 +14,6 @@ import rejectedInvite from '../../utils/helper/rejectedInvite'
 import userDisconnected from '../../utils/helper/userDisconnected'
 import acceptFriend from '../../utils/helper/acceptFriend'
 import refuseFriend from '../../utils/helper/refuseFriend'
-import Swal from 'sweetalert2'
 import requestInvite from '../../utils/helper/socketHelper/requestInvite'
 
 function HomePage() {
@@ -23,20 +22,18 @@ function HomePage() {
     const [showInvite, setShowInvite] = useState(false);
     const navigate = useNavigate();
     useEffect(() => {
+        // console.log('here', currentUser, loading, socket.connected)
         if (loading) return;
         if (!currentUser) return navigate(`${ROUTES.LOGIN}`);
-        if (!socket.connected) {
-            socket.emit("register", currentUser?._id);
+        if (socket.connected) {
+            // console.log('here')
+            socket.emit("register", currentUser._id);
         }
         requestInvite(currentUser, navigate);
         rejectedInvite();
         userDisconnected();
         acceptFriend();
         refuseFriend();
-
-        return () => {
-            socket.off('receive-invite')
-        }
     }, [currentUser, loading])
 
     const handleSuccess = (roomId) => {

@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import socket from '../../../socket/socket'
 
-const Winner = (setBoard, setStart, setLine, setHistory, setDefaultTimer, setTimer) => {
+const Winner = (setBoard, setStart, setLine, setHistory, setDefaultTimer, setTimer, currentUser) => {
     socket.on("winner", async ({ winnerId, board, name, pattern, lastMove, defaultTime }) => {
         setBoard(lastMove);
         setStart(false);

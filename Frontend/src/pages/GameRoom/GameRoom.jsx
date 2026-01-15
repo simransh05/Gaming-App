@@ -17,6 +17,12 @@ import { userStore } from '../../components/Zustand/AllUsers'
 import { friendStore } from '../../components/Zustand/Friends'
 import acceptFriend from '../../utils/helper/acceptFriend';
 import refuseFriend from '../../utils/helper/refuseFriend';
+import refreshGame from '../../utils/helper/socketHelper/refreshGame';
+import requestGameInvite from '../../utils/helper/socketHelper/requestGameInvite';
+import startGame from '../../utils/helper/socketHelper/StartGame';
+import playerLeft from '../../utils/helper/socketHelper/playerLeft';
+import drawMatch from '../../utils/helper/socketHelper/drawMatch';
+import Winner from '../../utils/helper/socketHelper/Winner';
 function GameRoom() {
     const { roomId } = useParams()
     const [board, setBoard] = useState([
@@ -41,31 +47,18 @@ function GameRoom() {
 
     useEffect(() => {
         if (loading) return;
-        // console.log(currentUser);
         if (!currentUser) {
             Swal.fire("Need to login first", "", "warning")
             navigate(`${ROUTES.LOGIN}`)
-        } else if (currentUser) {
-            socket.emit('getUser', { roomId }, (res) => {
-                const isAlreadyIn = res.players.some(u => currentUser._id === u._id);
-                if (!isAlreadyIn) {
-                    Swal.fire({ title: 'You are not joined' })
-                    navigate(ROUTES.HOME)
-                }
-            })
         }
     }, [currentUser, loading])
 
-    // console.log(users);
 
     useEffect(() => {
         if (loading) return;
         fetchAllUsers(currentUser?._id);
         fetchFriends(currentUser?._id);
     }, [loading])
-
-    // console.log(allUsers);
-    // console.log(friends);
 
     useEffect(() => {
         const friendsCheck = async () => {
@@ -81,88 +74,44 @@ function GameRoom() {
 
         }
         friendsCheck();
-        // check for the user if they are friend or not
     }, [users, loading])
 
     const handleClick = (index) => {
         if (!start) return;
-        // console.log(index)
         if (currentPlayer !== currentUser?._id) return;
-        // console.log('here')
         socket.emit("move", { roomId, index });
     };
-    console.log(users);
 
     useEffect(() => {
         if (!roomId) return;
 
         if (loading) return;
 
-        // this is the problem 
-        // const anotherRoom = roomId;
-        // socket.on('receive-invite', async ({ from, fromName, roomId }) => {
-        //     console.log('here', roomId)
-
-        //     const result = await Swal.fire({
-        //         title: `${fromName.name} ask to join`,
-        //         text: '',
-        //         icon: 'info',
-        //         showCancelButton: true,
-        //         showConfirmButton: true,
-        //         confirmButtonText: 'Accept',
-        //         cancelButtonText: 'Reject'
-        //     })
-        //     if (result.isConfirmed) {
-        //         socket.emit('leave', { roomId: anotherRoom }, (res) => {
-        //             if (res.status === 200) {
-        //                 socket.emit('join', { roomId }, (res) => {
-        //                     console.log(res.players);
-        //                     if (res.players.length >= 2) {
-        //                         console.log('here');
-        //                         return Swal.fire({ title: 'Room is Full ' });
-        //                     } else {
-        //                         console.log('here', roomId);
-        //                         return navigate(`${ROUTES.HOME}${roomId}`)
-        //                     }
-        //                 });
-        //             }
-        //         })
-        //     }
-        //     if (result.isDismissed) {
-        //         socket.emit('reject-invite', { from: currentUser._id, to: from })
-        //     }
-        // })
+        const anotherRoom = roomId;
+        requestGameInvite(currentUser, navigate, anotherRoom);
+        
         rejectedInvite();
+
+        Winner(setBoard, setStart, setLine, setHistory, setDefaultTimer, setTimer, currentUser);
+
+        drawMatch(setBoard, setStart, setHistory, setDefaultTimer, setTimer)
+
+        acceptFriend(setAreFriend)
+
+        refuseFriend();
+
+        playerLeft(setBoard, setCurrentPlayer, setStart, setUsers, setHistory);
+
+        startGame(setStart, setCurrentPlayer, setDefaultTimer, setTimer, currentUser)
 
         socket.on("player-joined", (players) => {
             if (Array.isArray(players)) {
-                // console.log('here', players)
                 setUsers(players);
 
             }
         });
 
-        socket.on("game-started", ({ FirstPlayer, defaultTime }) => {
-            // console.log(currentUser._id, FirstPlayer)
-            Swal.fire({
-                title: currentUser._id === FirstPlayer ? 'You win the toss got first move' : 'You lose the toss',
-                text: '',
-                icon: currentUser._id === FirstPlayer ? 'success' : 'error',
-                timer: 3000,
-                showCancelButton: false,
-                showConfirmButton: false,
-            }).then(() => {
-                setStart(true);
-                // console.log(FirstPlayer)
-                setCurrentPlayer(FirstPlayer);
-                setDefaultTimer(defaultTime)
-                setTimer(defaultTime)
-            })
-        });
-
-        // when a move is done
         socket.on("moveDone", ({ players, turn, board, defaultTime }) => {
-            // console.log(players, turn, board)
             setBoard(board);
             setUsers(players);
             setDefaultTimer(defaultTime);
@@ -170,87 +119,19 @@ function GameRoom() {
             setCurrentPlayer(turn);
         });
 
-        // winner
-        socket.on("winner", async ({ winnerId, board, name, pattern, lastMove, defaultTime }) => {
-            setBoard(lastMove);
-            setStart(false);
-            // console.log(pattern);
-            setLine(pattern);
-            await Swal.fire({
-                title: winnerId === currentUser?._id ? "You Won!" : "You Lost!",
-                text: "",
-                icon: winnerId === currentUser?._id ? "success" : "error",
-                width: '300',
-                showConfirmButton: false,
-                timer: 5000
-            }).then(() => {
-                setBoard(board);
-                setLine(null);
-                setHistory(prev => {
-                    const updated = [...prev, { winner: { name } }];
-                    return updated.length > 10 ? updated.slice(1) : updated;
-                });
-                setDefaultTimer(defaultTime)
-                setTimer(defaultTime);
-            })
-        });
-
-        // draw
-        socket.on("draw", async ({ board, lastMove, defaultTime }) => {
-            setBoard(lastMove);
-            setStart(false);
-            Swal.fire({
-                title: "Draw!",
-                text: "",
-                icon: "info",
-                width: '300',
-                showConfirmButton: false,
-                timer: 5000
-            }).then(() => {
-                setBoard(board);
-                setHistory(prev => {
-                    const updated = [...prev, { winner: null }];
-                    return updated.length > 10 ? updated.slice(1) : updated;
-                });
-                setDefaultTimer(defaultTime)
-                setTimer(defaultTime)
-            })
-        });
-
         socket.on('nextTurn', ({ start, prevTurn, turn, defaultTime }) => {
-            // console.log(prevTurn, currentUser._id)
             if (start && prevTurn === currentUser._id) {
                 toast.info('your turn is skipped');
             }
-            // console.log(turn)
             setCurrentPlayer(turn);
             setTimer(defaultTime);
             setDefaultTimer(defaultTime)
         })
 
-        acceptFriend(setAreFriend)
-
-        refuseFriend();
-
         socket.on('getNewTime', ({ time }) => {
             setTimer(time);
             setDefaultTimer(time)
         })
-        // opponent left
-        socket.on("player-left", ({ board, players, turn, start, beforeStart }) => {
-            setStart(start);
-            setBoard(board);
-            setUsers(players);
-            setCurrentPlayer(turn);
-            setHistory(null);
-            Swal.fire({
-                title: beforeStart ? "Opponent left you win" : "Opponent left",
-                text: "",
-                icon: "warning",
-                timer: 5000,
-                showConfirmButton: false
-            })
-        });
 
         socket.emit('getTime', (roomId), (res) => {
             setTimer(res.time);
@@ -263,43 +144,12 @@ function GameRoom() {
             }
         }
 
-        socket.emit('refresh-room', { roomId }, (res) => {
-            if (res.status === 200) {
-                console.log(res);
-                setUsers(res.data.players);
-                setBoard(res.data.board);
-                setCurrentPlayer(res.data.turn);
-                setStart(res.data.start);
-                setTimer(res.data.defaultTime)
-                setDefaultTimer(res.data.defaultTime);
-                if (!res.data.start && currentUser._id === res.data.players[0]._id) {
-                    Swal.fire({
-                        title: 'Game rules',
-                        text: 'U can change the time of the game',
-                        icon: 'info',
-                        showConfirmButton: true
-                    })
-                } else if (!res.data.start) {
-                    Swal.fire({
-                        title: 'Game rules',
-                        text: res.data.defaultTime === 10 ? 'The game time is 10sec per person' : `the creator change the default time to ${res.data.defaultTime}sec`,
-                        icon: 'info',
-                        showConfirmButton: true
-                    })
-                }
-            }
-        })
+        refreshGame(roomId, setUsers, setBoard, setCurrentPlayer, setStart, setTimer, setDefaultTimer, currentUser, navigate)
 
         return () => {
-            socket.off('game-started')
-            socket.off('room-full')
             socket.off("player-joined");
             socket.off("moveDone");
-            socket.off("winner");
-            socket.off("draw");
             socket.off('nextTurn');
-            socket.off("player-left");
-            socket.off('refresh-room');
         };
     }, [roomId, loading]);
 
@@ -308,8 +158,6 @@ function GameRoom() {
         if (users?.length != 2) return;
         socket.emit('start', roomId);
     }
-    // console.log(currentUser);
-    // console.log(users)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -318,8 +166,6 @@ function GameRoom() {
                 const player1 = users[0]?._id;
                 const player2 = users[1]?._id;
                 const res = await api.getHistory(player1, player2, currentUser?._id)
-                // console.log(res.status)
-                // console.log(res.data);
                 setHistory(res.data.history);
             }
             else {
@@ -440,13 +286,13 @@ function GameRoom() {
                     ))}
                 </div>
                 {users && users.length === 1 && <>
-                    <button onClick={() => setDefaultTime(true)}>Change Timer</button>
+                    <button onClick={() => setDefaultTime(true)} className='change-time'>Change Timer</button>
                     {defaultTime && <TimerSet
                         open={() => setDefaultTime(true)}
                         onClose={() => setDefaultTime(false)}
                         onSuccess={(successTime) => handleTimer(successTime)}
                     />}
-                    <button onClick={() => setOpponent(true)}>Choose opponent</button>
+                    <button onClick={() => setOpponent(true)} className='add-opponent'>Choose opponent</button>
                     {opponent &&
                         <OpponentDrawer
                             open={() => setOpponent(true)}

@@ -15,9 +15,13 @@ function InviteModal({ open, onClose, onSuccess }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    socket.emit('join', { roomId }, (res) => {
+    socket.emit('join', { roomId }, async (res) => {
+      // console.log(res);
       if (res.alreadyIn) {
         onSuccess(roomId)
+      } else if (res.roomFull) {
+        onClose();
+        await Swal.fire({ title: 'Room is Full ' });
       }
     });
   };
@@ -25,7 +29,7 @@ function InviteModal({ open, onClose, onSuccess }) {
   useEffect(() => {
     socket.on('room-full', async () => {
       onClose();
-      await Swal.fire({ title: 'Room is Full ' });
+
     });
 
     socket.on('joined-room', (roomId) => {

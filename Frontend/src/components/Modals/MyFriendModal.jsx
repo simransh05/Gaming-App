@@ -42,7 +42,9 @@ function MyFriendModal({ onSuccess }) {
     // console.log(friends)
     return (
         <div className='friends-info'>
-            <input type="text" onChange={handleChange} value={search} placeholder='Search by email or playerId' />
+            <div className="input-box">
+                <input type="text" onChange={handleChange} value={search} placeholder='Search by email or playerId' className='input-friend' />
+            </div>
             <ul className='friend-list'>
                 {friends === null || friends.length === 0 ? <div className='no-friend'>No Friend</div> : (
                     (search && search.length > 0) ? (

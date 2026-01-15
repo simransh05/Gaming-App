@@ -3,10 +3,13 @@ import api from '../../utils/api'
 import './Rank.css'
 import NavBar from '../NavBar/NavBar'
 import format from '../../utils/helper/formatRank'
+import { useNavigate } from 'react-router-dom'
+import ROUTES from '../../constant/Route/route'
 
 function RankModal() {
 
     const [ranking, setRanking] = useState(null)
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchRank = async () => {
@@ -15,53 +18,55 @@ function RankModal() {
                 setRanking([]);
             } else {
                 const data = format(res.data);
-                console.log(data);
+                // console.log(data);
                 setRanking(data);
             }
         }
         fetchRank()
     }, [])
 
-    console.log(ranking)
+    // console.log(ranking)
     return (
         <>
             <NavBar />
             <div className='modal-container'>
-                <h1>
+                <h1 className='rank-heading'>
                     Leaderboard
                 </h1>
 
                 <table className="leaderboard">
-                    {(!ranking || ranking.length === 0) ? (
-                        <caption className="no-rank">No leaderboard</caption>
-                    ) : (
-                        <>
-                            <thead className='header-table'>
-                                <tr className='ind-rank'>
-                                    <th>Rank</th>
-                                    <th>Name</th>
-                                    <th>User Id</th>
-                                    <th>Total Win</th>
-                                    <th>Total Lose</th>
-                                    <th>Draw</th>
-                                </tr>
-                            </thead>
+                    <caption className="no-rank">
+                        {(!ranking || ranking?.length === 0) && "No leaderboard"}
+                    </caption>
 
-                            <tbody className='body-table'>
-                                {ranking.map((r, index) => (
-                                    <tr key={index} className='ind-rank'>
-                                        <td>{r.rank}</td>
-                                        <td>{r.name}</td>
-                                        <td>{r.playerId}</td>
-                                        <td>{r.totalWins}</td>
-                                        <td>{r.totalLose}</td>
-                                        <td>{r.totalDraw}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </>
-                    )}
+                    <thead className='header-table'>
+                        <tr className='ind-rank'>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Player Id</th>
+                            <th>Total Win</th>
+                            <th>Total Lose</th>
+                            <th>Draw</th>
+                        </tr>
+                    </thead>
+
+                    <tbody className='body-table'>
+                        {ranking?.map((r, index) => (
+                            <tr key={index} className='ind-rank'>
+                                <td>{r.rank}</td>
+                                <td>{r.name}</td>
+                                <td>{r.playerId}</td>
+                                <td>{r.totalWins}</td>
+                                <td>{r.totalLose}</td>
+                                <td>{r.totalDraw}</td>
+                            </tr>
+                        ))}
+                    </tbody>
                 </table>
+
+                <button className='home-back' onClick={()=> navigate(`${ROUTES.HOME}`)}>
+                    Back to home
+                </button>
             </div>
         </>
     )
