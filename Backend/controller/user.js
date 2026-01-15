@@ -18,7 +18,7 @@ module.exports.postSignup = async (req, res) => {
             randomNum = Math.floor(1000000000 + Math.random() * 9000000000);
             exists = await User.findOne({ playerId: randomNum });
         }
-        console.log(randomNum);
+        // console.log(randomNum);
         const user = new User({
             name,
             email,

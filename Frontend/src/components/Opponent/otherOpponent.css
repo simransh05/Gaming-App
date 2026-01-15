@@ -1,0 +1,20 @@
+.other-friend,
+.non-active-opp,
+.active-opp {
+    border: none;
+    border-radius: 5px;
+    margin: 3px;
+    padding: 4px;
+    color: white;
+    background-color: blueviolet;
+    cursor: pointer;
+}
+
+.other-non-active{
+    margin: 3px;
+    padding: 6px;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    background-color: gray;
+}

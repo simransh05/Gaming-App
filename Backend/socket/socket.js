@@ -16,7 +16,7 @@ module.exports = (io) => {
             socket.userId = userId;
             activeUser.add(socket.userId)
             activeMap.set(userId, socket.id);
-            // console.log(activeUser)
+            // console.log(activeUser, activeMap);
             console.log('user connect', socket.userId)
         });
 
@@ -53,14 +53,10 @@ module.exports = (io) => {
             if (callback && alreadyIn) {
                 return callback({ alreadyIn })
             }
-            if (callback) {
-                callback({ players: room.players })
-            }
             // console.log('room', boards[roomId])
 
             if (room.players.length >= 2) {
-                socket.emit('room-full');
-                return;
+                return callback({ roomFull: true })
             }
             // already in match
 
@@ -68,6 +64,10 @@ module.exports = (io) => {
 
             const user = await User.findById(socket.userId).lean();
             room.players.push(user);
+
+            if (callback) {
+                callback({ joined: true })
+            }
 
             if (room.players.length === 2) {
                 const p1 = room.players[0]?._id.toString();
@@ -125,7 +125,7 @@ module.exports = (io) => {
         })
 
         socket.on('send-invite', async ({ from, to, roomId }) => {
-            console.log('from,to', from, to, roomId)
+            // console.log('from,to', from, to, roomId)
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
             // console.log('fromName', fromName)
@@ -222,10 +222,6 @@ module.exports = (io) => {
             const fromName = await User.findById(from).lean();
             // console.log('line 224', from, to)
             io.to(toId).emit('acceptFriend', { from: to, fromName, to: from })
-        })
-
-        socket.on('getUser', ({ roomId }, callback) => {
-            callback({ players: boards[roomId].players });
         })
 
         socket.on('refuse-friend', async ({ from, to }) => {

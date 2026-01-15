@@ -30,10 +30,10 @@ function OpponentDrawer({ open, onClose }) {
         socket.emit('send-invite', { from, to: userId, roomId })
     }
     return (
-        <Drawer open={open} onClose={onClose} >
+        <Drawer open={open} onClose={onClose} anchor='right' sx={{ borderRadius: '5px' }}>
             <Tabs value={tabName} onChange={handleClick} sx={{ margin: '5px' }}>
-                <Tab value='myFriend' label='My Friends' />
-                <Tab value='otherOppenent' label='Other Opponent' />
+                <Tab value='myFriend' label='My Friends' sx={{ textTransform: 'none', fontSize: '16px' }} />
+                <Tab value='otherOppenent' label='Other Opponent' sx={{ textTransform: 'none', fontSize: '16px' }} />
             </Tabs>
 
             {tabName === 'myFriend' && <MyFriendModal

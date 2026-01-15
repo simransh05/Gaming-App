@@ -7,6 +7,7 @@ import { useState } from 'react'
 import socket from '../../socket/socket'
 import { friendStore } from '../Zustand/Friends'
 import { userStore } from '../Zustand/AllUsers'
+import './OtherOpponent.css'
 
 function OtherOpponent({ onSuccess }) {
     const { currentUser } = useContext(CurrentUserContext);
@@ -52,23 +53,25 @@ function OtherOpponent({ onSuccess }) {
     }
     return (
         <div>
-            <input type="text" onChange={handleChange} value={search} placeholder='Search by playerId' />
+            <div className="input-box">
+                <input type="text" onChange={handleChange} value={search} placeholder='Search by playerId' className='input-friend' />
+            </div>
             <ul>
                 {search && search.length > 0 && searchResult?.map((u, idx) => (
                     <li key={idx} className={activeUsers?.includes(u._id) ? 'active-now' : 'not-active-now'}>
                         <span className='name-friend'>{u.name}</span>
                         {activeUsers?.includes(u._id) ?
-                            <button onClick={() => handleClick(u._id)} className='active'>
+                            <button onClick={() => handleClick(u._id)} className='active-opp'>
                                 Send Invite
                             </button>
-                            : <button disabled className='non-active'>
+                            : <button disabled className='non-active-opp'>
                                 Send Invite
                             </button>
                         }
-                        {friendIds.has(u._id) ? <button disabled>Friend</button> :
+                        {friendIds.has(u._id) ? <button disabled className='other-non-active'>Friend</button> :
                             <>
-                                {activeUsers?.includes(u._id) ? <button onClick={() => handleFriend(u._id)}>Ask to be friend</button> :
-                                    <button onClick={() => handleFriend(u._id)} disabled >Ask to be friend</button>}
+                                {activeUsers?.includes(u._id) ? <button onClick={() => handleFriend(u._id)} className='other-friend'>Ask to be friend</button> :
+                                    <button onClick={() => handleFriend(u._id)} disabled className='other-non-active'>Ask to be friend</button>}
                             </>
                         }
                     </li>
