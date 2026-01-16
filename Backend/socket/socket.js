@@ -87,6 +87,10 @@ module.exports = (io) => {
             io.to(roomId).emit('player-joined', room.players);
         });
 
+        socket.on('totalUser', ({ roomId }, callback) => {
+            callback({ players: boards[roomId].players });
+        })
+
         socket.on('getTime', ({ roomId }, callback) => {
             // console.log('room', boards[roomId]);
             if (!boards[roomId]) {
