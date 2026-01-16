@@ -89,7 +89,7 @@ function GameRoom() {
 
         const anotherRoom = roomId;
         requestGameInvite(currentUser, navigate, anotherRoom);
-        
+
         rejectedInvite();
 
         Winner(setBoard, setStart, setLine, setHistory, setDefaultTimer, setTimer, currentUser);
@@ -100,7 +100,7 @@ function GameRoom() {
 
         refuseFriend();
 
-        playerLeft(setBoard, setCurrentPlayer, setStart, setUsers, setHistory);
+        playerLeft(setBoard, setCurrentPlayer, setStart, setUsers, setHistory, setOpponent);
 
         startGame(setStart, setCurrentPlayer, setDefaultTimer, setTimer, currentUser)
 

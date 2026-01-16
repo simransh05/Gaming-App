@@ -11,7 +11,6 @@ import CreateModal from '../../components/Modals/CreateModal'
 import InviteModal from '../../components/Modals/InviteModal'
 import socket from '../../socket/socket'
 import rejectedInvite from '../../utils/helper/rejectedInvite'
-import userDisconnected from '../../utils/helper/userDisconnected'
 import acceptFriend from '../../utils/helper/acceptFriend'
 import refuseFriend from '../../utils/helper/refuseFriend'
 import requestInvite from '../../utils/helper/socketHelper/requestInvite'
@@ -31,7 +30,6 @@ function HomePage() {
         }
         requestInvite(currentUser, navigate);
         rejectedInvite();
-        userDisconnected();
         acceptFriend();
         refuseFriend();
     }, [currentUser, loading])
@@ -51,21 +49,12 @@ function HomePage() {
                     <ul>
                         <li>
                             The game is played between <strong>two players only</strong>.
-                            Each game room allows <strong>exactly 2 users</strong>.
-                        </li>
-
-                        <li>
-                            Once two players join a room, no other user can enter that room.
+                            Each game room allows <strong>exactly 2 users</strong>, and once the room is full, no other player can join.
                         </li>
 
                         <li>
                             The board consists of a <strong>3 × 3 grid</strong>.
-                            One player uses <strong>X</strong>, the other uses <strong>O</strong>.
-                        </li>
-
-                        <li>
-                            The game starts when <strong>any one player presses the “Play” button</strong>.
-                            The player who presses the Play button gets the <strong>first turn</strong>.
+                            One player uses <strong>O</strong>, the other uses <strong>X</strong>.
                         </li>
 
                         <li>
@@ -84,13 +73,8 @@ function HomePage() {
                         </li>
 
                         <li>
-                            If a player leaves the room during an active game,
-                            the remaining player is <strong>declared the winner</strong>.
-                        </li>
-
-                        <li>
-                            If any player leaves the room during the game,
-                            the match <strong>ends automatically</strong>.
+                            If the match has already started and any player leaves the room,
+                            the match <strong>ends automatically</strong> and the remaining player is <strong>declared the winner</strong>.
                         </li>
 
                         <li>
@@ -100,8 +84,7 @@ function HomePage() {
                     </ul>
 
                     <p className="tip">
-                        💡 <strong>Tip:</strong> Pressing the Play button early gives you the first move —
-                        but strategy matters more than speed!
+                        💡 <strong>Tip:</strong> The first turn is decided by toss — so play smart and make every move count!
                     </p>
                 </div>
 
