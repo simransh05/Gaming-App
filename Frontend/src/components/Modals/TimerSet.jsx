@@ -24,7 +24,7 @@ function TimerSet({ open, onClose, onSuccess }) {
         <Dialog open={open} onClose={onClose}>
             <DialogTitle sx={{ textAlign: 'center' }}>Set Time</DialogTitle>
             <DialogContent>
-                <div style={{textAlign:'center'}}>Default Time : {defaultTime}</div>
+                <div style={{textAlign:'center'}}>Default Time : {defaultTime} sec</div>
                 <label>Set new default timer: </label>
                 <select value={defaultTime} onChange={(e) => setDefaultTime(Number(e.target.value))}>
                     <option value={10}>Set 10 sec</option>

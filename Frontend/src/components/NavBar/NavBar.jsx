@@ -60,16 +60,21 @@ function NavBar() {
 
     return (
         <div className='navbar'>
-            <h1>Gaming Zone</h1>
+            <div className="left-side">
+                <h1>Gaming Zone</h1>
+            </div>
+
             <div className="right-side">
                 {/* add btn ranking */}
                 {(!ranking || ranking.length === 0) ? <div className='my-rank'>No Rank</div> :
                     (
                         ranking.map((r, idx) => {
-                            { if(currentUser?._id === r.userId ) return <div key={idx} className='my-rank'>My Rank: {r.rank}</div> }
+                            { if (currentUser?._id === r.userId) return <div key={idx} className='my-rank'>My Rank: {r.rank}</div> }
                         })
                     )}
-                <button onClick={() => navigate(`${ROUTES.TOP_RANKING}`)} className='rank-btn'>Top Ranking</button>
+                <button onClick={() => navigate(`${ROUTES.TOP_RANKING}`)} className='rank-btn'>Check Leaderboard</button>
+
+                <button onClick={() => navigate(`${ROUTES.HISTORY}`)} className='rank-btn'>Check Your History</button>
 
                 <Avatar sx={{
                     width: '60px',

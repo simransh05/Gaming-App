@@ -95,6 +95,7 @@ function HomePage() {
                         <CreateModal
                             open={() => setShowCreate(true)}
                             onClose={() => setShowCreate(false)}
+                            onSuccess={(roomId) => handleSuccess(roomId)}
                         />}
 
                     <button className='invite-room' onClick={() => setShowInvite(true)}>Join Invite Room</button>
