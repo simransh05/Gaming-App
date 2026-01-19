@@ -9,6 +9,7 @@ import SocketProvider from './context/SocketContext'
 import GameRoom from './pages/GameRoom/GameRoom'
 import RankModal from './components/Modals/RankModal'
 import { ToastContainer } from 'react-toastify';
+import History from './pages/History/History'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path={`${ROUTES.HOME}`} element={<HomePage />} />
             <Route path={`/:roomId`} element={<GameRoom />} />
             <Route path={`${ROUTES.TOP_RANKING}`} element={<RankModal />} />
+            <Route path={`${ROUTES.HISTORY}`} element={<History />} />
           </Routes>
         </Router>
         <ToastContainer position='top-right' autoClose={2000} />

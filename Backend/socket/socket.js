@@ -20,7 +20,7 @@ module.exports = (io) => {
             console.log('user connect', socket.userId)
         });
 
-        socket.on('create', () => {
+        socket.on('create', (callback) => {
             const roomId = Math.floor(100000 + Math.random() * 900000);
             boards[roomId] = {
                 board: ["", "", "", "", "", "", "", "", ""],
@@ -31,7 +31,7 @@ module.exports = (io) => {
                 defaultTime: 10
             };
             // console.log('room', boards[roomId])
-            socket.emit('receive-create', roomId);
+            callback({ status: 200 , roomId });
         });
 
         socket.on('join', async ({ roomId }, callback) => {

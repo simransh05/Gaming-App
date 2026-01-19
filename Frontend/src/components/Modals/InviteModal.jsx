@@ -29,7 +29,6 @@ function InviteModal({ open, onClose, onSuccess }) {
   useEffect(() => {
     socket.on('room-full', async () => {
       onClose();
-
     });
 
     socket.on('joined-room', (roomId) => {
