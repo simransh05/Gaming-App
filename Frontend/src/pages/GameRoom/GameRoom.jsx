@@ -23,6 +23,7 @@ import startGame from '../../utils/helper/socketHelper/StartGame';
 import playerLeft from '../../utils/helper/socketHelper/playerLeft';
 import drawMatch from '../../utils/helper/socketHelper/drawMatch';
 import Winner from '../../utils/helper/socketHelper/Winner';
+import HistoryDrawer from '../../components/Drawer/History/HistoryDrawer';
 function GameRoom() {
     const { roomId } = useParams()
     const [board, setBoard] = useState([
@@ -43,6 +44,7 @@ function GameRoom() {
     const [areFriend, setAreFriend] = useState(false);
     const [opponent, setOpponent] = useState(false);
     const { fetchAllUsers } = userStore();
+    const [showHistory, setShowHistory] = useState(false);
     const { fetchFriends } = friendStore();
 
     useEffect(() => {
@@ -302,6 +304,17 @@ function GameRoom() {
                     }
                 </>
                 }
+
+                {users && users.length > 1 && <button onClick={() => setShowHistory(true)} className='open-history-drawer'>Show History</button>}
+                {showHistory &&
+                    <HistoryDrawer
+                        open={() => setShowHistory(true)}
+                        onClose={() => setShowHistory(false)}
+                        history={history}
+                        onSuccess={handleDelete}
+                    />
+                }
+
                 {areFriend ?
                     users && users.length === 2 && <button disabled className='already-friend'>Friends</button> :
                     users && users.length === 2 && <button onClick={handleFriend} className='ask-friend'>
@@ -365,15 +378,6 @@ function GameRoom() {
                     </>
                 }
 
-                <div className="history-list">
-                    {history?.length > 0 ?
-                        history.map((h, index) => (
-                            <div key={index} className='history'>{h?.winner === null ? 'Draw' : h?.winner?.name}</div>
-                        ))
-                        : <div className='no-history'>No History Yet</div>
-                    }
-                    {history?.length > 0 && <button className="delete-btn" onClick={handleDelete}>Delete History</button>}
-                </div>
             </div>
         </>
     )

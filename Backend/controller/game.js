@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Game = require('../model/Game')
 const User = require('../model/user')
 module.exports.getHistory = async (req, res) => {
@@ -106,3 +107,33 @@ module.exports.deleteHistory = async (req, res) => {
         return res.status(500).json({ message: "Internal error" });
     }
 };
+
+module.exports.getIndividualHistory = async (req, res) => {
+    const { userId } = req.params;
+    const ObjectId = new mongoose.Types.ObjectId(userId);
+    try {
+        const individual = await Game.aggregate([
+            {
+                $match: {
+                    $or: [
+                        { playerI: ObjectId },
+                        { playerII: ObjectId }
+                    ]
+                }
+            },
+            {
+                $unwind: '$history'
+            },
+            {
+                $sort: { 'history.playedAt': -1 }
+            }
+        ]);
+        const format = await Game.populate(individual, 'playerI playerII')
+        // console.log(format);
+        return res.status(200).json({ individual: format });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+
+}
