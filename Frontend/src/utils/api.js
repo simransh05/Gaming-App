@@ -35,6 +35,9 @@ const api = {
     getAllUsers: async (userId) => {
         return await apiInstance.get(`${ROUTES.USERS}/${userId}`)
     },
+    getIndividualHistory : async (userId) => {
+        return await apiInstance.get(`${ROUTES.HISTORY}${ROUTES.INDIVIDUAL}/${userId}`)
+    },
 }
 
 export default api;

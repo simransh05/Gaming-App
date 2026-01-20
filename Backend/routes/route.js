@@ -15,6 +15,8 @@ router.get('/history/:player1/:player2/:userId', controller2.getHistory);
 
 router.post('/history/delete', controller2.deleteHistory);
 
+router.get('/history/individual/:userId' , controller2.getIndividualHistory)
+
 router.get('/rank', controller3.getRanking);
 
 router.get('/friend/:userId', controller3.getFriends);
