@@ -1,0 +1,27 @@
+.time-container {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.time-title {
+    text-align: center;
+}
+
+.default-time {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.time-action {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.btn-cancel-time,
+.update-time {
+    text-transform: none;
+    font-size: 17px;
+    background-color: slateblue;
+    color: white;
+    padding: 6px 15px;
+    margin-bottom: 10px;
+}

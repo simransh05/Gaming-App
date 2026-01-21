@@ -1,16 +1,9 @@
-import Swal from "sweetalert2";
 import socket from "../../socket/socket";
+import { toast } from "react-toastify";
 
 const rejectedInvite = () => {
     socket.on('rejected', ({ name }) => {
-        Swal.fire({
-            title: `${name} rejected the invite`,
-            text: '',
-            icon: 'info',
-            timer: 5000,
-            showCancelButton: false,
-            showConfirmButton: false
-        })
+        toast.info(`${name} rejected the invite`);
     })
     return () => {
         socket.off('rejected');

@@ -1,0 +1,21 @@
+.invite-container .MuiDialog-paper {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.invite-modal {
+    text-align: center;
+}
+
+.action-modal {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.btn-cancel-modal,
+.btn-join {
+    text-transform: none;
+    font-size: 17px;
+    background-color: slateblue;
+    color: white;
+    margin-bottom: 10px;
+}

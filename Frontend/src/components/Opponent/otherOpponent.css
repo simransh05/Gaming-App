@@ -1,5 +1,4 @@
 .other-friend,
-.non-active-opp,
 .active-opp {
     border: none;
     border-radius: 5px;
@@ -8,6 +7,12 @@
     color: white;
     background-color: blueviolet;
     cursor: pointer;
+}
+
+.non-active-opp{
+    border-radius: 5px;
+    margin: 3px;
+    padding: 4px;
 }
 
 .other-non-active{

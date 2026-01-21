@@ -12,8 +12,10 @@ import socket from '../../socket/socket';
 import ROUTES from '../../constant/Route/route'
 import { useEffect } from 'react';
 import format from '../../utils/helper/formatRank';
+import RoutesDrawer from '../Drawer/RoutesDrawer/RoutesDrawer';
 function NavBar() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const [openMenu, setOpenMenu] = useState(false);
     const { currentUser, setCurrentUser, loading } = useContext(CurrentUserContext);
     const [ranking, setRanking] = useState(null)
     const getInitial = (name) => {
@@ -72,9 +74,15 @@ function NavBar() {
                             { if (currentUser?._id === r.userId) return <div key={idx} className='my-rank'>My Rank: {r.rank}</div> }
                         })
                     )}
-                <button onClick={() => navigate(`${ROUTES.TOP_RANKING}`)} className='rank-btn'>Check Leaderboard</button>
 
-                <button onClick={() => navigate(`${ROUTES.HISTORY}`)} className='rank-btn'>Check Your History</button>
+                <button onClick={() => setOpenMenu(true)} className='rank-btn'>Explore Pages</button>
+
+                {openMenu &&
+                    <RoutesDrawer
+                        open={() => setOpenMenu(true)}
+                        onClose={() => setOpenMenu(false)}
+                    />
+                }
 
                 <Avatar sx={{
                     width: '60px',

@@ -1,16 +1,9 @@
-import Swal from "sweetalert2"
 import socket from "../../socket/socket"
+import { toast } from "react-toastify"
 
 const refuseFriend = () => {
     socket.on('refused', ({ fromName }) => {
-        Swal.fire({
-            title: `${fromName.name} refuse to be Friend`,
-            text: '',
-            icon: 'info',
-            showCancelButton: false,
-            showConfirmButton: false,
-            timer: 3000
-        })
+        toast.info(`${fromName.name} refuse to be Friend`)
     })
     return () => {
         socket.off('refused');

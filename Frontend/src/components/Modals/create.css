@@ -1,0 +1,33 @@
+.content-head{
+    padding-bottom: 0;
+}
+.content-create{
+    font-size: 14px;
+    line-height: 1.6;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.heading-content{
+    text-align: center;
+    font-size: 20px;
+}
+
+.info-content{
+    margin: 8px 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.action-head{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.btn-cancel,
+.btn-create{
+    text-transform: none;
+    font-size: 17px;
+    background-color: slateblue;
+    color: white;
+    margin-bottom: 10px;
+}
