@@ -1,78 +1,53 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material'
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material'
 import React from 'react'
 import socket from '../../socket/socket'
-import { useState } from 'react'
-import { useEffect } from 'react';
-
-function CreateModal({ open, onClose , onSuccess}) {
-
-    const [showInput, setShowInput] = useState(false);
-    const [inputValue, setInputValue] = useState(null);
+import './create.css'
+function CreateModal({ open, onClose, onSuccess }) {
 
     const handleClick = () => {
         socket.emit('create', (res) => {
             // console.log(res);
             if (res.status === 200) {
-                setInputValue(res.roomId);
-                setShowInput(true);
+                const roomId = res.roomId;
+                socket.emit('join', { roomId }, async (res) => {
+                    // console.log(res);
+                    if (res.alreadyIn) {
+                        onSuccess(roomId)
+                    } else if (res.roomFull) {
+                        onClose();
+                        await Swal.fire({ title: 'Room is Full ' });
+                    } else {
+                        onSuccess(roomId);
+                    }
+                });
             }
         })
     }
 
+    return (
+        <Dialog open={open} onClose={onClose} sx={{ fontFamily: 'Cambria, Cochin, Georgia, Times, Times New Roman, serif' }}>
+            <DialogContent sx={{ paddingBottom: 0 }}>
+                <div className='content-create'>
+                    <p className='heading-content'><strong>Room Rules</strong></p>
 
-    const handleClose = () => {
-        setInputValue(null);
-        setShowInput(false);
-        onClose()
-    }
+                    <ul style={{ paddingLeft: "18px" }}>
+                        <li>This is a 1 vs 1 match.</li>
+                        <li>Only invited players can join this room.</li>
+                        <li>The creator of the room can change the default time after join</li>
+                        <li>Make sure you have read the rules on the home page</li>
+                    </ul>
 
-    const handleEnter = (e) => {
-        e.preventDefault();
-        socket.emit('join', { roomId : inputValue }, async (res) => {
-            // console.log(res);
-            if (res.alreadyIn) {
-                onSuccess(roomId)
-            } else if (res.roomFull) {
-                onClose();
-                await Swal.fire({ title: 'Room is Full ' });
-            }
-        });
-    };
-
-    useEffect(() => {
-        socket.on('room-full', async () => {
-            onClose();
-        });
-
-        socket.on('joined-room', (roomId) => {
-            onSuccess(roomId);
-            onClose();
-        });
-
-        return () => {
-            socket.off('room-full');
-            socket.off('joined-room');
-        };
-    }, [onSuccess, onClose]);
-
-return (
-    <Dialog open={open} onClose={handleClose}>
-        <DialogContent>
-            {showInput &&
-                <TextField
-                    label='Room Id'
-                    sx={{ mt: '8px' }}
-                    value={inputValue}
-                    InputProps={{ readOnly: true }}
-                />
-            }
-        </DialogContent>
-        <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
-            {showInput === false && <Button onClick={handleClick}>Create Room</Button>}
-            {showInput && <Button onClick={handleEnter}>Join Room</Button>}
-        </DialogActions>
-    </Dialog>
-)
+                    <p className='info-content'>
+                        Make sure you are ready before joining the room.
+                    </p>
+                </div>
+            </DialogContent>
+            <DialogActions sx={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '10px' }}>
+                <Button onClick={onClose} sx={{ textTransform: 'none', fontSize: '17px', color: 'white', background: 'slateblue' }}>Cancel</Button>
+                <Button onClick={handleClick} sx={{ textTransform: 'none', fontSize: '17px', color: 'white', background: 'slateblue' }}>Create and Join Room</Button>
+            </DialogActions>
+        </Dialog>
+    )
 }
 
 export default CreateModal

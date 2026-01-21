@@ -1,0 +1,24 @@
+.drawer-home,
+.drawer-rank,
+.drawer-history{
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 4px;
+    margin: 5px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.drawer-history:hover,
+.drawer-home:hover,
+.drawer-rank:hover{
+    color: white;
+    background-color: rgb(177, 112, 238);
+}
+
+.drawer-container .MuiDrawer-paper {
+    border-top-right-radius: 15%;
+    border-bottom-right-radius: 15%;
+    width: 200px;
+}

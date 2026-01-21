@@ -29,6 +29,11 @@
     padding: 5px;
 }
 
+.Win,
+.Draw,
+.Lose{
+    font-weight: 600;
+}
 .Win {
     color: green;
 }
@@ -39,4 +44,10 @@
 
 .Lose {
     color: red;
+}
+
+.caption-history{
+    font-size: 20px;
+    font-weight: 600;
+    padding: 10px;
 }

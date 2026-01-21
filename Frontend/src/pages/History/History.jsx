@@ -33,31 +33,34 @@ function History() {
             <div className='history-container'>
                 <table className='table-history'>
                     {(!history || history.length === 0) &&
-                        <caption>
+                        <caption className='caption-history'>
                             No History
                         </caption>
                     }
-
-                    <thead className='history-head'>
-                        <tr className='value'>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>PlayerId</th>
-                            <th>Date</th>
-                            <th>Winner</th>
-                        </tr>
-                    </thead>
-                    <tbody className='history-body'>
-                        {history && history?.map((h, idx) => (
-                            <tr className="value" key={idx}>
-                                <td className="name">{h.playerI._id === currentUser._id ? h.playerII.name : h.playerI.name}</td>
-                                <td>{h.playerI._id === currentUser._id ? h.playerII.email : h.playerI.email}</td>
-                                <td>{h.playerI._id === currentUser._id ? h.playerII.playerId : h.playerI.playerId}</td>
-                                <td>{formatDate(h.history.playedAt)}</td>
-                                <td className={h.history.winner === currentUser._id ? 'Win' : h.history.winner === null ? 'Draw' : 'Lose'}>{h.history.winner === currentUser._id ? 'You Win' : h.history.winner === null ? 'Draw' : 'You Lose'}</td>
-                            </tr>
-                        ))}
-                    </tbody>
+                    {history && history.length > 0 && (
+                        <>
+                            <thead className='history-head'>
+                                <tr className='value'>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>PlayerId</th>
+                                    <th>Date</th>
+                                    <th>Winner</th>
+                                </tr>
+                            </thead>
+                            <tbody className='history-body'>
+                                {history?.map((h, idx) => (
+                                    <tr className="value" key={idx}>
+                                        <td className="name">{h.playerI._id === currentUser._id ? h.playerII.name : h.playerI.name}</td>
+                                        <td>{h.playerI._id === currentUser._id ? h.playerII.email : h.playerI.email}</td>
+                                        <td>{h.playerI._id === currentUser._id ? h.playerII.playerId : h.playerI.playerId}</td>
+                                        <td>{formatDate(h.history.playedAt)}</td>
+                                        <td className={h.history.winner === currentUser._id ? 'Win' : h.history.winner === null ? 'Draw' : 'Lose'}>{h.history.winner === currentUser._id ? 'You Win' : h.history.winner === null ? 'Draw' : 'You Lose'}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </>
+                    )}
                 </table>
 
                 <button className='home-back' onClick={() => navigate(`${ROUTES.HOME}`)}>

@@ -31,7 +31,7 @@ module.exports = (io) => {
                 defaultTime: 10
             };
             // console.log('room', boards[roomId])
-            callback({ status: 200 , roomId });
+            callback({ status: 200, roomId });
         });
 
         socket.on('join', async ({ roomId }, callback) => {
@@ -68,6 +68,7 @@ module.exports = (io) => {
             if (callback) {
                 callback({ joined: true })
             }
+            // console.log(room)
 
             if (room.players.length === 2) {
                 const p1 = room.players[0]?._id.toString();
@@ -285,7 +286,8 @@ module.exports = (io) => {
             });
             // console.log(boards[roomId]);
             socket.leave(roomId);
-            if (boards[roomId].players === 0) {
+            if (boards[roomId].players.length === 0) {
+                // console.log(boards[roomId])
                 delete boards[roomId];
             }
             if (callback) {

@@ -9,6 +9,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import socket from '../../socket/socket';
 import Swal from 'sweetalert2';
+import './Invite.css'
 
 function InviteModal({ open, onClose, onSuccess }) {
   const [roomId, setRoomId] = useState('');
@@ -48,25 +49,24 @@ function InviteModal({ open, onClose, onSuccess }) {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Enter Room ID</DialogTitle>
+    <Dialog open={open} onClose={handleClose} className='invite-container'>
+      <DialogTitle className='invite-modal'>Enter Room ID</DialogTitle>
 
-      <form onSubmit={handleSubmit}>
-        <DialogContent>
-          <TextField
-            label="Room ID"
-            fullWidth
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-            required
-          />
-        </DialogContent>
+      <DialogContent className='content-modal'>
+        <TextField
+        sx={{marginTop:'5px'}}
+          label="Room ID"
+          value={roomId}
+          fullWidth
+          onChange={(e) => setRoomId(e.target.value)}
+          required
+        />
+      </DialogContent>
 
-        <DialogActions sx={{ display: 'flex', justifyContent: 'center' }}>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button type="submit">Join Room</Button>
-        </DialogActions>
-      </form>
+      <DialogActions sx={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '10px' }}>
+        <Button onClick={handleClose} sx={{ textTransform: 'none', fontSize: '17px', color: 'white', background: 'slateblue' }}>Cancel</Button>
+        <Button onClick={handleSubmit} sx={{ textTransform: 'none', fontSize: '17px', color: 'white', background: 'slateblue' }}>Join Room</Button>
+      </DialogActions>
     </Dialog>
   );
 }
