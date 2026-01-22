@@ -11,7 +11,7 @@ const CurrentUserProvider = ({ children }) => {
         const fetchUser = async () => {
             try {
                 const res = await api.getUser();
-                if (res.status === 200 && res.data?._id) {
+                if (res.status === 200) {
                     setCurrentUser(res.data);
                 } else {
                     setCurrentUser(null);

@@ -1,24 +1,31 @@
-.drawer-home,
-.drawer-rank,
-.drawer-history{
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 4px;
-    margin: 5px;
-    font-size: 15px;
-    font-weight: 600;
+.drawer-header {
+  padding: 20px;
+  font-size: 18px;
+  font-weight: 700;
 }
 
-.drawer-history:hover,
-.drawer-home:hover,
-.drawer-rank:hover{
-    color: white;
-    background-color: rgb(177, 112, 238);
+.drawer-items {
+  padding: 10px;
 }
 
-.drawer-container .MuiDrawer-paper {
-    border-top-right-radius: 15%;
-    border-bottom-right-radius: 15%;
-    width: 200px;
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  margin: 6px 0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.drawer-item svg {
+  font-size: 18px;
+}
+
+.drawer-item:hover {
+  background: rgba(25, 118, 210, 0.12);
+  color: #1976d2;
 }
