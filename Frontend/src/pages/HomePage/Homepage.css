@@ -1,56 +1,96 @@
+/* Layout */
 .home-container {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
     width: 100%;
-
+    padding: 30px 40px;
+    box-sizing: border-box;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
 
+/* Rules Card */
 .rules-container {
-    /* max-width: 600px; */
-    width: 70%;
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    margin: 20px 40px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 720px;
+    width: 100%;
+    background: #ffffff;
+    padding: 28px 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
 .rules-container h2 {
     text-align: center;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
+    font-size: 22px;
+    font-weight: 600;
 }
 
 .rules-container ul {
-    list-style-type: disc;
-    padding-left: 20px;
+    padding-left: 22px;
 }
 
 .rules-container li {
-    margin-bottom: 10px;
-    line-height: 1.5;
+    margin-bottom: 14px;
+    line-height: 1.7;
+    color: #333;
 }
 
+/* Tip */
 .tip {
-    margin-top: 15px;
+    margin-top: 20px;
     font-style: italic;
     color: #555;
 }
 
+/* Button Section */
 .btn-room {
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
-    width: 15%;
+    align-self: center;
+    gap: 20px;
+    min-width: 220px;
+    margin-top: 40px;
 }
 
+/* Buttons */
 .create-room,
-.friends,
 .invite-room {
     width: 100%;
-    height: 80px;
-    background-color: palevioletred;
+    height: 52px;
+    background-color: #d16c8a;
     border-radius: 8px;
-    color: black;
+    color: #ffffff;
     border: none;
+    font-size: 15px;
+    font-weight: 500;
     cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.create-room:hover,
+.invite-room:hover {
+    background-color: #c15b78;
+    transform: translateY(-1px);
+}
+
+.create-room:active,
+.invite-room:active {
+    transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .home-container {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .btn-room {
+        width: 100%;
+        max-width: 300px;
+        margin-top: 20px;
+    }
 }

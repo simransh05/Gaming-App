@@ -25,12 +25,12 @@ function CreateModal({ open, onClose, onSuccess }) {
     }
 
     return (
-        <Dialog open={open} onClose={onClose} sx={{ fontFamily: 'Cambria, Cochin, Georgia, Times, Times New Roman, serif' }}>
-            <DialogContent sx={{ paddingBottom: 0 }}>
+        <Dialog open={open} onClose={onClose} className='dialog-create'>
+            <DialogContent className='content-head'>
                 <div className='content-create'>
                     <p className='heading-content'><strong>Room Rules</strong></p>
 
-                    <ul style={{ paddingLeft: "18px" }}>
+                    <ul className='list-items'>
                         <li>This is a 1 vs 1 match.</li>
                         <li>Only invited players can join this room.</li>
                         <li>The creator of the room can change the default time after join</li>
@@ -43,7 +43,7 @@ function CreateModal({ open, onClose, onSuccess }) {
                 </div>
             </DialogContent>
             <DialogActions sx={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '10px' }}>
-                <Button onClick={onClose} sx={{ textTransform: 'none', fontSize: '17px', color: 'white', background: 'slateblue' }}>Cancel</Button>
+                <Button onClick={onClose} sx={{ textTransform: 'none', fontSize: '17px', color: 'white', background: 'slateblue', padding: '6px 15px' }}>Cancel</Button>
                 <Button onClick={handleClick} sx={{ textTransform: 'none', fontSize: '17px', color: 'white', background: 'slateblue' }}>Create and Join Room</Button>
             </DialogActions>
         </Dialog>

@@ -1,8 +1,10 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import ROUTES from '../../../constant/Route/route'
-import { Drawer } from '@mui/material'
-import './Routes.css'
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import ROUTES from "../../../constant/Route/route";
+import { Box, Drawer, Divider } from "@mui/material";
+import { FaHome, FaHistory } from "react-icons/fa";
+import { MdLeaderboard } from "react-icons/md";
+import "./Routes.css";
 
 function RoutesDrawer({ open, onClose }) {
     const navigate = useNavigate();
@@ -10,23 +12,49 @@ function RoutesDrawer({ open, onClose }) {
     const handleClick = (route) => {
         navigate(route);
         onClose();
-    }
+    };
+
     return (
-        <Drawer open={open} onClose={onClose} className='drawer-container'>
-            <button onClick={() => handleClick(`${ROUTES.HOME}`)} className='drawer-home'>
-                Home
-            </button>
+        <Drawer
+            open={open}
+            onClose={onClose}
+            PaperProps={{
+                sx: {
+                    width: 240,
+                    borderTopRightRadius: 16,
+                    borderBottomRightRadius: 16,
+                    fontFamily: 'sans-serif'
+                },
+            }}
+        >
+            <Box className="drawer-header">Menu</Box>
 
-            <button onClick={() => handleClick(`${ROUTES.TOP_RANKING}`)} className='drawer-rank'>
-                Leaderboard
-            </button>
+            <Divider />
 
-            <button onClick={() => handleClick(`${ROUTES.HISTORY}`)} className='drawer-history'>
-                Your Match History
-            </button>
-        </Drawer >
+            <Box className="drawer-items">
+                <div className="drawer-item" onClick={() => handleClick(ROUTES.HOME)}>
+                    <FaHome />
+                    <span>Home</span>
+                </div>
 
-    )
+                <div
+                    className="drawer-item"
+                    onClick={() => handleClick(ROUTES.TOP_RANKING)}
+                >
+                    <MdLeaderboard />
+                    <span>Leaderboard</span>
+                </div>
+
+                <div
+                    className="drawer-item"
+                    onClick={() => handleClick(ROUTES.HISTORY)}
+                >
+                    <FaHistory />
+                    <span>Match History</span>
+                </div>
+            </Box>
+        </Drawer>
+    );
 }
 
-export default RoutesDrawer
+export default RoutesDrawer;
