@@ -21,7 +21,7 @@ const refreshGame = (roomId, setUsers, setBoard, setCurrentPlayer, setStart, set
             if (!res.data.start && res.data.players.length === 1 && currentUser._id === res.data.players[0]._id) {
                 Swal.fire({
                     title: 'Game rules',
-                    text: 'U can change the time of the game',
+                    text: 'You can change the time of the game',
                     icon: 'info',
                     showConfirmButton: true
                 })

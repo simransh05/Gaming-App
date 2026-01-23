@@ -1,13 +1,25 @@
 /* Layout */
 .home-container {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: flex-start;
     gap: 40px;
     width: 100%;
-    padding: 30px 40px;
+    padding: 20px 40px;
+    padding-left: 0;
+    padding-top: 0;
     box-sizing: border-box;
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.right-side {
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+}
+
+.right-side:first-child {
+    justify-content: right;
 }
 
 /* Rules Card */
@@ -48,6 +60,7 @@
 .btn-room {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-self: center;
     gap: 20px;
     min-width: 220px;

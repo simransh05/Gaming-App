@@ -1,11 +1,12 @@
 .navbar {
-    display: flex;
-    justify-content: space-between;
+    width: fit-content;
     align-items: center;
-    height: 64px;
+    height: 83vh;
     margin-bottom: 8px;
     border-bottom: none;
-    border-bottom: 1px solid gray;
+    /* border: 1px solid gray; */
+    border-left: none;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
     background-color: #ffffff;
 }
 
@@ -24,11 +25,15 @@
     font-size: 14px;
 }
 
-.rank-btn {
-    background-color: #7c3aed;
+.menu-drawer{
+    width: 15px;
+    height: 30px;
+}
+.side-drawer {
+    background-color: white;
     border: none;
     border-radius: 6px;
-    color: white;
+    color: black;
     height: 36px;
     padding: 0 14px;
     cursor: pointer;

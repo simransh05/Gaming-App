@@ -30,8 +30,14 @@ function OpponentDrawer({ open, onClose }) {
         socket.emit('send-invite', { from, to: userId, roomId })
     }
     return (
-        <Drawer open={open} onClose={onClose} anchor='right' sx={{ borderRadius: '5px' }}>
-            <Tabs value={tabName} onChange={handleClick} sx={{ margin: '5px' }}>
+        <Drawer open={open} onClose={onClose} anchor='right' className='opponent-drawer' PaperProps={{
+            sx: {
+                width: 'content',
+                borderTopLeftRadius: 16,
+                borderBottomLeftRadius: 16,
+            },
+        }}>
+            <Tabs value={tabName} onChange={handleClick} sx={{ margin: '5px' , display:'flex' , justifyContent:'space-between'}}>
                 <Tab value='myFriend' label='My Friends' sx={{ textTransform: 'none', fontSize: '16px' }} />
                 <Tab value='otherOppenent' label='Other Opponent' sx={{ textTransform: 'none', fontSize: '16px' }} />
             </Tabs>

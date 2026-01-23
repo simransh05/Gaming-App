@@ -37,6 +37,8 @@ function OtherOpponent({ onSuccess }) {
         socket.emit('askFriend', { from: currentUser._id, to: id })
     }
 
+    console.log(search)
+
     const handleClick = (id) => {
         onSuccess(id);
     }
@@ -57,7 +59,7 @@ function OtherOpponent({ onSuccess }) {
                 <input type="text" onChange={handleChange} value={search} placeholder='Search by playerId' className='input-friend' />
             </div>
             <ul>
-                {search && search.length > 0 && searchResult?.map((u, idx) => (
+                {search && searchResult.length > 0 ? searchResult?.map((u, idx) => (
                     <li key={idx} className={activeUsers?.includes(u._id) ? 'active-now' : 'not-active-now'}>
                         <span className='name-friend'>{u.name}</span>
                         {activeUsers?.includes(u._id) ?
@@ -75,7 +77,13 @@ function OtherOpponent({ onSuccess }) {
                             </>
                         }
                     </li>
-                ))}
+                )
+                ) : (
+                search && <div className="no-search-found">
+                    No search found
+                </div>
+            )
+                }
             </ul>
         </div>
     )

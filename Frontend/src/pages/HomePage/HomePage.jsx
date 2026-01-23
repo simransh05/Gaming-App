@@ -14,6 +14,9 @@ import rejectedInvite from '../../utils/helper/rejectedInvite'
 import acceptFriend from '../../utils/helper/acceptFriend'
 import refuseFriend from '../../utils/helper/refuseFriend'
 import requestInvite from '../../utils/helper/socketHelper/requestInvite'
+import getInitial from '../../utils/helper/getInitial'
+import { Avatar } from '@mui/material'
+import Header from '../../components/Header/Header'
 
 function HomePage() {
     const { currentUser, loading } = useContext(CurrentUserContext)
@@ -41,9 +44,13 @@ function HomePage() {
 
     return (
         <>
-            <NavBar />
+            <Header />
+
             <div className="home-container">
+
+                <NavBar />
                 <div className="rules-container">
+
                     <h2>🎮 Tic-Tac-Toe Rules</h2>
 
                     <ul>
@@ -89,7 +96,6 @@ function HomePage() {
                 </div>
 
                 <div className="btn-room">
-
                     <button className='create-room' onClick={() => setShowCreate(true)}>Create Room</button>
                     {showCreate &&
                         <CreateModal
@@ -106,6 +112,7 @@ function HomePage() {
                             onSuccess={(roomId) => handleSuccess(roomId)}
                         />}
                 </div>
+
             </div>
         </>
     )
