@@ -1,15 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import api from '../../utils/api'
 import './Rank.css'
 import NavBar from '../NavBar/NavBar'
 import format from '../../utils/helper/formatRank'
 import { useNavigate } from 'react-router-dom'
-import ROUTES from '../../constant/Route/route'
+import { CurrentUserContext } from '../../context/UserContext'
 
 function RankModal() {
-
-    const [ranking, setRanking] = useState(null)
     const navigate = useNavigate();
+    const { currentUser, loading } = useContext(CurrentUserContext);
+    const [ranking, setRanking] = useState(null)
+
+    useEffect(() => {
+        if (loading) return;
+        if (!currentUser) return navigate(`${ROUTES.LOGIN}`)
+    }, [loading, currentUser])
 
     useEffect(() => {
         const fetchRank = async () => {
@@ -27,7 +32,7 @@ function RankModal() {
 
     // console.log(ranking)
     return (
-        <>
+        <div className='rank-full'>
             <NavBar />
             <div className='modal-container'>
                 <h1 className='rank-heading'>
@@ -64,11 +69,8 @@ function RankModal() {
                     </tbody>
                 </table>
 
-                <button className='home-back' onClick={()=> navigate(`${ROUTES.HOME}`)}>
-                    Back to home
-                </button>
             </div>
-        </>
+        </div>
     )
 }
 

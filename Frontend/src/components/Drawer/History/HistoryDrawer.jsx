@@ -8,7 +8,13 @@ function HistoryDrawer({ history, open, onClose, onSuccess }) {
     console.log(history);
 
     return (
-        <Drawer open={open} onClose={onClose} anchor='right' className='history-drawer'>
+        <Drawer open={open} onClose={onClose} anchor='right' className='history-drawer' PaperProps={{
+            sx: {
+                width: 240,
+                borderTopLeftRadius: 16,
+                borderBottomLeftRadius: 16,
+            },
+        }}>
             {history?.length > 0 ?
                 history.map((h, index) => (
                     <div key={index} className='history'>

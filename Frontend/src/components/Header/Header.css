@@ -1,0 +1,21 @@
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 20px;
+    border-bottom: 1px solid grey;
+}
+
+.title {
+    padding-left: 15px;
+    margin: auto 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.user-info-avatar {
+    display: flex;
+}
+
+.header-user-name {
+    margin: auto 10px;
+}

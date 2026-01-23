@@ -1,7 +1,13 @@
-.drawer-header {
+.MuiDrawer-root {
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+.head-drawer {
   padding: 20px;
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: blue;
+  color: white;
 }
 
 .drawer-items {
@@ -28,4 +34,45 @@
 .drawer-item:hover {
   background: rgba(25, 118, 210, 0.12);
   color: #1976d2;
+}
+
+.logout {
+  background: none;
+  width: 45px;
+  height: 45px;
+}
+
+.user-data {
+  display: flex;
+}
+
+.trophy {
+  color: gold;
+  width: 40px;
+  height: 40px;
+  margin-right: 8px;
+}
+
+.my-rank {
+  display: flex;
+}
+
+.rank-info {
+  margin: auto 5px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.user-info span {
+  /* align-self: center; */
+  padding: 2px 4px;
+  margin: 2px 5px;
+}
+
+.not-first{
+  margin-left: 20px;
 }
