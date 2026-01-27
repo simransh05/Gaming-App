@@ -356,9 +356,7 @@ function GameRoom() {
                             colorsTime={[defaultTimer, defaultTimer / 2, 3]}
                             strokeWidth={6}
                             size={100}
-                        >
-                            {timer}
-                        </CountdownCircleTimer>
+                        />
                         <div className='currentPlayer timer-text'>
                             <div>
                                 {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name}
@@ -368,7 +366,7 @@ function GameRoom() {
                     </div> :
                     <>
                         {start &&
-                            <div className='parentCount timer-text'>
+                            <div className='parentCount timer-text other-player'>
                                 <div>
                                     {currentPlayer === users[0]?._id ? users[0]?.name : users[1]?.name}
                                 </div>

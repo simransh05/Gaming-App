@@ -11,10 +11,14 @@
     padding: 10px;
 }
 
-.input-history{
+.input-history {
     border-radius: 6px;
     width: 20%;
     padding-left: 10px;
+}
+
+.input-history::placeholder {
+    color: rgb(165, 164, 164);
 }
 
 .table-history {
@@ -75,7 +79,7 @@
     height: 40px;
 }
 
-.no-history-filter{
+.no-history-filter {
     text-align: center;
     font-size: 20px;
     font-weight: 600;

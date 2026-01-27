@@ -37,7 +37,7 @@ function OtherOpponent({ onSuccess }) {
         socket.emit('askFriend', { from: currentUser._id, to: id })
     }
 
-    console.log(search)
+    // console.log(search)
 
     const handleClick = (id) => {
         onSuccess(id);
@@ -54,7 +54,7 @@ function OtherOpponent({ onSuccess }) {
         setSearchResult(result)
     }
     return (
-        <div>
+        <div className='other-opponent-container'>
             <div className="input-box">
                 <input type="text" onChange={handleChange} value={search} placeholder='Search by playerId' className='input-friend' />
             </div>

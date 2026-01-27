@@ -84,7 +84,7 @@ function History() {
                             <MenuItem value="draw">Draw</MenuItem>
                         </Select>
 
-                        <input type="text" onChange={(e) => setSearch(e.target.value)} placeholder='Search by name' className='input-history' />
+                        <input type="text" onChange={(e) => setSearch(e.target.value)} placeholder='Search...' className='input-history' />
                     </div>
                 }
                 <table className='table-history'>

@@ -1,4 +1,3 @@
-/* Layout */
 .home-container {
     display: flex;
     justify-content: space-between;
@@ -22,7 +21,6 @@
     justify-content: right;
 }
 
-/* Rules Card */
 .rules-container {
     max-width: 720px;
     width: 100%;
@@ -49,14 +47,12 @@
     color: #333;
 }
 
-/* Tip */
 .tip {
     margin-top: 20px;
     font-style: italic;
     color: #555;
 }
 
-/* Button Section */
 .btn-room {
     display: flex;
     flex-direction: column;
@@ -67,7 +63,6 @@
     margin-top: 40px;
 }
 
-/* Buttons */
 .create-room,
 .invite-room {
     width: 100%;
@@ -79,21 +74,13 @@
     font-size: 15px;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
 .create-room:hover,
 .invite-room:hover {
     background-color: #c15b78;
-    transform: translateY(-1px);
 }
 
-.create-room:active,
-.invite-room:active {
-    transform: translateY(0);
-}
-
-/* Responsive */
 @media (max-width: 900px) {
     .home-container {
         flex-direction: column;

@@ -24,11 +24,6 @@
   cursor: pointer;
   font-size: 15px;
   font-weight: 500;
-  transition: background 0.25s ease, color 0.25s ease;
-}
-
-.drawer-item svg {
-  font-size: 18px;
 }
 
 .drawer-item:hover {
