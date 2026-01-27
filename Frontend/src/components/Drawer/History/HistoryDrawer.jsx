@@ -5,7 +5,7 @@ import './History.css'
 
 function HistoryDrawer({ history, open, onClose, onSuccess }) {
 
-    console.log(history);
+    // console.log(history);
 
     return (
         <Drawer open={open} onClose={onClose} anchor='right' className='history-drawer' PaperProps={{

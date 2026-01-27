@@ -11,12 +11,13 @@ const startGame = (setStart, setCurrentPlayer, setDefaultTimer, setTimer, curren
             timer: 3000,
             showCancelButton: false,
             showConfirmButton: false,
-        }).then(() => {
-            setStart(true);
-            // console.log(FirstPlayer)
-            setCurrentPlayer(FirstPlayer);
-            setDefaultTimer(defaultTime)
-            setTimer(defaultTime)
+            didClose: () => {
+                setStart(true);
+                // console.log(FirstPlayer)
+                setCurrentPlayer(FirstPlayer);
+                setDefaultTimer(defaultTime)
+                setTimer(defaultTime)
+            }
         })
     });
     return () => {

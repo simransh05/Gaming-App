@@ -11,15 +11,16 @@ const drawMatch = (setBoard, setStart, setHistory, setDefaultTimer, setTimer) =>
             icon: "info",
             width: '300',
             showConfirmButton: false,
-            timer: 5000
-        }).then(() => {
-            setBoard(board);
-            setHistory(prev => {
-                const updated = [...prev, { winner: null }];
-                return updated.length > 10 ? updated.slice(1) : updated;
-            });
-            setDefaultTimer(defaultTime)
-            setTimer(defaultTime)
+            timer: 5000,
+            didClose: () => {
+                setBoard(board);
+                setHistory(prev => {
+                    const updated = [...prev, { winner: null }];
+                    return updated.length > 10 ? updated.slice(1) : updated;
+                });
+                setDefaultTimer(defaultTime)
+                setTimer(defaultTime)
+            }
         })
     });
     return () => {

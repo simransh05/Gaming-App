@@ -1,3 +1,7 @@
+.other-opponent-container {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
 .other-friend,
 .active-opp {
     border: none;
@@ -9,13 +13,13 @@
     cursor: pointer;
 }
 
-.non-active-opp{
+.non-active-opp {
     border-radius: 5px;
     margin: 3px;
     padding: 4px;
 }
 
-.other-non-active{
+.other-non-active {
     margin: 3px;
     padding: 6px;
     border-radius: 5px;
@@ -24,7 +28,7 @@
     background-color: gray;
 }
 
-.no-search-found{
+.no-search-found {
     font-size: 20px;
     font-weight: 600;
     text-align: center;

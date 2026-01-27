@@ -12,32 +12,14 @@ import format from "../../../utils/helper/formatRank";
 import getInitial from "../../../utils/helper/getInitial";
 import { BsFillTrophyFill } from "react-icons/bs";
 
-function RoutesDrawer({ open, onClose }) {
+function RoutesDrawer({ open, onClose , onSuccess }) {
     const navigate = useNavigate();
-    const { currentUser, setCurrentUser, loading } = useContext(CurrentUserContext);
+    const { currentUser, loading } = useContext(CurrentUserContext);
     const [ranking, setRanking] = useState(null)
 
     const handleClick = (route) => {
         navigate(route);
         onClose();
-    };
-
-    const logout = async () => {
-        const result = await Swal.fire({
-            title: 'Logout',
-            text: 'Are you sure you want to logout?',
-            cancelButtonText: 'No',
-            showCancelButton: true,
-            confirmButtonText: 'Yes',
-            icon: 'warning',
-            reverseButtons: true
-        })
-        if (result.isConfirmed) {
-            await api.postLogout();
-            setCurrentUser(null);
-            socket.disconnect();
-            navigate(`${ROUTES.LOGIN}`);
-        }
     };
 
 
@@ -93,7 +75,7 @@ function RoutesDrawer({ open, onClose }) {
                     <Avatar sx={{
                         width: '60px',
                         height: '60px',
-                        background: 'lightGreen',
+                        background: '#F59E0B',
                         color: 'white'
                     }} className='avatar-dp'>{getInitial(currentUser?.name)}</Avatar>
 
@@ -132,7 +114,7 @@ function RoutesDrawer({ open, onClose }) {
             <Divider />
             <Box className="drawer-items">
 
-                <div onClick={logout} className='drawer-item'>
+                <div onClick={onSuccess} className='drawer-item'>
                     <FiLogOut className='logout' /> Sign Out
                 </div>
             </Box>
