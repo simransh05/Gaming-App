@@ -23,12 +23,13 @@ module.exports = (io) => {
         socket.on('create', (callback) => {
             const roomId = Math.floor(100000 + Math.random() * 900000);
             boards[roomId] = {
-                board: ["", "", "", "", "", "", "", "", ""],
+                board: Array(9).fill(null),
                 players: [],
                 turn: null,
                 symbols: {},
                 start: false,
-                defaultTime: 10
+                defaultTime: 10,
+                moveIdx: 1
             };
             // console.log('room', boards[roomId])
             callback({ status: 200, roomId });
@@ -38,7 +39,7 @@ module.exports = (io) => {
             // console.log('here', roomId);
             if (!boards[roomId]) {
                 boards[roomId] = {
-                    board: Array(9).fill(""),
+                    board: Array(9).fill(null),
                     players: [],
                     turn: null,
                     symbols: {},
@@ -96,12 +97,13 @@ module.exports = (io) => {
             // console.log('room', boards[roomId]);
             if (!boards[roomId]) {
                 boards[roomId] = {
-                    board: Array(9).fill(""),
+                    board: Array(9).fill(null),
                     players: [],
                     turn: null,
                     symbols: {},
                     start: false,
-                    defaultTime: 10
+                    defaultTime: 10,
+                    moveIdx: 1
                 };
             }
             const time = boards[roomId].defaultTime;
@@ -140,6 +142,13 @@ module.exports = (io) => {
             }
         });
 
+        socket.on('getUsers', (roomId, callback) => {
+            if (boards[roomId].players.length < 2) {
+                return callback({ status: 400 })
+            }
+            callback({ status: 200, players: boards[roomId].players, symbols:boards[roomId].symbols })
+        })
+
         socket.on('reject-invite', async ({ from, to }) => {
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
@@ -149,28 +158,37 @@ module.exports = (io) => {
             io.to(toId).emit('rejected', { name: fromName.name })
         })
 
-        socket.on('move', async (data) => {
-            const { roomId, index } = data;
+        socket.on('move', async ({ roomId, index }) => {
             const room = boards[roomId];
             // console.log('board', board)
             if (!room.board || room.board[index]) return;
             const symbol = boards[roomId].symbols[socket.userId];
-            room.board[index] = symbol;
+            room.board[index] = {
+                symbol: symbol, // X or O
+                move: room.moveIdx
+            };
+            room.moveIdx++;
+            console.log('line 164', room)
             // console.log('socket', socket.userId);
             // console.log(board[index], index);
             const winner = patterns.some(([a, b, c]) =>
-                room.board[a] && room.board[a] === room.board[b] && room.board[a] === room.board[c]
+                room.board[a]?.symbol && room.board[a]?.symbol === room.board[b]?.symbol && room.board[a]?.symbol === room.board[c]?.symbol
             );
-            // console.log(winner);
+            console.log('line 170', room.board[index].symbol)
+            console.log('line 171', winner);
             const findValue = patterns.find(([a, b, c]) =>
-                room.board[a] && room.board[a] === room.board[b] && room.board[a] === room.board[c]
+                room.board[a]?.symbol && room.board[a]?.symbol === room.board[b]?.symbol && room.board[a]?.symbol === room.board[c]?.symbol
             );
+
+            console.log('line 176', findValue)
 
             if (winner) {
                 const lastMove = room.board;
-                room.board = ["", "", "", "", "", "", "", "", ""]
+                const prev = room.board;
+                room.board = Array(9).fill(null)
                 room.start = false;
                 room.turn = room.players[0]._id.toString();
+                room.moveIdx = 1;
                 // console.log('board 1', room.board)
                 const username = await User.findById(socket.userId).select('name').lean();
                 // console.log('username', username);
@@ -181,7 +199,8 @@ module.exports = (io) => {
                     name: username.name,
                     pattern: findValue,
                     lastMove: lastMove,
-                    defaultTime: room.defaultTime
+                    defaultTime: room.defaultTime,
+                    prev: prev,
                 });
                 // console.log('here move')
                 await controller.saveHistory({
@@ -190,17 +209,20 @@ module.exports = (io) => {
                     winnerId: socket.userId
                 })
                 // console.log(data);
-            } else if (!room.board.includes("")) {
+            } else if (!room.board.includes(null)) {
                 const lastMove = room.board;
-                room.board = ["", "", "", "", "", "", "", "", ""]
+                const prev = room.board;
+                room.board = Array(9).fill(null);
                 room.start = false;
                 room.turn = room.players[0]._id.toString();
+                room.moveIdx = 1;
                 // console.log('board 2', room.board)
                 io.to(roomId).emit('draw', {
                     board: room.board,
                     players: room.players,
                     lastMove,
-                    defaultTime: room.defaultTime
+                    defaultTime: room.defaultTime,
+                    prev
                 });
                 await controller.saveHistory({
                     player1: room.players[0]._id,
@@ -221,7 +243,14 @@ module.exports = (io) => {
             }
             // console.log('board 4', room.board)
         });
+        socket.on('play-again', ({ roomId }) => {
+            socket.broadcast.to(roomId).emit('ask-play-again')
+        })
 
+        socket.on('refuse-to-play', ({ roomId }) => {
+            console.log('here 244');
+            socket.broadcast.to(roomId).emit('refused-play')
+        })
         socket.on('askFriend', async ({ from, to }) => {
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
@@ -259,6 +288,10 @@ module.exports = (io) => {
 
         socket.on('leave', async ({ roomId }, callback) => {
             let beforeStart;
+            // console.log('line 262', boards[roomId].players[0]._id.toString() === socket.userId);
+            if (boards[roomId].players[0]._id.toString() === socket.userId) {
+                socket.broadcast.to(roomId).emit('first-player-left');
+            }
             if (boards[roomId]) {
                 boards[roomId].players = boards[roomId].players.filter(
                     u => u?._id.toString() !== socket.userId
@@ -272,8 +305,9 @@ module.exports = (io) => {
                 }
                 beforeStart = boards[roomId].start
                 boards[roomId].start = false;
+                boards[roomId].moveIdx = 1;
             }
-            boards[roomId].board = ["", "", "", "", "", "", "", "", ""];
+            boards[roomId].board = Array(9).fill(null);
             boards[roomId].turn = null;
             boards[roomId].symbols = {};
             // console.log(boards[roomId].players)

@@ -24,6 +24,10 @@ import playerLeft from '../../utils/helper/socketHelper/playerLeft';
 import drawMatch from '../../utils/helper/socketHelper/drawMatch';
 import Winner from '../../utils/helper/socketHelper/Winner';
 import HistoryDrawer from '../../components/Drawer/History/HistoryDrawer';
+import { TbInfoCircleFilled } from "react-icons/tb";
+import { TbInfoOctagonFilled } from "react-icons/tb";
+import askPlay from '../../utils/helper/socketHelper/askPlayAgain';
+import PreviewDrawer from '../../components/Drawer/PrevDrawer/PreviewDrawer';
 function GameRoom() {
     const { roomId } = useParams()
     const [board, setBoard] = useState([
@@ -33,8 +37,11 @@ function GameRoom() {
     ]);
     const [users, setUsers] = useState(null);
     const [currentPlayer, setCurrentPlayer] = useState(null);
+    const [prevDrawer, setPrevDrawer] = useState(false);
+    const [prevData, setPrevData] = useState(null);
     const [start, setStart] = useState(false);
     const [history, setHistory] = useState(null);
+    const [symbols, setSymbols] = useState(null);
     const navigate = useNavigate();
     const [line, setLine] = useState(null);
     const { currentUser, loading } = useContext(CurrentUserContext);
@@ -94,9 +101,9 @@ function GameRoom() {
 
         rejectedInvite();
 
-        Winner(setBoard, setStart, setLine, setHistory, setDefaultTimer, setTimer, currentUser);
+        Winner(setBoard, setStart, setLine, setHistory, setDefaultTimer, setTimer, currentUser, setPrevData , setPrevDrawer);
 
-        drawMatch(setBoard, setStart, setHistory, setDefaultTimer, setTimer)
+        drawMatch(setBoard, setStart, setHistory, setDefaultTimer, setTimer, roomId, setPrevDrawer, setPrevData)
 
         acceptFriend(setAreFriend)
 
@@ -130,9 +137,34 @@ function GameRoom() {
             setDefaultTimer(defaultTime)
         })
 
+        socket.on('first-player-left', () => {
+            navigate(`${ROUTES.HOME}`)
+            Swal.fire({
+                title: "The room host has left",
+                text: "You’ve been returned to the home page.",
+                icon: "info",
+                showConfirmButton: false,
+                timer: 5000
+            });
+        })
+
         socket.on('getNewTime', ({ time }) => {
             setTimer(time);
             setDefaultTimer(time)
+        })
+
+        askPlay(roomId);
+
+        socket.on('refused-play', () => {
+            console.log('here')
+            Swal.fire({
+                title: 'Play Again request',
+                text: 'Opponent refuse to play again',
+                icon: 'info',
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 5000
+            })
         })
 
         socket.emit('getTime', (roomId), (res) => {
@@ -146,12 +178,22 @@ function GameRoom() {
             }
         }
 
+        socket.emit('getUsers', (roomId), (res) => {
+            console.log(res)
+            if (res.status === 200) {
+                setSymbols(res.symbols)
+                setUsers(res.players);
+            }
+        })
+
         refreshGame(roomId, setUsers, setBoard, setCurrentPlayer, setStart, setTimer, setDefaultTimer, currentUser, navigate)
 
         return () => {
             socket.off("player-joined");
             socket.off("moveDone");
             socket.off('nextTurn');
+            socket.off('refused-play');
+            socket.off('ask-play-again')
         };
     }, [roomId, loading]);
 
@@ -217,6 +259,22 @@ function GameRoom() {
             })
         }
     }
+    // console.log(currentPlayer)
+    const handleInfo = () => {
+        socket.emit('getTime', (roomId), (res) => {
+            Swal.fire({
+                title: 'Game Rules',
+                html: `<div class="info-user-game">
+                <p><b>Turn Timer:</b> ${res.time} seconds per player</p>
+                <p><b>Mode:</b> 1 vs 1 match</p>
+                <p>If a player does not move in time, the turn is skipped.</p>
+                </div>`,
+                icon: 'info',
+                confirmButtonText: 'Got it'
+            })
+        })
+
+    }
 
     const handleFriend = async () => {
         const otherUser = users.find(u => u._id !== currentUser?._id)
@@ -275,7 +333,7 @@ function GameRoom() {
         socket.emit('setNewTime', { roomId, time })
     }
 
-    // console.log(start)
+    console.log(prevData)
 
     return (
         <>
@@ -322,6 +380,16 @@ function GameRoom() {
                     </button>}
 
                 <button onClick={leave} className='leave-room'>Leave Game Room</button>
+                {prevDrawer &&
+                    <PreviewDrawer
+                        open={() => setPrevDrawer(true)}
+                        onClose={() => setPrevDrawer(false)}
+                        prevData={prevData}
+                        players={users}
+                        symbols={symbols}
+                    />}
+
+                <TbInfoCircleFilled className='info-btn' onClick={handleInfo} />
             </div>
             <div className="main-container">
                 <div className="left-side">
@@ -332,7 +400,7 @@ function GameRoom() {
                                 className={`cell ${line?.includes(index) ? 'winner-index' : ''}`}
                                 onClick={() => handleClick(index)}
                             >
-                                {cell}
+                                {cell?.symbol}
                             </div>
                         ))}
                         {line && <div className={getLineClass(line)} />}
@@ -340,7 +408,8 @@ function GameRoom() {
                     <div className="play-game">
                         {start ?
                             <button disabled className='start-btn started'>Started</button> :
-                            <button onClick={handleBtn} className='start-btn playing'>Toss</button>
+                            users && users.length === 2 ? <button onClick={handleBtn} className='start-btn playing'>Toss</button> :
+                                <button className='start-btn' disabled>Toss</button>
                         }
                     </div>
                 </div>

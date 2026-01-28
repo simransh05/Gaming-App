@@ -25,8 +25,8 @@ function TimerSet({ open, onClose, onSuccess }) {
         <Dialog open={open} onClose={onClose} className='time-container'>
             <DialogTitle className='time-title'>Set Time</DialogTitle>
             <DialogContent className='time-content'>
-                <div style={{ textAlign: 'center', marginBottom: '5px' }}>Default Time : {defaultTime} sec</div>
-                <label>Set new default timer: </label>
+                <div style={{ textAlign: 'center', marginBottom: '5px' }}>Turn Timer : {defaultTime} sec</div>
+                <label>Set new Turn timer: </label>
                 <Select value={defaultTime} onChange={(e) => setDefaultTime(Number(e.target.value))} size='small' className='select-time'>
                     <MenuItem value={10}>Set 10 sec</MenuItem>
                     <MenuItem value={15}>Set 15 sec</MenuItem>
