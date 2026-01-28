@@ -10,7 +10,7 @@ function HistoryDrawer({ history, open, onClose, onSuccess }) {
     return (
         <Drawer open={open} onClose={onClose} anchor='right' className='history-drawer' PaperProps={{
             sx: {
-                width: 240,
+                width: 'content',
                 borderTopLeftRadius: 16,
                 borderBottomLeftRadius: 16,
             },

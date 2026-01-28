@@ -3,7 +3,6 @@
   justify-content: space-around;
   background-color: #f1f5f9;
   border-bottom: 1px solid grey;
-  margin: 10px;
   padding: 5px;
   height: 80px;
   margin: 0;
@@ -190,13 +189,13 @@
 .start-btn {
   height: 50px;
   width: 220px;
+  border-radius: 8px;
 }
 
 .playing {
   background-color: blueviolet;
   color: white;
   border: none;
-  border-radius: 8px;
 }
 
 .started {
@@ -238,6 +237,20 @@
   align-items: center;
   margin: auto 0;
   background-color: white;
+}
+
+.info-user-game p{
+  margin :0;
+  margin: 5px;
+  text-align: center;
+}
+.info-btn{
+  /* background-color: blue; */
+  color: blue;
+  height: 50px;
+  width: 50px;
+  margin: auto 0;
+  cursor: pointer;
 }
 
 @media (max-width:1000px) and (min-width:600px) {

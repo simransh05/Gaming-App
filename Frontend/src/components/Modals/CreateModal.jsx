@@ -32,8 +32,8 @@ function CreateModal({ open, onClose, onSuccess }) {
 
                     <ul className='list-items'>
                         <li>This is a 1 vs 1 match.</li>
-                        <li>Only invited players can join this room.</li>
-                        <li>The creator of the room can change the default time after join</li>
+                        <li>Only invited players can join the room.</li>
+                        <li>The creator of the room can change the turn timer after join</li>
                         <li>Make sure you have read the rules on the home page</li>
                     </ul>
 

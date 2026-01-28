@@ -21,14 +21,14 @@ const refreshGame = (roomId, setUsers, setBoard, setCurrentPlayer, setStart, set
             if (!res.data.start && res.data.players.length === 1 && currentUser._id === res.data.players[0]._id) {
                 Swal.fire({
                     title: 'Game rules',
-                    text: 'You can change the time of the game',
+                    text: 'You can change the turn timer of the game',
                     icon: 'info',
                     showConfirmButton: true
                 })
             } else if (!res.data.start && currentUser._id === res.data.players[1]._id) {
                 Swal.fire({
                     title: 'Game rules',
-                    text: res.data.defaultTime === 10 ? 'The game time is 10sec per person' : `the creator change the default time to ${res.data.defaultTime}sec`,
+                    text: res.data.defaultTime === 10 ? 'The turn timer is 10sec per person' : `The turn timer is ${res.data.defaultTime}sec per person`,
                     icon: 'info',
                     showConfirmButton: true
                 })
