@@ -10,14 +10,16 @@ module.exports = (io) => {
     const boards = {};
     const activeUser = new Set();
     const activeMap = new Map();
+    const usersMap = new Map(); // idea is store for each user the object of who and with roomId if accept same logic 
 
     io.on('connection', (socket) => {
         socket.on('register', (userId) => {
             socket.userId = userId;
             activeUser.add(socket.userId)
             activeMap.set(userId, socket.id);
-            // console.log(activeUser, activeMap);
-            console.log('user connect', socket.userId)
+            usersMap.set(userId, []);
+            console.log(activeUser, activeMap, usersMap);
+            console.log('user connect', socket.id, socket.userId)
         });
 
         socket.on('create', (callback) => {
@@ -131,10 +133,29 @@ module.exports = (io) => {
             io.to(roomId).emit('game-started', { FirstPlayer: boards[roomId].turn, defaultTime: boards[roomId].defaultTime });
         })
 
+        socket.on('getNotification', ({ userId }, callback) => {
+            console.log(usersMap.get(userId));
+            callback({ number: usersMap.get(userId) })
+        })
+
         socket.on('send-invite', async ({ from, to, roomId }) => {
             // console.log('from,to', from, to, roomId)
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
+            // get userId.push({})
+            // console.log('line146', usersMap.get(to).find(u => u.from === from))
+            const existing = usersMap.get(to) || [];
+
+            const filtered = existing.filter(
+                u => !(u.from === from)
+            );
+            filtered.push({
+                opponent: fromName?.name,
+                roomId,
+                from
+            });
+            usersMap.set(to, filtered);
+            // console.log('line 155', usersMap.get(to))
             // console.log('fromName', fromName)
             if (toId) {
                 // console.log(from, to)
@@ -146,7 +167,7 @@ module.exports = (io) => {
             if (boards[roomId].players.length < 2) {
                 return callback({ status: 400 })
             }
-            callback({ status: 200, players: boards[roomId].players, symbols:boards[roomId].symbols })
+            callback({ status: 200, players: boards[roomId].players, symbols: boards[roomId].symbols })
         })
 
         socket.on('reject-invite', async ({ from, to }) => {
@@ -165,22 +186,24 @@ module.exports = (io) => {
             const symbol = boards[roomId].symbols[socket.userId];
             room.board[index] = {
                 symbol: symbol, // X or O
-                move: room.moveIdx
+                move: room.moveIdx,
+                index: index,
+                userId: socket.userId
             };
             room.moveIdx++;
-            console.log('line 164', room)
+            // console.log('line 164', room)
             // console.log('socket', socket.userId);
             // console.log(board[index], index);
             const winner = patterns.some(([a, b, c]) =>
                 room.board[a]?.symbol && room.board[a]?.symbol === room.board[b]?.symbol && room.board[a]?.symbol === room.board[c]?.symbol
             );
-            console.log('line 170', room.board[index].symbol)
-            console.log('line 171', winner);
+            // console.log('line 170', room.board[index].symbol)
+            // console.log('line 171', winner);
             const findValue = patterns.find(([a, b, c]) =>
                 room.board[a]?.symbol && room.board[a]?.symbol === room.board[b]?.symbol && room.board[a]?.symbol === room.board[c]?.symbol
             );
 
-            console.log('line 176', findValue)
+            // console.log('line 176', findValue)
 
             if (winner) {
                 const lastMove = room.board;
@@ -248,7 +271,7 @@ module.exports = (io) => {
         })
 
         socket.on('refuse-to-play', ({ roomId }) => {
-            console.log('here 244');
+            // console.log('here 244');
             socket.broadcast.to(roomId).emit('refused-play')
         })
         socket.on('askFriend', async ({ from, to }) => {
@@ -332,7 +355,7 @@ module.exports = (io) => {
         socket.on('disconnect', () => {
             activeUser.delete(socket.userId);
             activeMap.delete(socket.userId);
-            console.log('user disconnect', socket.id)
+            console.log('user disconnect', socket.id, socket.userId)
         });
     });
 };

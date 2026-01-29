@@ -25,7 +25,6 @@ import drawMatch from '../../utils/helper/socketHelper/drawMatch';
 import Winner from '../../utils/helper/socketHelper/Winner';
 import HistoryDrawer from '../../components/Drawer/History/HistoryDrawer';
 import { TbInfoCircleFilled } from "react-icons/tb";
-import { TbInfoOctagonFilled } from "react-icons/tb";
 import askPlay from '../../utils/helper/socketHelper/askPlayAgain';
 import PreviewDrawer from '../../components/Drawer/PrevDrawer/PreviewDrawer';
 function GameRoom() {
@@ -101,7 +100,7 @@ function GameRoom() {
 
         rejectedInvite();
 
-        Winner(setBoard, setStart, setLine, setHistory, setDefaultTimer, setTimer, currentUser, setPrevData , setPrevDrawer);
+        Winner(setBoard, setStart, setLine, setHistory, setDefaultTimer, setTimer, currentUser, roomId, setPrevData, setPrevDrawer);
 
         drawMatch(setBoard, setStart, setHistory, setDefaultTimer, setTimer, roomId, setPrevDrawer, setPrevData)
 
