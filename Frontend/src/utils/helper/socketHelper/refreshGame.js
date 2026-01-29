@@ -12,7 +12,7 @@ const refreshGame = (roomId, setUsers, setBoard, setCurrentPlayer, setStart, set
             setStart(res.data.start);
             setTimer(res.data.defaultTime)
             setDefaultTimer(res.data.defaultTime);
-            const isAlreadyIn = res.data.players.some(u => u._id === currentUser._id);
+            const isAlreadyIn = res.data?.players?.some(u => u._id === currentUser._id);
             // console.log(isAlreadyIn);
             if (!isAlreadyIn) {
                 Swal.fire({ title: 'You are not joined' })

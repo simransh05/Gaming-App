@@ -1,24 +1,16 @@
-import Swal from 'sweetalert2';
 import socket from '../../../socket/socket'
+import { toast } from 'react-toastify';
 
 const startGame = (setStart, setCurrentPlayer, setDefaultTimer, setTimer, currentUser) => {
     socket.on("game-started", ({ FirstPlayer, defaultTime }) => {
+        currentUser._id === FirstPlayer ? toast.success('You win the toss got first move')
+            : toast.error('You lose the toss')
         // console.log(currentUser._id, FirstPlayer)
-        Swal.fire({
-            title: currentUser._id === FirstPlayer ? 'You win the toss got first move' : 'You lose the toss',
-            text: '',
-            icon: currentUser._id === FirstPlayer ? 'success' : 'error',
-            timer: 3000,
-            showCancelButton: false,
-            showConfirmButton: false,
-            didClose: () => {
-                setStart(true);
-                // console.log(FirstPlayer)
-                setCurrentPlayer(FirstPlayer);
-                setDefaultTimer(defaultTime)
-                setTimer(defaultTime)
-            }
-        })
+        setStart(true);
+        // console.log(FirstPlayer)
+        setCurrentPlayer(FirstPlayer);
+        setDefaultTimer(defaultTime)
+        setTimer(defaultTime)
     });
     return () => {
         socket.off('game-started');

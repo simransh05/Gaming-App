@@ -1,0 +1,13 @@
+.prev-drawer td {
+    text-align: center;
+    padding: 10px 0;
+    border: 1px solid grey;
+    /* border-radius: 5px; */
+}
+
+.table-drawer {
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 10px;
+    border: none;
+}
