@@ -239,12 +239,13 @@
   background-color: white;
 }
 
-.info-user-game p{
-  margin :0;
+.info-user-game p {
+  margin: 0;
   margin: 5px;
   text-align: center;
 }
-.info-btn{
+
+.info-btn {
   /* background-color: blue; */
   color: blue;
   height: 50px;
@@ -252,6 +253,32 @@
   margin: auto 0;
   cursor: pointer;
 }
+
+.game-snackbar .MuiSnackbarContent-root {
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  background-color: #f9fafb;
+  color: #0f172a;
+  flex-direction: column;
+}
+
+
+.MuiSnackbarContent-message {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.MuiSnackbarContent-action {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+.MuiSnackbarContent-action Button {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+
 
 @media (max-width:1000px) and (min-width:600px) {
   .grid {

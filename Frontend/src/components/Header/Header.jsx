@@ -6,11 +6,13 @@ import './Header.css'
 import { IoNotifications } from "react-icons/io5";
 import socket from '../../socket/socket'
 import Notification from '../Drawer/Notification/Notification'
+import { notificationStore } from '../Zustand/Notification'
 
 function Header() {
-    const { currentUser } = useContext(CurrentUserContext);
+    const { currentUser, loading } = useContext(CurrentUserContext);
     const [number, setNumber] = useState(null);
     const [notifyDrawer, setNotifyDrawer] = useState(false);
+    const { notification, fetchNotification } = notificationStore();
     const formatName = (name) => {
         if (!name) return "";
         const parts = name.trim().split(" ");
@@ -19,13 +21,14 @@ function Header() {
     }
 
     useEffect(() => {
-        if (!currentUser?._id) return;
-        socket.emit('getNotification', { userId: currentUser._id }, (res) => {
-            console.log(res);
-            setNumber(res?.number?.length)
+        if (loading) return;
+        if (!currentUser) return;
+        socket.on('receive-invite', () => {
+            setNumber((prev) => prev + 1)
         })
-    }, [currentUser?._id])
-
+        setNumber(notification?.notification?.length)
+        // get the notify if any user send request ..prev prev+1
+    }, [currentUser?._id, loading, notification])
     console.log(number)
 
     return (

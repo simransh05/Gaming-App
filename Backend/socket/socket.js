@@ -1,5 +1,6 @@
 const User = require('../model/user')
 const controller = require('../controller/game')
+const controller1 = require('../controller/notification')
 module.exports = (io) => {
     const patterns = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -10,15 +11,13 @@ module.exports = (io) => {
     const boards = {};
     const activeUser = new Set();
     const activeMap = new Map();
-    const usersMap = new Map(); // idea is store for each user the object of who and with roomId if accept same logic 
 
     io.on('connection', (socket) => {
         socket.on('register', (userId) => {
             socket.userId = userId;
             activeUser.add(socket.userId)
             activeMap.set(userId, socket.id);
-            usersMap.set(userId, []);
-            console.log(activeUser, activeMap, usersMap);
+            console.log(activeUser, activeMap);
             console.log('user connect', socket.id, socket.userId)
         });
 
@@ -70,6 +69,11 @@ module.exports = (io) => {
 
             if (callback) {
                 callback({ joined: true })
+            }
+            if (room.players.length > 1){
+                const from = socket.userId;
+                const to = room.players[0]?._id;
+                await controller1.deleteNotification(from, to)
             }
             // console.log(room)
 
@@ -133,30 +137,12 @@ module.exports = (io) => {
             io.to(roomId).emit('game-started', { FirstPlayer: boards[roomId].turn, defaultTime: boards[roomId].defaultTime });
         })
 
-        socket.on('getNotification', ({ userId }, callback) => {
-            console.log(usersMap.get(userId));
-            callback({ number: usersMap.get(userId) })
-        })
-
         socket.on('send-invite', async ({ from, to, roomId }) => {
             // console.log('from,to', from, to, roomId)
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
-            // get userId.push({})
-            // console.log('line146', usersMap.get(to).find(u => u.from === from))
-            const existing = usersMap.get(to) || [];
-
-            const filtered = existing.filter(
-                u => !(u.from === from)
-            );
-            filtered.push({
-                opponent: fromName?.name,
-                roomId,
-                from
-            });
-            usersMap.set(to, filtered);
-            // console.log('line 155', usersMap.get(to))
-            // console.log('fromName', fromName)
+            // post notification
+            await controller1.postNotification(from, to, roomId)
             if (toId) {
                 // console.log(from, to)
                 io.to(toId).emit('receive-invite', { from, fromName, roomId });
@@ -175,7 +161,7 @@ module.exports = (io) => {
             const fromName = await User.findById(from).lean();
             // console.log('fromName', fromName);
             // console.log('name', fromName.name)
-
+            await controller1.deleteNotification(from, to)
             io.to(toId).emit('rejected', { name: fromName.name })
         })
 

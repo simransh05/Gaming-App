@@ -25,8 +25,8 @@ import drawMatch from '../../utils/helper/socketHelper/drawMatch';
 import Winner from '../../utils/helper/socketHelper/Winner';
 import HistoryDrawer from '../../components/Drawer/History/HistoryDrawer';
 import { TbInfoCircleFilled } from "react-icons/tb";
-import askPlay from '../../utils/helper/socketHelper/askPlayAgain';
 import PreviewDrawer from '../../components/Drawer/PrevDrawer/PreviewDrawer';
+import { Button, Snackbar } from '@mui/material';
 function GameRoom() {
     const { roomId } = useParams()
     const [board, setBoard] = useState([
@@ -41,6 +41,7 @@ function GameRoom() {
     const [start, setStart] = useState(false);
     const [history, setHistory] = useState(null);
     const [symbols, setSymbols] = useState(null);
+    const [playAgainRequest, setPlayAgainRequest] = useState(false);
     const navigate = useNavigate();
     const [line, setLine] = useState(null);
     const { currentUser, loading } = useContext(CurrentUserContext);
@@ -152,7 +153,9 @@ function GameRoom() {
             setDefaultTimer(time)
         })
 
-        askPlay(roomId);
+        socket.on('ask-play-again', () => {
+            setPlayAgainRequest(true);
+        })
 
         socket.on('refused-play', () => {
             console.log('here')
@@ -272,7 +275,6 @@ function GameRoom() {
                 confirmButtonText: 'Got it'
             })
         })
-
     }
 
     const handleFriend = async () => {
@@ -336,6 +338,36 @@ function GameRoom() {
 
     return (
         <>
+            <Snackbar
+                open={playAgainRequest}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                message="Opponent asked to play again"
+                className='game-snackbar'
+                action={
+                    <div className='action-btns'>
+                        <Button
+                            color="success"
+                            size="small"
+                            onClick={() => {
+                                socket.emit('start', roomId);
+                                setPlayAgainRequest(false);
+                            }}
+                        >
+                            Yes
+                        </Button>
+                        <Button
+                            color="error"
+                            size="small"
+                            onClick={() => {
+                                socket.emit('refuse-to-play', { roomId });
+                                setPlayAgainRequest(false);
+                            }}
+                        >
+                            No
+                        </Button>
+                    </div>
+                }
+            />
             <div className="subheader">
                 <div className="names">
                     <span>Players in Game: </span>

@@ -38,6 +38,9 @@ const api = {
     getIndividualHistory : async (userId) => {
         return await apiInstance.get(`${ROUTES.HISTORY}${ROUTES.INDIVIDUAL}/${userId}`)
     },
+    getNotification : async (userId) => {
+        return await apiInstance.get(`${ROUTES.NOTIFICATION}/${userId}`)
+    },
 }
 
 export default api;
