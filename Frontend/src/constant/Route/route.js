@@ -9,7 +9,8 @@ const ROUTES = {
     FRIEND: '/friend',
     TOP_RANKING: '/top-ranking',
     USERS: '/users',
-    INDIVIDUAL :'/individual'
+    INDIVIDUAL :'/individual',
+    NOTIFICATION : '/notification',
 }
 
 export default ROUTES;

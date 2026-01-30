@@ -1,0 +1,20 @@
+.notify-drawer .MuiDrawer-paper {
+    width: fit-content;
+}
+
+.single-notify {
+    display: flex;
+}
+
+.single-notify span {
+    padding: 4px;
+    margin: 5px;
+}
+
+.single-notify button {
+    margin: 5px;
+}
+
+.no-nofify {
+    text-align: center;
+}

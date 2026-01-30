@@ -13,15 +13,16 @@ import socket from '../../socket/socket'
 import rejectedInvite from '../../utils/helper/rejectedInvite'
 import acceptFriend from '../../utils/helper/acceptFriend'
 import refuseFriend from '../../utils/helper/refuseFriend'
-import requestInvite from '../../utils/helper/socketHelper/requestInvite'
 import getInitial from '../../utils/helper/getInitial'
 import { Avatar } from '@mui/material'
 import Header from '../../components/Header/Header'
+import { notificationStore } from '../../components/Zustand/Notification'
 
 function HomePage() {
     const { currentUser, loading } = useContext(CurrentUserContext)
     const [showCreate, setShowCreate] = useState(false);
     const [showInvite, setShowInvite] = useState(false);
+    const { fetchNotification } = notificationStore();
     const navigate = useNavigate();
     useEffect(() => {
         // console.log('here', currentUser, loading, socket.connected)
@@ -31,7 +32,9 @@ function HomePage() {
             console.log('here')
             socket.emit("register", currentUser._id);
         }
-        requestInvite(currentUser, navigate);
+        fetchNotification(currentUser._id);
+
+        // requestInvite(currentUser, navigate);
         rejectedInvite();
         acceptFriend();
         refuseFriend();
