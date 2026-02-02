@@ -101,6 +101,8 @@ module.exports.deleteHistory = async (req, res) => {
             return res.status(404).json({ message: "Game not found" });
         }
 
+        await Game.deleteMany({ "history.deletedBy": { $all: [player1, player2] } });
+
         return res.status(200).json({ message: "History deleted for this user" });
 
     } catch (err) {

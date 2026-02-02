@@ -15,7 +15,14 @@ const refreshGame = (roomId, setUsers, setBoard, setCurrentPlayer, setStart, set
             const isAlreadyIn = res.data?.players?.some(u => u?._id === currentUser._id);
             // console.log(isAlreadyIn);
             if (!isAlreadyIn) {
-                Swal.fire({ title: 'You are not joined' })
+                Swal.fire({
+                    title: 'Not In',
+                    text: 'You are not joined',
+                    icon: 'info',
+                    showCancelButton: false,
+                    showConfirmButton: false,
+                    timer: 5000
+                })
                 return navigate(ROUTES.HOME)
             }
             if (!res.data.start && res.data.players.length === 1 && currentUser._id === res.data.players[0]._id) {
@@ -34,7 +41,14 @@ const refreshGame = (roomId, setUsers, setBoard, setCurrentPlayer, setStart, set
                 })
             }
         } else if (res.status === 404) {
-            Swal.fire({ title: 'You are not joined' })
+            Swal.fire({
+                title: 'Not In',
+                text: 'You are not joined',
+                icon: 'info',
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 5000
+            })
             return navigate(ROUTES.HOME)
         }
     })

@@ -23,13 +23,30 @@ function Header() {
     useEffect(() => {
         if (loading) return;
         if (!currentUser) return;
-        socket.on('receive-invite', () => {
-            setNumber((prev) => prev + 1)
-        })
-        setNumber(notification?.notification?.length)
+        setNumber(notification?.length)
         // get the notify if any user send request ..prev prev+1
     }, [currentUser?._id, loading, notification])
-    console.log(number)
+    // console.log(notification)
+
+    useEffect(() => {
+        socket.on('receive-invite', ({ from }) => {
+            // find if there 
+
+            // console.log(from)
+            const have = notification?.some(u => u.opponent._id === from);
+            if (!have) {
+                setNumber(prev => prev + 1)
+            }
+            console.log(have);
+        })
+        socket.on('you-refuse', () => {
+            setNumber(prev => prev - 1)
+        })
+        return () => {
+            socket.off('receive-invite');
+            socket.off('you-refuse')
+        }
+    }, [notification])
 
     return (
         <div className='header-container'>

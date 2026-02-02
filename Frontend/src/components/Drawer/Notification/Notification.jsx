@@ -1,4 +1,4 @@
-import { Drawer } from '@mui/material'
+import { Divider, Drawer } from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
 import api from '../../../utils/api'
 import { notificationStore } from '../../Zustand/Notification';
@@ -15,16 +15,16 @@ function Notification({ open, onClose }) {
     const [data, setData] = useState(null);
     const navigate = useNavigate();
     // now we have notification
-    console.log(notification.notification);
+    // console.log(notification.notification);
 
 
     useEffect(() => {
-        setData(notification.notification)
+        setData(notification)
     }, [notification])
 
     useEffect(() => {
         fetchNotification(currentUser?._id);
-    },[])
+    }, [])
 
     const handleClick = (roomId) => {
         onClose();
@@ -41,20 +41,29 @@ function Notification({ open, onClose }) {
 
     const handleReject = (opponent) => {
         socket.emit('reject-invite', { from: currentUser._id, to: opponent })
+        // filter 
+        const newData = data.filter(d => d.opponent._id !== opponent);
+        console.log(newData);
+        setData(newData);
     }
-    // idea is to show all person who send will the 2 btns if accept then do something if refuse do something
+
     return (
         <Drawer open={open} onClose={onClose} className='notify-drawer'>
-            <h1>Notification</h1>
-            {notification && data?.length != 0 ? data?.map((n, idx) => (
-                <div key={n.opponent._id} className='single-notify'>
-                    <span>{n.opponent.name}</span>
-                    <button onClick={() => handleClick(n.roomId)}>Accept</button>
-                    <button onClick={() => handleReject(n.opponent._id)}>Reject</button>
-                </div>
-            )) :
-                <div className='no-nofify'>No Notification</div>
-            }
+            <h1 className='notify-heading'>Notification</h1>
+            {data?.length != 0 && <h3 className='invite-heading'>Game Invite</h3>}
+            <Divider />
+            <div className='notify-container'>
+                {notification && data?.length != 0 ? data?.map((n, idx) => (
+                    <div key={n.opponent._id} className='single-notify'>
+                        <span>{n.opponent.name}</span>
+                        <button onClick={() => handleClick(n.roomId)} className='accept-btn'>Accept</button>
+                        <button onClick={() => handleReject(n.opponent._id)} className='reject-btn'>Refuse</button>
+                    </div>
+                )) :
+                    <div className='no-nofify'>No Notification</div>
+                }
+            </div>
+
         </Drawer>
     )
 }

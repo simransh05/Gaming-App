@@ -1,9 +1,36 @@
 .notify-drawer .MuiDrawer-paper {
     width: fit-content;
+    padding: 8px;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
 }
 
 .single-notify {
     display: flex;
+}
+
+.notify-heading {
+    text-align: center;
+    margin: 10px;
+}
+
+.notify-container{
+    margin: 8px 0;
+}
+
+.invite-heading {
+    text-align: center;
+    margin: 9px;
+}
+
+.accept-btn,
+.reject-btn {
+    background-color: blueviolet;
+    color: white;
+    cursor: pointer;
+    border: none;
+    padding: 5px;
+    border-radius: 5px;
 }
 
 .single-notify span {
@@ -17,4 +44,5 @@
 
 .no-nofify {
     text-align: center;
+    margin: 6px;
 }
