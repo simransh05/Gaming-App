@@ -1,6 +1,6 @@
 .subheader {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   background-color: #f1f5f9;
   border-bottom: 1px solid grey;
   padding: 5px;
@@ -11,6 +11,33 @@
 
 .names {
   margin: auto 0;
+  margin-left: 15px;
+}
+
+.buttons-game {
+  display: flex;
+}
+
+.leave-room {
+  border: none;
+  padding: 5px;
+  background-color: red;
+  color: white;
+  border-radius: 5px;
+  margin: auto 8px;
+  height: 40%;
+  cursor: pointer;
+  width: 150px;
+}
+
+.info-btn {
+  /* background-color: blue; */
+  color: blue;
+  height: 50px;
+  width: 50px;
+  margin: auto 12px;
+  cursor: pointer;
+  align-items: center;
 }
 
 .parentCount {
@@ -174,18 +201,6 @@
   width: 150px;
 }
 
-.leave-room {
-  border: none;
-  padding: 5px;
-  background-color: red;
-  color: white;
-  border-radius: 5px;
-  margin: auto 0;
-  height: 40%;
-  cursor: pointer;
-  width: 150px;
-}
-
 .start-btn {
   height: 50px;
   width: 220px;
@@ -243,15 +258,6 @@
   margin: 0;
   margin: 5px;
   text-align: center;
-}
-
-.info-btn {
-  /* background-color: blue; */
-  color: blue;
-  height: 50px;
-  width: 50px;
-  margin: auto 0;
-  cursor: pointer;
 }
 
 .game-snackbar .MuiSnackbarContent-root {

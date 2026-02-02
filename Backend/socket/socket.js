@@ -70,7 +70,7 @@ module.exports = (io) => {
             if (callback) {
                 callback({ joined: true })
             }
-            if (room.players.length > 1){
+            if (room.players.length > 1) {
                 const from = socket.userId;
                 const to = room.players[0]?._id;
                 await controller1.deleteNotification(from, to)
@@ -150,15 +150,21 @@ module.exports = (io) => {
         });
 
         socket.on('getUsers', (roomId, callback) => {
-            if (boards[roomId].players.length < 2) {
+            const room = boards[roomId];
+            if (!room) {
+                callback({ status: 404 })
+            }
+            if (room.players.length < 2) {
                 return callback({ status: 400 })
             }
-            callback({ status: 200, players: boards[roomId].players, symbols: boards[roomId].symbols })
+            callback({ status: 200, players: room.players, symbols: room.symbols })
         })
 
         socket.on('reject-invite', async ({ from, to }) => {
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
+            const fromId = activeMap.get(from);
+            io.to(fromId).emit('you-refuse');
             // console.log('fromName', fromName);
             // console.log('name', fromName.name)
             await controller1.deleteNotification(from, to)

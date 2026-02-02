@@ -29,7 +29,7 @@ function HomePage() {
         if (loading) return;
         if (!currentUser) return navigate(`${ROUTES.LOGIN}`);
         if (socket.connected) {
-            console.log('here')
+            // console.log('here')
             socket.emit("register", currentUser._id);
         }
         fetchNotification(currentUser._id);

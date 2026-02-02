@@ -181,7 +181,7 @@ function GameRoom() {
         }
 
         socket.emit('getUsers', (roomId), (res) => {
-            console.log(res)
+            // console.log(res)
             if (res.status === 200) {
                 setSymbols(res.symbols)
                 setUsers(res.players);
@@ -334,7 +334,7 @@ function GameRoom() {
         socket.emit('setNewTime', { roomId, time })
     }
 
-    console.log(prevData)
+    // console.log(prevData)
 
     return (
         <>
@@ -410,7 +410,6 @@ function GameRoom() {
                         Ask to be Friend
                     </button>}
 
-                <button onClick={leave} className='leave-room'>Leave Game Room</button>
                 {prevDrawer &&
                     <PreviewDrawer
                         open={() => setPrevDrawer(true)}
@@ -420,7 +419,11 @@ function GameRoom() {
                         symbols={symbols}
                     />}
 
-                <TbInfoCircleFilled className='info-btn' onClick={handleInfo} />
+                <div className="buttons-game">
+                    <button onClick={leave} className='leave-room'>Leave Game Room</button>
+                    <TbInfoCircleFilled className='info-btn' onClick={handleInfo} />
+                </div>
+
             </div>
             <div className="main-container">
                 <div className="left-side">
