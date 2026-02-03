@@ -13,6 +13,7 @@ function OtherOpponent({ onSuccess }) {
     const { currentUser } = useContext(CurrentUserContext);
     const [activeUsers, setActiveUsers] = useState(null);
     const [searchResult, setSearchResult] = useState([]);
+    const [friendIds, setFriendIds] = useState(null);
     const { friends } = friendStore();
     const { allUsers } = userStore();
     const [search, setSearch] = useState('');
@@ -29,11 +30,20 @@ function OtherOpponent({ onSuccess }) {
         }
     }, [])
 
-    const friendIds = new Set(friends?.map(f => f._id));
+    useEffect(() => {
+        if (!friends) return;
+
+        setFriendIds(new Set(friends.map(f => f._id)));
+    }, [friends]);
+
 
     const handleFriend = async (id) => {
         await api.postFriend(currentUser._id, id);
-        friendIds.add(id);
+        setFriendIds(prev => {
+            const next = new Set(prev);
+            next.add(id);
+            return next;
+        });
         socket.emit('askFriend', { from: currentUser._id, to: id })
     }
 
@@ -79,10 +89,10 @@ function OtherOpponent({ onSuccess }) {
                     </li>
                 )
                 ) : (
-                search && <div className="no-search-found">
-                    No search found
-                </div>
-            )
+                    search && <div className="no-search-found">
+                        No search found
+                    </div>
+                )
                 }
             </ul>
         </div>

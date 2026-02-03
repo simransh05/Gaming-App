@@ -23,28 +23,48 @@ function Header() {
     useEffect(() => {
         if (loading) return;
         if (!currentUser) return;
-        setNumber(notification?.length)
+        const total = notification?.invite?.length + notification?.friend?.length;
+        setNumber(total)
         // get the notify if any user send request ..prev prev+1
-    }, [currentUser?._id, loading, notification])
+    }, [currentUser?._id, loading, notification]);
+
+    useEffect(() => {
+        if (loading) return;
+        fetchNotification(currentUser?._id);
+    }, [loading])
     // console.log(notification)
 
     useEffect(() => {
+        // for invite
         socket.on('receive-invite', ({ from }) => {
-            // find if there 
-
-            // console.log(from)
-            const have = notification?.some(u => u.opponent._id === from);
+            const have = notification?.invite?.some(u => u.opponent._id === from);
             if (!have) {
                 setNumber(prev => prev + 1)
             }
             console.log(have);
         })
+        // for friend invite
+        socket.on('asked', ({ from }) => {
+            const friendInvite = notification?.friend?.some(u => u._id === from);
+            // console.log(friendInvite)
+            // console.log(number)
+            if (!friendInvite) {
+                setNumber(prev => prev + 1);
+            }
+        })
+        // refuse invite
         socket.on('you-refuse', () => {
+            setNumber(prev => prev - 1)
+        })
+        // refuse friend
+        socket.on('me-refuse', () => {
             setNumber(prev => prev - 1)
         })
         return () => {
             socket.off('receive-invite');
-            socket.off('you-refuse')
+            socket.off('you-refuse');
+            socket.off('acceptFriend');
+            socket.off('asked')
         }
     }, [notification])
 

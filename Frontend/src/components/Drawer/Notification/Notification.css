@@ -1,12 +1,13 @@
 .notify-drawer .MuiDrawer-paper {
     width: fit-content;
     padding: 8px;
+    height: 100%;
     border-bottom-right-radius: 10px;
     border-top-right-radius: 10px;
 }
 
-.single-notify {
-    display: flex;
+.divider .MuiDivider-root {
+    margin: 10px 0;
 }
 
 .notify-heading {
@@ -14,7 +15,22 @@
     margin: 10px;
 }
 
-.notify-container{
+.notify-sections {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 60px);
+    /* heading space */
+}
+
+.notify-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.notify-container {
+    max-height: 40vh;
+    overflow-y: auto;
     margin: 8px 0;
 }
 

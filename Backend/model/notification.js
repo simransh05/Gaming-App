@@ -5,7 +5,7 @@ const notificationSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    notification: [{
+    Invite: [{
         roomId: {
             type: String,
             required: true
@@ -15,6 +15,11 @@ const notificationSchema = new mongoose.Schema({
             ref: 'User',
             required: true
         }
+    }],
+    Friends: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     }]
 })
 

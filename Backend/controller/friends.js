@@ -5,6 +5,7 @@ const Game = require('../model/Game');
 module.exports.postFriend = async (req, res) => {
     const { userId, id } = req.params;
     try {
+        console.log('post friend', userId);
         await Friends.findOneAndUpdate({ userId },
             { $addToSet: { myFriends: id } },
             { new: true, upsert: true }

@@ -284,7 +284,7 @@ function GameRoom() {
         if (res.status === 200) {
             setAreFriend(true);
         }
-        socket.emit('askFriend', { from: currentUser._id, to: otherUser._id });
+        socket.emit('askFriend', { from: currentUser._id, to: otherUser._id, roomId });
     }
 
     const getLineClass = (pattern) => {

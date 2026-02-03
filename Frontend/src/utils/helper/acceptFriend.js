@@ -14,6 +14,7 @@ const acceptFriend = (setAreFriend) => {
             showCancelButton: true
         })
         if (result.isConfirmed) {
+            socket.emit('accept-friend', { from, to })
             await api.postFriend(from, to);
             if (setAreFriend) {
                 setAreFriend(true)
