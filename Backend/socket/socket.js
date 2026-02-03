@@ -266,15 +266,30 @@ module.exports = (io) => {
             // console.log('here 244');
             socket.broadcast.to(roomId).emit('refused-play')
         })
-        socket.on('askFriend', async ({ from, to }) => {
+        socket.on('askFriend', async ({ from, to, roomId }) => {
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
+            await controller1.postFriend(from, to)
             // console.log('line 224', from, to)
+            // here check before 
+            io.to(toId).emit('asked', { from: to });
+            const inRoom = boards[roomId].players.some(p => p._id.toString() === to);
+            console.log(inRoom)
+            if (!inRoom) {
+                return;
+            }
             io.to(toId).emit('acceptFriend', { from: to, fromName, to: from })
+        })
+
+        socket.on('accept-friend', async ({ from, to }) => {
+            await controller1.deleteFriend(from, to)
         })
 
         socket.on('refuse-friend', async ({ from, to }) => {
             const toId = activeMap.get(to);
+            const fromId = activeMap.get(from);
+            io.to(fromId).emit('me-refuse');
+            await controller1.deleteFriend(from, to);
             const fromName = await User.findById(from).lean();
             if (toId) {
                 io.to(toId).emit('refused', { fromName });

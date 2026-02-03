@@ -12,14 +12,16 @@ import ROUTES from '../../../constant/Route/route';
 function Notification({ open, onClose }) {
     const { currentUser, loading } = useContext(CurrentUserContext);
     const { notification, fetchNotification } = notificationStore();
-    const [data, setData] = useState(null);
+    const [invite, setInvite] = useState(null);
+    const [friend, setFriend] = useState(null);
     const navigate = useNavigate();
     // now we have notification
-    // console.log(notification.notification);
+    console.log(notification);
 
 
     useEffect(() => {
-        setData(notification)
+        setInvite(notification?.invite)
+        setFriend(notification?.friend)
     }, [notification])
 
     useEffect(() => {
@@ -39,31 +41,70 @@ function Notification({ open, onClose }) {
         })
     }
 
+    const handleFriendRequest = async (to) => {
+        const from = currentUser?._id;
+        socket.emit('accept-friend', { from, to })
+        const newFriend = friend.filter(d => d._id !== to);
+        console.log(newFriend);
+        setFriend(newFriend);
+        await api.postFriend(from, to);
+    }
+
     const handleReject = (opponent) => {
         socket.emit('reject-invite', { from: currentUser._id, to: opponent })
         // filter 
-        const newData = data.filter(d => d.opponent._id !== opponent);
-        console.log(newData);
-        setData(newData);
+        const newInvite = invite.filter(d => d.opponent._id !== opponent);
+        console.log(newInvite);
+        setInvite(newInvite);
+    }
+
+    const handleRejectFriend = (to) => {
+        const from = currentUser?._id;
+        socket.emit('refuse-friend', { from, to })
+        const newFriend = friend.filter(d => d._id !== to);
+        setFriend(newFriend);
     }
 
     return (
-        <Drawer open={open} onClose={onClose} className='notify-drawer'>
-            <h1 className='notify-heading'>Notification</h1>
-            {data?.length != 0 && <h3 className='invite-heading'>Game Invite</h3>}
-            <Divider />
-            <div className='notify-container'>
-                {notification && data?.length != 0 ? data?.map((n, idx) => (
-                    <div key={n.opponent._id} className='single-notify'>
-                        <span>{n.opponent.name}</span>
-                        <button onClick={() => handleClick(n.roomId)} className='accept-btn'>Accept</button>
-                        <button onClick={() => handleReject(n.opponent._id)} className='reject-btn'>Refuse</button>
+        <Drawer open={open} onClose={onClose} className="notify-drawer">
+            <h1 className="notify-heading">Notification</h1>
+            <div className="notify-sections">
+                {invite?.length !== 0 && (
+                    <div className="notify-section">
+                        <h3 className="invite-heading">Game Invite</h3>
+                        <Divider className="divider" />
+                        <div className="notify-container invite-container">
+                            {invite?.map(n => (
+                                <div key={n.opponent._id} className="single-notify">
+                                    <span>{n.opponent.name}</span>
+                                    <button onClick={() => handleClick(n.roomId)} className="accept-btn">Accept</button>
+                                    <button onClick={() => handleReject(n.opponent._id)} className="reject-btn">Refuse</button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                )) :
-                    <div className='no-nofify'>No Notification</div>
-                }
+                )}
+
+                {friend?.length !== 0 && (
+                    <div className="notify-section">
+                        <h3 className="invite-heading">Friend Request</h3>
+                        <Divider className="divider" />
+                        <div className="notify-container friend-container">
+                            {friend?.map(n => (
+                                <div key={n._id} className="single-notify">
+                                    <span>{n.name}</span>
+                                    <button onClick={() => handleFriendRequest(n._id)} className="accept-btn">Accept</button>
+                                    <button onClick={() => handleRejectFriend(n._id)} className="reject-btn">Refuse</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
+            {!notification || (invite?.length === 0 && friend?.length === 0) && (
+                <div className="no-notify">No Notification</div>
+            )}
         </Drawer>
     )
 }

@@ -36,7 +36,7 @@ function HomePage() {
 
         // requestInvite(currentUser, navigate);
         rejectedInvite();
-        acceptFriend();
+        // acceptFriend();
         refuseFriend();
     }, [currentUser, loading])
 
