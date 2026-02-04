@@ -1,6 +1,7 @@
 const User = require('../model/user')
 const controller = require('../controller/game')
 const controller1 = require('../controller/notification')
+const controller2 = require('../controller/friends')
 module.exports = (io) => {
     const patterns = [
         [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -17,7 +18,7 @@ module.exports = (io) => {
             socket.userId = userId;
             activeUser.add(socket.userId)
             activeMap.set(userId, socket.id);
-            console.log(activeUser, activeMap);
+            // console.log(activeUser, activeMap);
             console.log('user connect', socket.id, socket.userId)
         });
 
@@ -36,7 +37,7 @@ module.exports = (io) => {
             callback({ status: 200, roomId });
         });
 
-        socket.on('join', async ({ roomId }, callback) => {
+        socket.on('join', async ({ roomId, opponent, me }, callback) => {
             // console.log('here', roomId);
             if (!boards[roomId]) {
                 boards[roomId] = {
@@ -56,8 +57,10 @@ module.exports = (io) => {
                 return callback({ alreadyIn })
             }
             // console.log('room', boards[roomId])
-
+            const meId = activeMap.get(me);
             if (room.players.length >= 2) {
+                io.to(meId).emit('room-full');
+                await controller1.deleteNotification(me, opponent);
                 return callback({ roomFull: true })
             }
             // already in match
@@ -102,15 +105,8 @@ module.exports = (io) => {
         socket.on('getTime', ({ roomId }, callback) => {
             // console.log('room', boards[roomId]);
             if (!boards[roomId]) {
-                boards[roomId] = {
-                    board: Array(9).fill(null),
-                    players: [],
-                    turn: null,
-                    symbols: {},
-                    start: false,
-                    defaultTime: 10,
-                    moveIdx: 1
-                };
+                callback({ status: 404 })
+                return;
             }
             const time = boards[roomId].defaultTime;
             // console.log(time)
@@ -269,20 +265,32 @@ module.exports = (io) => {
         socket.on('askFriend', async ({ from, to, roomId }) => {
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
-            await controller1.postFriend(from, to)
+            await controller1.postFriend(from, to);
+            const haveFriend1 = await controller2.checkFriend(from, to);
+            // console.log('haveFriend1', haveFriend1);
+            if (haveFriend1) {
+                await controller1.deleteFriend(from, to)
+            }
             // console.log('line 224', from, to)
             // here check before 
             io.to(toId).emit('asked', { from: to });
-            const inRoom = boards[roomId].players.some(p => p._id.toString() === to);
-            console.log(inRoom)
+            const inRoom = boards[roomId]?.players.some(p => p._id.toString() === to);
+            // console.log(inRoom)
             if (!inRoom) {
+                return;
+            }
+            const haveFriend2 = await controller2.checkFriend(from, to);
+            // console.log('haveFriend2', haveFriend2);
+            if (haveFriend2) {
                 return;
             }
             io.to(toId).emit('acceptFriend', { from: to, fromName, to: from })
         })
 
         socket.on('accept-friend', async ({ from, to }) => {
-            await controller1.deleteFriend(from, to)
+            await controller1.deleteFriend(from, to);
+            const fromId = activeMap.get(from);
+            io.to(fromId).emit('accepted')
         })
 
         socket.on('refuse-friend', async ({ from, to }) => {
@@ -318,10 +326,8 @@ module.exports = (io) => {
 
         socket.on('leave', async ({ roomId }, callback) => {
             let beforeStart;
+            const FirstPlayer = boards[roomId].players[0]._id.toString();
             // console.log('line 262', boards[roomId].players[0]._id.toString() === socket.userId);
-            if (boards[roomId].players[0]._id.toString() === socket.userId) {
-                socket.broadcast.to(roomId).emit('first-player-left');
-            }
             if (boards[roomId]) {
                 boards[roomId].players = boards[roomId].players.filter(
                     u => u?._id.toString() !== socket.userId
@@ -340,6 +346,19 @@ module.exports = (io) => {
             boards[roomId].board = Array(9).fill(null);
             boards[roomId].turn = null;
             boards[roomId].symbols = {};
+            // console.log(boards[roomId]);
+            socket.leave(roomId);
+            if (FirstPlayer === socket.userId || boards[roomId].players.length === 0) {
+                // console.log(boards[roomId])
+                delete boards[roomId];
+            }
+            if (callback) {
+                callback({ status: 200 })
+            }
+            if (FirstPlayer === socket.userId) {
+                socket.broadcast.to(roomId).emit('first-player-left');
+                return;
+            }
             // console.log(boards[roomId].players)
             socket.broadcast.to(roomId).emit('player-left', {
                 board: boards[roomId].board,
@@ -348,15 +367,6 @@ module.exports = (io) => {
                 turn: boards[roomId].turn,
                 beforeStart
             });
-            // console.log(boards[roomId]);
-            socket.leave(roomId);
-            if (boards[roomId].players.length === 0) {
-                // console.log(boards[roomId])
-                delete boards[roomId];
-            }
-            if (callback) {
-                callback({ status: 200 })
-            }
         })
 
         socket.on('disconnect', () => {

@@ -16,7 +16,7 @@ function Notification({ open, onClose }) {
     const [friend, setFriend] = useState(null);
     const navigate = useNavigate();
     // now we have notification
-    console.log(notification);
+    // console.log(notification);
 
 
     useEffect(() => {
@@ -28,12 +28,16 @@ function Notification({ open, onClose }) {
         fetchNotification(currentUser?._id);
     }, [])
 
-    const handleClick = (roomId) => {
+    const handleClick = (opponent, roomId) => {
         onClose();
+        const me = currentUser._id;
         // on click accept do that 
-        socket.emit('join', { roomId }, (res) => {
+        socket.emit('join', { roomId, opponent, me }, (res) => {
             // console.log(res);
             if (res.roomFull) {
+                const newInvite = invite.filter(d => d.opponent._id !== opponent);
+                // console.log(newInvite);
+                setInvite(newInvite);
                 return Swal.fire({ title: 'Room is Full ' });
             } else if (res.joined) {
                 navigate(`${ROUTES.HOME}${roomId}`)
@@ -45,7 +49,7 @@ function Notification({ open, onClose }) {
         const from = currentUser?._id;
         socket.emit('accept-friend', { from, to })
         const newFriend = friend.filter(d => d._id !== to);
-        console.log(newFriend);
+        // console.log(newFriend);
         setFriend(newFriend);
         await api.postFriend(from, to);
     }
@@ -54,7 +58,7 @@ function Notification({ open, onClose }) {
         socket.emit('reject-invite', { from: currentUser._id, to: opponent })
         // filter 
         const newInvite = invite.filter(d => d.opponent._id !== opponent);
-        console.log(newInvite);
+        // console.log(newInvite);
         setInvite(newInvite);
     }
 
@@ -65,11 +69,13 @@ function Notification({ open, onClose }) {
         setFriend(newFriend);
     }
 
+    // console.log(notification.length)
+
     return (
         <Drawer open={open} onClose={onClose} className="notify-drawer">
             <h1 className="notify-heading">Notification</h1>
             <div className="notify-sections">
-                {invite?.length !== 0 && (
+                {notification.length != 0 && invite?.length !== 0 && (
                     <div className="notify-section">
                         <h3 className="invite-heading">Game Invite</h3>
                         <Divider className="divider" />
@@ -77,7 +83,7 @@ function Notification({ open, onClose }) {
                             {invite?.map(n => (
                                 <div key={n.opponent._id} className="single-notify">
                                     <span>{n.opponent.name}</span>
-                                    <button onClick={() => handleClick(n.roomId)} className="accept-btn">Accept</button>
+                                    <button onClick={() => handleClick(n.opponent._id, n.roomId)} className="accept-btn">Accept</button>
                                     <button onClick={() => handleReject(n.opponent._id)} className="reject-btn">Refuse</button>
                                 </div>
                             ))}
@@ -85,7 +91,7 @@ function Notification({ open, onClose }) {
                     </div>
                 )}
 
-                {friend?.length !== 0 && (
+                {notification.length != 0 && friend?.length !== 0 && (
                     <div className="notify-section">
                         <h3 className="invite-heading">Friend Request</h3>
                         <Divider className="divider" />
@@ -102,7 +108,7 @@ function Notification({ open, onClose }) {
                 )}
             </div>
 
-            {!notification || (invite?.length === 0 && friend?.length === 0) && (
+            {(notification.length === 0 || (invite?.length === 0 && friend?.length === 0)) && (
                 <div className="no-notify">No Notification</div>
             )}
         </Drawer>

@@ -5,7 +5,7 @@ const Game = require('../model/Game');
 module.exports.postFriend = async (req, res) => {
     const { userId, id } = req.params;
     try {
-        console.log('post friend', userId);
+        // console.log('post friend', userId);
         await Friends.findOneAndUpdate({ userId },
             { $addToSet: { myFriends: id } },
             { new: true, upsert: true }
@@ -151,9 +151,25 @@ module.exports.getRanking = async (req, res) => {
             }
         ]);
         // console.log(ranking);
-        res.json(ranking);
+        return res.json(ranking);
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 };
+
+module.exports.checkFriend = async (from, to) => {
+    try {
+        // idea is check if present if that user is not there in the outer user list send true or false 
+        const user = await Friends.findOne({ userId: to });
+        // console.log('controller', user);
+        if (!user) {
+            return false;
+        }
+        // console.log('line 169',user.myFriends.includes(from))
+        return user.myFriends.includes(from);
+    } catch (err) {
+        console.error('Error saving game history:', err);
+        throw err;
+    }
+}

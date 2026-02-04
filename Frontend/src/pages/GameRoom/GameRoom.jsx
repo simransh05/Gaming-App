@@ -158,7 +158,7 @@ function GameRoom() {
         })
 
         socket.on('refused-play', () => {
-            console.log('here')
+            // console.log('here')
             Swal.fire({
                 title: 'Play Again request',
                 text: 'Opponent refuse to play again',
@@ -263,7 +263,8 @@ function GameRoom() {
     }
     // console.log(currentPlayer)
     const handleInfo = () => {
-        socket.emit('getTime', (roomId), (res) => {
+        socket.emit('getTime', ({ roomId }), (res) => {
+            // console.log(res)
             Swal.fire({
                 title: 'Game Rules',
                 html: `<div class="info-user-game">

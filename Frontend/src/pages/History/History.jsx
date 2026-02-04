@@ -7,6 +7,7 @@ import NavBar from '../../components/NavBar/NavBar';
 import { useNavigate } from 'react-router-dom';
 import ROUTES from '../../constant/Route/route';
 import { MenuItem, Select } from '@mui/material';
+import { FaSearch } from 'react-icons/fa';
 
 function History() {
     const { currentUser, loading } = useContext(CurrentUserContext);
@@ -83,8 +84,10 @@ function History() {
                             <MenuItem value="lose">You Lose</MenuItem>
                             <MenuItem value="draw">Draw</MenuItem>
                         </Select>
-
-                        <input type="text" onChange={(e) => setSearch(e.target.value)} placeholder='Search...' className='input-history' />
+                        <div className="input-box-history">
+                            <FaSearch className='search-icon' />
+                            <input type="text" onChange={(e) => setSearch(e.target.value)} placeholder='Search...' className='input-history' />
+                        </div>
                     </div>
                 }
                 <table className='table-history'>

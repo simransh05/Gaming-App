@@ -8,6 +8,7 @@
   font-weight: 600;
   background-color: blue;
   color: white;
+  height: 150px;
 }
 
 .drawer-items {
@@ -50,6 +51,7 @@
 
 .my-rank {
   display: flex;
+  margin-top: 20px;
 }
 
 .rank-info {

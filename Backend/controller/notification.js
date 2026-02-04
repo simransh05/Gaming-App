@@ -92,7 +92,7 @@ module.exports.postFriend = async (to, from) => {
 
 module.exports.deleteFriend = async (from, to) => {
     try {
-        console.log(from, to)
+        // console.log(from, to)
         const friend = await Notification.findOneAndUpdate(
             { userId: from },
             { $pull: { Friends: to } },

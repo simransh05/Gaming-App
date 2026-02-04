@@ -4,6 +4,7 @@ import { CurrentUserContext } from '../../context/UserContext'
 import socket from '../../socket/socket';
 import './MyFriend.css'
 import { friendStore } from '../Zustand/Friends';
+import { FaSearch } from "react-icons/fa";
 
 function MyFriendModal({ onSuccess }) {
     const [activeUsers, setActiveUsers] = useState(null);
@@ -43,6 +44,7 @@ function MyFriendModal({ onSuccess }) {
     return (
         <div className='friends-info'>
             <div className="input-box">
+                <FaSearch className='search-icon'/>
                 <input type="text" onChange={handleChange} value={search} placeholder='Search by email or playerId' className='input-friend' />
             </div>
             <ul className='friend-list'>
