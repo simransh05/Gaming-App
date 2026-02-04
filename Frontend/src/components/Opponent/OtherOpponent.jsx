@@ -8,6 +8,8 @@ import socket from '../../socket/socket'
 import { friendStore } from '../Zustand/Friends'
 import { userStore } from '../Zustand/AllUsers'
 import './OtherOpponent.css'
+import { useParams } from 'react-router-dom'
+import { FaSearch } from 'react-icons/fa'
 
 function OtherOpponent({ onSuccess }) {
     const { currentUser } = useContext(CurrentUserContext);
@@ -17,6 +19,7 @@ function OtherOpponent({ onSuccess }) {
     const { friends } = friendStore();
     const { allUsers } = userStore();
     const [search, setSearch] = useState('');
+    const { roomId } = useParams();
 
     useEffect(() => {
         socket.emit('activeUsers');
@@ -44,7 +47,7 @@ function OtherOpponent({ onSuccess }) {
             next.add(id);
             return next;
         });
-        socket.emit('askFriend', { from: currentUser._id, to: id })
+        socket.emit('askFriend', { from: currentUser._id, to: id, roomId })
     }
 
     // console.log(search)
@@ -66,6 +69,7 @@ function OtherOpponent({ onSuccess }) {
     return (
         <div className='other-opponent-container'>
             <div className="input-box">
+                <FaSearch className='search-icon'/>
                 <input type="text" onChange={handleChange} value={search} placeholder='Search by playerId' className='input-friend' />
             </div>
             <ul>

@@ -18,7 +18,7 @@
 .notify-sections {
     display: flex;
     flex-direction: column;
-    height: calc(100% - 60px);
+    /* height: calc(100% - 60px); */
     /* heading space */
 }
 
@@ -58,7 +58,7 @@
     margin: 5px;
 }
 
-.no-nofify {
+.no-notify {
     text-align: center;
-    margin: 6px;
+    margin: 10px 0;
 }

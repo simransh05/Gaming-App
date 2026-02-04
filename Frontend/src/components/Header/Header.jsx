@@ -19,12 +19,20 @@ function Header() {
         // console.log(parts);
         return parts.map(p => p[0].toUpperCase() + p.slice(1)).join(" ")
     }
+    // console.log(notification)
+    // console.log(number)
 
     useEffect(() => {
         if (loading) return;
         if (!currentUser) return;
-        const total = notification?.invite?.length + notification?.friend?.length;
-        setNumber(total)
+        if (notification.length === 0) {
+            setNumber(0);
+        } else {
+            const total = notification?.invite?.length + notification?.friend?.length;
+            // console.log(total)
+            setNumber(total)
+        }
+
         // get the notify if any user send request ..prev prev+1
     }, [currentUser?._id, loading, notification]);
 
@@ -41,7 +49,7 @@ function Header() {
             if (!have) {
                 setNumber(prev => prev + 1)
             }
-            console.log(have);
+            // console.log(have);
         })
         // for friend invite
         socket.on('asked', ({ from }) => {
@@ -58,13 +66,23 @@ function Header() {
         })
         // refuse friend
         socket.on('me-refuse', () => {
+            // console.log('here')
+            setNumber(prev => prev - 1)
+        })
+        socket.on('accepted', () => {
+            setNumber(prev => prev - 1)
+        })
+        socket.on('room-full', () => {
             setNumber(prev => prev - 1)
         })
         return () => {
             socket.off('receive-invite');
             socket.off('you-refuse');
+            socket.off('me-refuse')
             socket.off('acceptFriend');
-            socket.off('asked')
+            socket.off('asked');
+            socket.off('accepted');
+            socket.off('room-full')
         }
     }, [notification])
 

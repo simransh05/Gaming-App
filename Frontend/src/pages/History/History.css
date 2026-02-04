@@ -11,14 +11,17 @@
     padding: 10px;
 }
 
-.input-history {
-    border-radius: 6px;
-    width: 20%;
-    padding-left: 10px;
+.input-box-history {
+    position: relative;
+    width: 25%;
 }
 
-.input-history::placeholder {
-    color: rgb(165, 164, 164);
+.input-history {
+    border-radius: 20px;
+    border: 1px solid black;
+    width: 100%;
+    height: 90%;
+    padding-left: 30px;
 }
 
 .table-history {
