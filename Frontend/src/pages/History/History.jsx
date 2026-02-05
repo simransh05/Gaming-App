@@ -69,13 +69,22 @@ function History() {
         return data;
     }, [search, selected, currentUser?._id, history]);
 
+    const handleDelete = async () => {
+        const res = await api.deleteIndividualHistory(currentUser?._id);
+        // console.log(res.status, res.data.message)
+        if (res.status === 200) {
+            setHistory([]);
+        }
+    }
 
-    // console.log(history);
+
+    console.log(history);
 
     return (
         <div className='history-full'>
             <NavBar />
             <div className='history-container'>
+                <h1 className='heading-history'>History</h1>
                 {history && history.length > 0 &&
                     <div className='search-parent'>
                         <Select value={selected} onChange={(e) => setSelected(e.target.value)} className='select-option'>
@@ -88,6 +97,9 @@ function History() {
                             <FaSearch className='search-icon' />
                             <input type="text" onChange={(e) => setSearch(e.target.value)} placeholder='Search...' className='input-history' />
                         </div>
+                        {history && history.length > 0 && <button className='delete-history-btn' onClick={handleDelete}>
+                            Delete History
+                        </button>}
                     </div>
                 }
                 <table className='table-history'>

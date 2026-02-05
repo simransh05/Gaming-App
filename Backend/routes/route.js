@@ -28,6 +28,8 @@ router.post('/friend/:userId/:id', controller3.postFriend);
 
 router.get('/users/:userId', controller1.getAllUsers);
 
+router.get('/individual/history/:userId', controller2.getIndividualDelete) 
+
 router.get('/notification/:userId', controller4.getNotification);
 
 router.get('/:userId', controller2.getName);

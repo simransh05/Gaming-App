@@ -101,8 +101,6 @@ module.exports.deleteHistory = async (req, res) => {
             return res.status(404).json({ message: "Game not found" });
         }
 
-        await Game.deleteMany({ "history.deletedBy": { $all: [player1, player2] } });
-
         return res.status(200).json({ message: "History deleted for this user" });
 
     } catch (err) {
@@ -127,6 +125,11 @@ module.exports.getIndividualHistory = async (req, res) => {
                 $unwind: '$history'
             },
             {
+                $match: {
+                    'history.deletedBy': { $ne: ObjectId }
+                }
+            },
+            {
                 $sort: { 'history.playedAt': -1 }
             }
         ]);
@@ -137,5 +140,34 @@ module.exports.getIndividualHistory = async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+}
 
+module.exports.getIndividualDelete = async (req, res) => {
+    const { userId } = req.params;
+    // find where ever that user is in that if player1 or player2
+    console.log('userId', userId)
+    try {
+        if (!userId) {
+            return res.status(400).json({ message: "No History" });
+        }
+
+        const game = await Game.updateMany(
+            {
+                $or: [
+                    { playerI: userId },
+                    { playerII: userId }
+                ]
+            },
+            {
+                $addToSet: {
+                    "history.$[].deletedBy": userId
+                }
+            },
+            { new: true }
+        );
+        console.log(game)
+        return res.status(200).json({ message: 'Successfully deleted' })
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 }

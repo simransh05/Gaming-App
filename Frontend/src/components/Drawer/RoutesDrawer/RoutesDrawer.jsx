@@ -12,7 +12,7 @@ import format from "../../../utils/helper/formatRank";
 import getInitial from "../../../utils/helper/getInitial";
 import { BsFillTrophyFill } from "react-icons/bs";
 
-function RoutesDrawer({ open, onClose , onSuccess }) {
+function RoutesDrawer({ open, onClose, onSuccess }) {
     const navigate = useNavigate();
     const { currentUser, loading } = useContext(CurrentUserContext);
     const [ranking, setRanking] = useState(null)
@@ -36,7 +36,10 @@ function RoutesDrawer({ open, onClose , onSuccess }) {
             }
         }
         fetchRank()
-    }, [loading])
+    }, [loading]);
+
+    const currentUserInfo = ranking?.find(r => r.userId === currentUser?._id);
+    console.log(currentUserInfo)
 
     return (
         <Drawer
@@ -51,26 +54,18 @@ function RoutesDrawer({ open, onClose , onSuccess }) {
             }}
         >
             <Box className='drawer-items head-drawer'>
-                {(!ranking || ranking.length === 0) ? <div className='my-rank not-first'>No Rank</div> :
-                    (
-                        ranking.map((r, idx) => {
-                            if (currentUser?._id !== r.userId) return null;
+                {currentUserInfo && currentUserInfo.rank === 1 ? <div className="my-rank">
+                    <BsFillTrophyFill className="trophy" /> <div className="rank-info">Rank #{currentUserInfo?.rank}</div>
+                </div>
+                    :
+                    <>
+                        {currentUserInfo?.rank &&
+                            <div className="my-rank not-first">
+                                Rank #{currentUserInfo?.rank}
+                            </div>}
 
-                            if (r.rank === 1) {
-                                return (
-                                    <div key={idx} className="my-rank">
-                                        <BsFillTrophyFill className="trophy" /> <div className="rank-info">Rank #{r.rank}</div>
-                                    </div>
-                                );
-                            }
+                    </>}
 
-                            return (
-                                <div key={idx} className="my-rank not-first">
-                                    Rank #{r.rank}
-                                </div>
-                            );
-                        })
-                    )}
                 <div className="drawer-items user-data">
                     <Avatar sx={{
                         width: '60px',
