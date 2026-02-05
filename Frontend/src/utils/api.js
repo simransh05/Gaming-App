@@ -35,11 +35,14 @@ const api = {
     getAllUsers: async (userId) => {
         return await apiInstance.get(`${ROUTES.USERS}/${userId}`)
     },
-    getIndividualHistory : async (userId) => {
+    getIndividualHistory: async (userId) => {
         return await apiInstance.get(`${ROUTES.HISTORY}${ROUTES.INDIVIDUAL}/${userId}`)
     },
-    getNotification : async (userId) => {
+    getNotification: async (userId) => {
         return await apiInstance.get(`${ROUTES.NOTIFICATION}/${userId}`)
+    },
+    deleteIndividualHistory: async (userId) => {
+        return await apiInstance.get(`${ROUTES.INDIVIDUAL}${ROUTES.HISTORY}/${userId}`)
     },
 }
 

@@ -6,7 +6,7 @@ export const notificationStore = create((set) => ({
 
     fetchNotification: async (userId) => {
         const res = await api.getNotification(userId);
-        console.log(res.data)
+        // console.log(res.data)
         set({ notification: res.data || [] })
     }
 }))

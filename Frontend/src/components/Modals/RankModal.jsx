@@ -5,6 +5,7 @@ import NavBar from '../NavBar/NavBar'
 import format from '../../utils/helper/formatRank'
 import { useNavigate } from 'react-router-dom'
 import { CurrentUserContext } from '../../context/UserContext'
+import ROUTES from '../../constant/Route/route'
 
 function RankModal() {
     const navigate = useNavigate();
