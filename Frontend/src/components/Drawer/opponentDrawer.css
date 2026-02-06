@@ -2,3 +2,9 @@
     border-radius: 16px;
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
+
+.tabs-drawer .MuiTabs-fixed {
+    width: 100%;
+   background-color: green;
+}
+

@@ -158,6 +158,20 @@ module.exports.getRanking = async (req, res) => {
     }
 };
 
+module.exports.removeFriend = async (req, res) => {
+    const { userId, id } = req.params;
+    try {
+        await Friends.updateOne(
+            { userId: userId },
+            { $pull: { myFriends: id } }
+        )
+        return res.status(200).json({ message: 'Successfully removed' })
+    }
+    catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
 module.exports.checkFriend = async (from, to) => {
     try {
         // idea is check if present if that user is not there in the outer user list send true or false 

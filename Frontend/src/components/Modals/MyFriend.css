@@ -35,9 +35,9 @@
     color: white;
     border-radius: 5px;
     cursor: pointer;
-    padding: 4px;
+    padding: 6px;
     margin: 4px;
-    width: 50%;
+    /* width: 50%; */
 }
 
 .non-active {
@@ -45,9 +45,9 @@
     color: white;
     background-color: gray;
     border-radius: 5px;
-    padding: 4px;
+    padding: 6px;
     margin: 4px;
-    width: 50%;
+    /* width: 50%; */
 }
 
 .no-friend {
@@ -77,4 +77,9 @@
     padding: 5px;
     padding-left: 25px;
     border: 1px solid black;
+}
+
+.input-friend:focus{
+    outline: none;
+    border: 2px solid grey;
 }

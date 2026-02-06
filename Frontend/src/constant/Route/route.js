@@ -11,6 +11,7 @@ const ROUTES = {
     USERS: '/users',
     INDIVIDUAL :'/individual',
     NOTIFICATION : '/notification',
+    REMOVE : '/remove',
 }
 
 export default ROUTES;

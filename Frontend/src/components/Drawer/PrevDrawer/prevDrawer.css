@@ -1,7 +1,7 @@
 .prev-drawer td {
     text-align: center;
-    padding: 10px 0;
-    border: 1px solid grey;
+    padding: 12px 0;
+    border-bottom: 1px solid grey;
     /* border-radius: 5px; */
 }
 
@@ -9,5 +9,22 @@
     table-layout: fixed;
     border-collapse: collapse;
     margin: 10px;
+    /* border: 1px solid grey; */
+}
+
+.prev-drawer th {
+    border-bottom: 1px solid grey;
+    padding: 12px 0;
+}
+
+.close-btn {
+    margin-top: 20px;
+    width: 70%;
+    align-self: center;
+    height: 60px;
+    border-radius: 5px;
     border: none;
+    color: white;
+    background-color: darkcyan;
+    cursor: pointer;
 }

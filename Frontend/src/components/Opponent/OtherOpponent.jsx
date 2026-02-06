@@ -16,7 +16,7 @@ function OtherOpponent({ onSuccess }) {
     const [activeUsers, setActiveUsers] = useState(null);
     const [searchResult, setSearchResult] = useState([]);
     const [friendIds, setFriendIds] = useState(null);
-    const { friends } = friendStore();
+    const { friends, fetchFriends } = friendStore();
     const { allUsers } = userStore();
     const [search, setSearch] = useState('');
     const { roomId } = useParams();
@@ -47,6 +47,7 @@ function OtherOpponent({ onSuccess }) {
             next.add(id);
             return next;
         });
+        fetchFriends(currentUser?._id)
         socket.emit('askFriend', { from: currentUser._id, to: id, roomId })
     }
 
@@ -69,7 +70,7 @@ function OtherOpponent({ onSuccess }) {
     return (
         <div className='other-opponent-container'>
             <div className="input-box">
-                <FaSearch className='search-icon'/>
+                <FaSearch className='search-icon' />
                 <input type="text" onChange={handleChange} value={search} placeholder='Search by playerId' className='input-friend' />
             </div>
             <ul>

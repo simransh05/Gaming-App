@@ -16,7 +16,7 @@ function Notification({ open, onClose }) {
     const [friend, setFriend] = useState(null);
     const navigate = useNavigate();
     // now we have notification
-    // console.log(notification);
+    console.log(notification);
 
 
     useEffect(() => {
@@ -33,14 +33,22 @@ function Notification({ open, onClose }) {
         const me = currentUser._id;
         // on click accept do that 
         socket.emit('join', { roomId, opponent, me }, (res) => {
-            // console.log(res);
+            console.log(res);
+            const newInvite = invite.filter(d => d.opponent._id !== opponent);
+            // console.log(newInvite);
+            setInvite(newInvite);
             if (res.roomFull) {
-                const newInvite = invite.filter(d => d.opponent._id !== opponent);
-                // console.log(newInvite);
-                setInvite(newInvite);
                 return Swal.fire({ title: 'Room is Full ' });
             } else if (res.joined) {
                 navigate(`${ROUTES.HOME}${roomId}`)
+            } else if (res.status === 408) {
+                return Swal.fire({
+                    title: "The room host has left",
+                    text: "You’ve been returned to the home page.",
+                    icon: "info",
+                    showConfirmButton: false,
+                    timer: 5000
+                });
             }
         })
     }

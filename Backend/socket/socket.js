@@ -70,6 +70,11 @@ module.exports = (io) => {
             const user = await User.findById(socket.userId).lean();
             room.players.push(user);
 
+            if (opponent && opponent != room.players[0]._id) {
+                callback({ status: 408 })
+                return;
+            }
+
             if (callback) {
                 callback({ joined: true })
             }
@@ -127,24 +132,6 @@ module.exports = (io) => {
             callback({ data: boards[roomId] || [], status: 200 })
         })
 
-        socket.on('start', (roomId) => {
-            boards[roomId].start = true;
-            // console.log('defaulTIME', boards[roomId])
-            io.to(roomId).emit('game-started', { FirstPlayer: boards[roomId].turn, defaultTime: boards[roomId].defaultTime });
-        })
-
-        socket.on('send-invite', async ({ from, to, roomId }) => {
-            // console.log('from,to', from, to, roomId)
-            const toId = activeMap.get(to);
-            const fromName = await User.findById(from).lean();
-            // post notification
-            await controller1.postNotification(from, to, roomId)
-            if (toId) {
-                // console.log(from, to)
-                io.to(toId).emit('receive-invite', { from, fromName, roomId });
-            }
-        });
-
         socket.on('getUsers', (roomId, callback) => {
             const room = boards[roomId];
             if (!room) {
@@ -153,18 +140,13 @@ module.exports = (io) => {
             if (room.players.length < 2) {
                 return callback({ status: 400 })
             }
-            callback({ status: 200, players: room.players, symbols: room.symbols })
+            callback({ status: 200, players: room.players })
         })
 
-        socket.on('reject-invite', async ({ from, to }) => {
-            const toId = activeMap.get(to);
-            const fromName = await User.findById(from).lean();
-            const fromId = activeMap.get(from);
-            io.to(fromId).emit('you-refuse');
-            // console.log('fromName', fromName);
-            // console.log('name', fromName.name)
-            await controller1.deleteNotification(from, to)
-            io.to(toId).emit('rejected', { name: fromName.name })
+        socket.on('start', (roomId) => {
+            boards[roomId].start = true;
+            // console.log('defaulTIME', boards[roomId])
+            io.to(roomId).emit('game-started', { FirstPlayer: boards[roomId].turn, defaultTime: boards[roomId].defaultTime });
         })
 
         socket.on('move', async ({ roomId, index }) => {
@@ -262,47 +244,7 @@ module.exports = (io) => {
             // console.log('here 244');
             socket.broadcast.to(roomId).emit('refused-play')
         })
-        socket.on('askFriend', async ({ from, to, roomId }) => {
-            const toId = activeMap.get(to);
-            const fromName = await User.findById(from).lean();
-            await controller1.postFriend(from, to);
-            const haveFriend1 = await controller2.checkFriend(from, to);
-            // console.log('haveFriend1', haveFriend1);
-            if (haveFriend1) {
-                await controller1.deleteFriend(from, to)
-            }
-            // console.log('line 224', from, to)
-            // here check before 
-            io.to(toId).emit('asked', { from: to });
-            const inRoom = boards[roomId]?.players.some(p => p._id.toString() === to);
-            // console.log(inRoom)
-            if (!inRoom) {
-                return;
-            }
-            const haveFriend2 = await controller2.checkFriend(from, to);
-            // console.log('haveFriend2', haveFriend2);
-            if (haveFriend2) {
-                return;
-            }
-            io.to(toId).emit('acceptFriend', { from: to, fromName, to: from })
-        })
 
-        socket.on('accept-friend', async ({ from, to }) => {
-            await controller1.deleteFriend(from, to);
-            const fromId = activeMap.get(from);
-            io.to(fromId).emit('accepted')
-        })
-
-        socket.on('refuse-friend', async ({ from, to }) => {
-            const toId = activeMap.get(to);
-            const fromId = activeMap.get(from);
-            io.to(fromId).emit('me-refuse');
-            await controller1.deleteFriend(from, to);
-            const fromName = await User.findById(from).lean();
-            if (toId) {
-                io.to(toId).emit('refused', { fromName });
-            }
-        })
         socket.on('skip-turn', (roomId) => {
             const room = boards[roomId];
             // console.log('room', room);
@@ -318,11 +260,6 @@ module.exports = (io) => {
                 defaultTime: room.defaultTime
             });
         });
-
-        socket.on('activeUsers', () => {
-            // console.log(activeUser);
-            socket.emit('active', Array.from(activeUser))
-        })
 
         socket.on('leave', async ({ roomId }, callback) => {
             let beforeStart;
@@ -367,6 +304,81 @@ module.exports = (io) => {
                 turn: boards[roomId].turn,
                 beforeStart
             });
+        })
+
+        socket.on('activeUsers', () => {
+            // console.log(activeUser);
+            socket.emit('active', Array.from(activeUser))
+        })
+
+        // ----------- invite request -----------------
+        socket.on('send-invite', async ({ from, to, roomId }) => {
+            // console.log('from,to', from, to, roomId)
+            const toId = activeMap.get(to);
+            const fromName = await User.findById(from).lean();
+            // post notification
+            await controller1.postNotification(from, to, roomId)
+            if (toId) {
+                // console.log(from, to)
+                io.to(toId).emit('receive-invite', { from, fromName, roomId });
+            }
+        });
+
+        // ------------ reject invite request ---------------
+        socket.on('reject-invite', async ({ from, to }) => {
+            const toId = activeMap.get(to);
+            const fromName = await User.findById(from).lean();
+            const fromId = activeMap.get(from);
+            io.to(fromId).emit('you-refuse');
+            // console.log('fromName', fromName);
+            // console.log('name', fromName.name)
+            await controller1.deleteNotification(from, to)
+            io.to(toId).emit('rejected', { name: fromName.name })
+        })
+
+        // -------- opponent drawer friend request------------------
+        socket.on('askFriend', async ({ from, to, roomId }) => {
+            const toId = activeMap.get(to);
+            const fromName = await User.findById(from).lean();
+            await controller1.postFriend(from, to);
+            const haveFriend1 = await controller2.checkFriend(from, to);
+            // console.log('haveFriend1', haveFriend1);
+            if (haveFriend1) {
+                await controller1.deleteFriend(from, to)
+            }
+            // console.log('line 224', from, to)
+            // here check before 
+            io.to(toId).emit('asked', { from: to });
+            const inRoom = boards[roomId]?.players.some(p => p._id.toString() === to);
+            // console.log(inRoom)
+            if (!inRoom) {
+                return;
+            }
+            const haveFriend2 = await controller2.checkFriend(from, to);
+            // console.log('haveFriend2', haveFriend2);
+            if (haveFriend2) {
+                return;
+            }
+            io.to(toId).emit('acceptFriend', { from: to, fromName, to: from })
+        })
+
+        // -------------- accepted friend request ------------------
+        socket.on('accept-friend', async ({ from, to }) => {
+            await controller1.deleteFriend(from, to);
+            const fromId = activeMap.get(from);
+            io.to(fromId).emit('accepted')
+        })
+
+        // ------------- reject friend request ----------------
+        socket.on('refuse-friend', async ({ from, to }) => {
+            const toId = activeMap.get(to);
+            const fromId = activeMap.get(from);
+            io.to(fromId).emit('me-refuse');
+            await controller1.deleteFriend(from, to);
+            const fromName = await User.findById(from).lean();
+            if (toId) {
+                io.to(toId).emit('refused', { fromName });
+            }
         })
 
         socket.on('disconnect', () => {

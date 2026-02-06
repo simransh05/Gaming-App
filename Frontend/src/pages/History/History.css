@@ -26,6 +26,11 @@
     padding-left: 30px;
 }
 
+.input-history:focus{
+    outline: none;
+    border: 2px solid grey;
+}
+
 .heading-history{
     text-align: center;
     margin: 15px 0;
