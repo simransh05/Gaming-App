@@ -2,14 +2,14 @@ import { Drawer } from '@mui/material'
 import React from 'react'
 import './prevDrawer.css'
 
-function PreviewDrawer({ open, onClose, prevData, players, symbols }) {
-    console.log(prevData);
+function PreviewDrawer({ open, onClose, prevData, players }) {
+    // console.log(prevData);
     const sorted = [...prevData].sort((a, b) => {
         if (a == null || a.move == null) return 1;
         if (b == null || b.move == null) return -1;
         return a.move - b.move;
     });
-    console.log(sorted, symbols, players)
+    // console.log(sorted, players)
 
     const getNameBySymbol = (userId) => {
         return players.find(p => p._id === userId)?.name;
@@ -36,21 +36,23 @@ function PreviewDrawer({ open, onClose, prevData, players, symbols }) {
             <table className='table-drawer'>
                 <thead>
                     <tr className='prev-drawer'>
-                        <td>Move</td>
-                        <td>Turn</td>
-                        <td>Index</td>
+                        <th>Move</th>
+                        <th>Turn</th>
+                        <th>Index</th>
                     </tr>
                 </thead>
-                {sorted.map((p, idx) => (
-                    p != null && <tr key={idx} className='prev-drawer'>
-                        <td>{p?.move}</td>
-                        <td>{getNameBySymbol(p?.userId)}</td>
-                        <td>{formatIndex(p?.index)}</td>
-                    </tr>
+                <tbody>
+                    {sorted.map((p, idx) => (
+                        p != null && <tr key={idx} className='prev-drawer'>
+                            <td>{p?.move}</td>
+                            <td>{getNameBySymbol(p?.userId)}</td>
+                            <td>{formatIndex(p?.index)}</td>
+                        </tr>
 
-                ))}
+                    ))}
+                </tbody>
             </table>
-
+            <button onClick={onClose} className='close-btn'>Close</button>
         </Drawer>
     )
 }

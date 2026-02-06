@@ -26,6 +26,8 @@ router.get('/friend/:userId/:id', controller3.getIndividualFriend);
 
 router.post('/friend/:userId/:id', controller3.postFriend);
 
+router.get('/remove/friend/:userId/:id' , controller3.removeFriend);
+
 router.get('/users/:userId', controller1.getAllUsers);
 
 router.get('/individual/history/:userId', controller2.getIndividualDelete) 

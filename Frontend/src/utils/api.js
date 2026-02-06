@@ -44,6 +44,9 @@ const api = {
     deleteIndividualHistory: async (userId) => {
         return await apiInstance.get(`${ROUTES.INDIVIDUAL}${ROUTES.HISTORY}/${userId}`)
     },
+    removeFriend :  async (userId, id) => {
+        return await apiInstance.get(`${ROUTES.REMOVE}${ROUTES.FRIEND}/${userId}/${id}`)
+    },
 }
 
 export default api;

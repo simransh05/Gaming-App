@@ -27,6 +27,7 @@ import HistoryDrawer from '../../components/Drawer/History/HistoryDrawer';
 import { TbInfoCircleFilled } from "react-icons/tb";
 import PreviewDrawer from '../../components/Drawer/PrevDrawer/PreviewDrawer';
 import { Button, Snackbar } from '@mui/material';
+import loginFirst from '../../utils/helper/LoginFirst';
 function GameRoom() {
     const { roomId } = useParams()
     const [board, setBoard] = useState([
@@ -40,7 +41,6 @@ function GameRoom() {
     const [prevData, setPrevData] = useState(null);
     const [start, setStart] = useState(false);
     const [history, setHistory] = useState(null);
-    const [symbols, setSymbols] = useState(null);
     const [playAgainRequest, setPlayAgainRequest] = useState(false);
     const navigate = useNavigate();
     const [line, setLine] = useState(null);
@@ -55,11 +55,7 @@ function GameRoom() {
     const { fetchFriends } = friendStore();
 
     useEffect(() => {
-        if (loading) return;
-        if (!currentUser) {
-            Swal.fire("Need to login first", "", "warning")
-            navigate(`${ROUTES.LOGIN}`)
-        }
+        loginFirst(loading, currentUser, navigate)
     }, [currentUser, loading])
 
 
@@ -111,7 +107,7 @@ function GameRoom() {
 
         playerLeft(setBoard, setCurrentPlayer, setStart, setUsers, setHistory, setOpponent);
 
-        startGame(setStart, setCurrentPlayer, setDefaultTimer, setTimer, currentUser)
+        startGame(setStart, setCurrentPlayer, setDefaultTimer, setTimer, currentUser, setPlayAgainRequest)
 
         socket.on("player-joined", (players) => {
             if (Array.isArray(players)) {
@@ -183,7 +179,6 @@ function GameRoom() {
         socket.emit('getUsers', (roomId), (res) => {
             // console.log(res)
             if (res.status === 200) {
-                setSymbols(res.symbols)
                 setUsers(res.players);
             }
         })
@@ -417,7 +412,6 @@ function GameRoom() {
                         onClose={() => setPrevDrawer(false)}
                         prevData={prevData}
                         players={users}
-                        symbols={symbols}
                     />}
 
                 <div className="buttons-game">

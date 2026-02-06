@@ -5,9 +5,9 @@ import './History.css'
 import formatDate from '../../utils/helper/FormatDate';
 import NavBar from '../../components/NavBar/NavBar';
 import { useNavigate } from 'react-router-dom';
-import ROUTES from '../../constant/Route/route';
 import { MenuItem, Select } from '@mui/material';
 import { FaSearch } from 'react-icons/fa';
+import loginFirst from '../../utils/helper/LoginFirst';
 
 function History() {
     const { currentUser, loading } = useContext(CurrentUserContext);
@@ -17,8 +17,7 @@ function History() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (loading) return;
-        if (!currentUser) return navigate(`${ROUTES.LOGIN}`)
+        loginFirst(loading, currentUser, navigate)
     }, [loading, currentUser])
 
     // console.log(loading)

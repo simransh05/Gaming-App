@@ -37,7 +37,7 @@ function OpponentDrawer({ open, onClose }) {
                 borderBottomLeftRadius: 16,
             },
         }}>
-            <Tabs value={tabName} onChange={handleClick} sx={{ margin: '5px' , display:'flex' , justifyContent:'space-between'}}>
+            <Tabs value={tabName} onChange={handleClick} className='tabs-drawer' sx={{ margin: '5px' , display:'flex' , justifyContent:'space-between'}}>
                 <Tab value='myFriend' label='My Friends' sx={{ textTransform: 'none', fontSize: '16px' }} />
                 <Tab value='otherOppenent' label='Other Opponent' sx={{ textTransform: 'none', fontSize: '16px' }} />
             </Tabs>
