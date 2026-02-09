@@ -52,6 +52,7 @@
 .single-notify span {
     padding: 4px;
     margin: 5px;
+    max-width: 120px;
 }
 
 .single-notify button {

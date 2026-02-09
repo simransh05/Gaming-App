@@ -2,24 +2,41 @@
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
 
+.friends-table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+}
+
+.row {
+    width: 100%;
+}
+
 .friend-list {
     list-style-type: disc;
 }
 
-.active-now::marker {
-    color: green;
+.active-now {
+    background-color: green;
 }
 
-.not-active-now::marker {
-    color: black;
+.not-active-now {
+    background-color: black;
+}
+
+.status {
+    vertical-align: middle;
 }
 
 .active-now,
 .not-active-now {
-    font-size: 20px;
-    padding-right: 10px;
-    font-weight: 900;
-    margin: auto 0;
+    display: inline-block;
+    /* vertical-align: middle; */
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin: auto 5px;
 }
 
 .name-friend {
@@ -51,9 +68,11 @@
 }
 
 .no-friend {
+    /* border: 1px solid black; */
     text-align: center;
     font-size: 20px;
     font-weight: 600;
+    padding: 10px 0;
 }
 
 .input-box {
@@ -79,7 +98,7 @@
     border: 1px solid black;
 }
 
-.input-friend:focus{
+.input-friend:focus {
     outline: none;
     border: 2px solid grey;
 }

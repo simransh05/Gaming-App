@@ -60,7 +60,7 @@ module.exports = (io) => {
             const meId = activeMap.get(me);
             if (room.players.length >= 2) {
                 io.to(meId).emit('room-full');
-                await controller1.deleteNotification(me, opponent);
+                // newAdd - add the notification status post request then get response (me , opp)
                 return callback({ roomFull: true })
             }
             // already in match
@@ -81,7 +81,8 @@ module.exports = (io) => {
             if (room.players.length > 1) {
                 const from = socket.userId;
                 const to = room.players[0]?._id;
-                await controller1.deleteNotification(from, to)
+                // newadd -  add the status here too before deleteNotification (from, to)
+                // await controller1.deleteNotification(from, to)
             }
             // console.log(room)
 
@@ -332,7 +333,8 @@ module.exports = (io) => {
             io.to(fromId).emit('you-refuse');
             // console.log('fromName', fromName);
             // console.log('name', fromName.name)
-            await controller1.deleteNotification(from, to)
+            //newAdd -  add the status here too before (from , to)
+            // await controller1.deleteNotification(from, to)
             io.to(toId).emit('rejected', { name: fromName.name })
         })
 
@@ -343,8 +345,10 @@ module.exports = (io) => {
             await controller1.postFriend(from, to);
             const haveFriend1 = await controller2.checkFriend(from, to);
             // console.log('haveFriend1', haveFriend1);
+            // have in the friend list
             if (haveFriend1) {
-                await controller1.deleteFriend(from, to)
+                // newAdd - instead add status as accepted or rejected from, to 
+                await controller1.AddStatusFriend(from, to, "Accepted")
             }
             // console.log('line 224', from, to)
             // here check before 
@@ -364,7 +368,8 @@ module.exports = (io) => {
 
         // -------------- accepted friend request ------------------
         socket.on('accept-friend', async ({ from, to }) => {
-            await controller1.deleteFriend(from, to);
+            // newAdd add status as accepted
+            await controller1.AddStatusFriend(from, to, "Accepted");
             const fromId = activeMap.get(from);
             io.to(fromId).emit('accepted')
         })
@@ -374,7 +379,8 @@ module.exports = (io) => {
             const toId = activeMap.get(to);
             const fromId = activeMap.get(from);
             io.to(fromId).emit('me-refuse');
-            await controller1.deleteFriend(from, to);
+            // newAdd - add status as rejected 
+            await controller1.AddStatusFriend(from, to, "Rejected");
             const fromName = await User.findById(from).lean();
             if (toId) {
                 io.to(toId).emit('refused', { fromName });
