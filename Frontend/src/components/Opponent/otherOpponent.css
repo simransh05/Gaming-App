@@ -2,6 +2,12 @@
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
 
+.opponent-table {
+    table-layout: auto;
+    width: 100%;
+    border-collapse: collapse;
+}
+
 .other-friend,
 .active-opp {
     border: none;
@@ -16,7 +22,7 @@
 .non-active-opp {
     border-radius: 5px;
     margin: 3px;
-    padding: 4px;
+    padding: 6px;
 }
 
 .other-non-active {
@@ -32,4 +38,5 @@
     font-size: 20px;
     font-weight: 600;
     text-align: center;
+    padding: 10px 0;
 }

@@ -73,33 +73,53 @@ function OtherOpponent({ onSuccess }) {
                 <FaSearch className='search-icon' />
                 <input type="text" onChange={handleChange} value={search} placeholder='Search by playerId' className='input-friend' />
             </div>
-            <ul>
-                {search && searchResult.length > 0 ? searchResult?.map((u, idx) => (
-                    <li key={idx} className={activeUsers?.includes(u._id) ? 'active-now' : 'not-active-now'}>
-                        <span className='name-friend'>{u.name}</span>
-                        {activeUsers?.includes(u._id) ?
-                            <button onClick={() => handleClick(u._id)} className='active-opp'>
-                                Send Invite
-                            </button>
-                            : <button disabled className='non-active-opp'>
-                                Send Invite
-                            </button>
-                        }
-                        {friendIds.has(u._id) ? <button disabled className='other-non-active'>Friend</button> :
-                            <>
-                                {activeUsers?.includes(u._id) ? <button onClick={() => handleFriend(u._id)} className='other-friend'>Ask to be friend</button> :
-                                    <button onClick={() => handleFriend(u._id)} disabled className='other-non-active'>Ask to be friend</button>}
-                            </>
-                        }
-                    </li>
-                )
-                ) : (
-                    search && <div className="no-search-found">
-                        No search found
-                    </div>
-                )
-                }
-            </ul>
+            <table className='opponent-table'>
+                <tbody>
+                    {search && searchResult.length > 0 ? (
+                        searchResult.map((u, idx) => (
+                            <tr key={idx}>
+                                <td className='status'>
+                                    <span className={activeUsers?.includes(u._id) ? 'active-now' : 'not-active-now'}></span>
+                                </td>
+                                <td className='name-friend'>{u.name}</td>
+
+                                <td>
+                                    <button
+                                        onClick={() => handleClick(u._id)}
+                                        disabled={!activeUsers?.includes(u._id)}
+                                        className={activeUsers?.includes(u._id) ? 'active-opp' : 'non-active-opp'}
+                                    >
+                                        Send Invite
+                                    </button>
+                                </td>
+
+                                <td>
+                                    <button
+                                        onClick={() => handleFriend(u._id)}
+                                        disabled={friendIds.has(u._id) || !activeUsers?.includes(u._id)}
+                                        className={
+                                            friendIds.has(u._id)
+                                                ? 'other-non-active'
+                                                : activeUsers?.includes(u._id)
+                                                    ? 'other-friend'
+                                                    : 'other-non-active'
+                                        }
+                                    >
+                                        {friendIds.has(u._id) ? 'Friend' : 'Add Friend'}
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="4" className="no-search-found">
+                                {search ? "No search found" : "Start typing to search"}
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+
         </div>
     )
 }

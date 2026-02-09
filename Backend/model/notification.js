@@ -14,12 +14,28 @@ const notificationSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true
+        },
+        sendAt: {
+            type: Date,
+            default: Date.now
+        },
+        status: {
+            type: String
         }
     }],
     Friends: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        requests: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        sendAt: {
+            type: Date,
+            default: Date.now
+        },
+        status: {
+            type: String
+        }
     }]
 })
 
