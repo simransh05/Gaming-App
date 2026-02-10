@@ -61,6 +61,7 @@ module.exports = (io) => {
             if (room.players.length >= 2) {
                 io.to(meId).emit('room-full');
                 // newAdd - add the notification status post request then get response (me , opp)
+                await controller1.addStatusInvite(me, opponent, "Accepted")
                 return callback({ roomFull: true })
             }
             // already in match
@@ -78,11 +79,13 @@ module.exports = (io) => {
             if (callback) {
                 callback({ joined: true })
             }
-            if (room.players.length > 1) {
+            if (opponent && room.players.length > 1) {
                 const from = socket.userId;
                 const to = room.players[0]?._id;
                 // newadd -  add the status here too before deleteNotification (from, to)
                 // await controller1.deleteNotification(from, to)
+                await controller1.addStatusInvite(from, to, "Accepted");
+                callback({ status: 200, message: "Accepted" })
             }
             // console.log(room)
 
@@ -335,6 +338,7 @@ module.exports = (io) => {
             // console.log('name', fromName.name)
             //newAdd -  add the status here too before (from , to)
             // await controller1.deleteNotification(from, to)
+            await controller1.addStatusInvite(from, to, "Rejected")
             io.to(toId).emit('rejected', { name: fromName.name })
         })
 
@@ -347,7 +351,7 @@ module.exports = (io) => {
             // console.log('haveFriend1', haveFriend1);
             // have in the friend list
             if (haveFriend1) {
-                // newAdd - instead add status as accepted or rejected from, to 
+                // newAdd - in my list i have that if yes then accept it 
                 await controller1.AddStatusFriend(from, to, "Accepted")
             }
             // console.log('line 224', from, to)

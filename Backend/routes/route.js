@@ -34,6 +34,8 @@ router.get('/individual/history/:userId', controller2.getIndividualDelete)
 
 router.get('/notification/:userId', controller4.getNotification);
 
+router.get('/remove/notification/:userId' , controller4.deleteNotification);
+
 router.get('/:userId', controller2.getName);
 
 module.exports = router;
