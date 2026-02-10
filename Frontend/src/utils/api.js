@@ -47,6 +47,9 @@ const api = {
     removeFriend :  async (userId, id) => {
         return await apiInstance.get(`${ROUTES.REMOVE}${ROUTES.FRIEND}/${userId}/${id}`)
     },
+    deleteNotification : async (userId) => {
+        return await apiInstance.get(`${ROUTES.REMOVE}${ROUTES.NOTIFICATION}/${userId}`)
+    },
 }
 
 export default api;

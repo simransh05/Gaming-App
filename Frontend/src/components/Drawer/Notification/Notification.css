@@ -1,9 +1,10 @@
 .notify-drawer .MuiDrawer-paper {
-    width: fit-content;
+    width: 100%;
+    max-width: 300px;
     padding: 8px;
     height: 100%;
-    border-bottom-right-radius: 10px;
-    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
 }
 
 .divider .MuiDivider-root {
@@ -16,27 +17,48 @@
 }
 
 .notify-sections {
-    display: flex;
-    flex-direction: column;
-    /* height: calc(100% - 60px); */
-    /* heading space */
-}
-
-.notify-section {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-}
-
-.notify-container {
-    max-height: 40vh;
-    overflow-y: auto;
-    margin: 8px 0;
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
 }
 
 .invite-heading {
     text-align: center;
     margin: 9px;
+}
+
+.text {
+    width: 50%;
+    padding: 10px;
+    padding-right: 0;
+}
+
+.after-text {
+    width: 75%;
+    padding: 10px;
+    padding-right: 0;
+}
+
+.status {
+    width: 25%;
+    padding: 10px;
+}
+
+.clear-btn {
+    text-align: center;
+    padding: 10px;
+}
+
+.clear-notify {
+    width: 50%;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    height: 40px;
+    position: sticky;
+    bottom: 10px;
+    cursor: pointer;
 }
 
 .accept-btn,
@@ -45,14 +67,9 @@
     color: white;
     cursor: pointer;
     border: none;
-    padding: 5px;
+    padding: 8px;
     border-radius: 5px;
-}
-
-.single-notify span {
-    padding: 4px;
-    margin: 5px;
-    max-width: 120px;
+    width: 90%;
 }
 
 .single-notify button {
@@ -61,5 +78,5 @@
 
 .no-notify {
     text-align: center;
-    margin: 10px 0;
+    padding: 10px 0;
 }

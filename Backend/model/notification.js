@@ -20,7 +20,9 @@ const notificationSchema = new mongoose.Schema({
             default: Date.now
         },
         status: {
-            type: String
+            type: String,
+            default: "",
+            required: true
         }
     }],
     Friends: [{
@@ -34,7 +36,9 @@ const notificationSchema = new mongoose.Schema({
             default: Date.now
         },
         status: {
-            type: String
+            type: String,
+            default: "",
+            required: true
         }
     }]
 })

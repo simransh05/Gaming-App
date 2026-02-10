@@ -29,8 +29,19 @@ module.exports.postNotification = async (from, to, roomId) => {
     }
 };
 
-module.exports.addStatus = async (from, to, message) => {
+module.exports.addStatusInvite = async (from, to, message) => {
     try {
+        const friend = await Notification.findOneAndUpdate(
+            {
+                userId: from,
+                "Invite.opponent": to
+            },
+            {
+                $set: { "Invite.$.status": message }
+            },
+            { new: true }
+        )
+        return friend;
         // idea is to add the status for the invites send when accept or not accept get that person then 
         // add if came from message add that in status area 
     } catch (err) {
@@ -39,20 +50,13 @@ module.exports.addStatus = async (from, to, message) => {
     }
 }
 
-module.exports.deleteNotification = async (from, to) => {
+module.exports.deleteNotification = async (req, res) => {
+    const { userId } = req.params;
     // idea change now frontend will delete the all notification when they do all the notification 
     // till date anything send or friend request remove all 
     try {
-        const notification = await Notification.findOneAndUpdate({
-            userId: from,
-            "Invite.opponent": to
-        }, {
-            $pull: {
-                Invite: { opponent: to }
-            }
-        },
-            { new: true })
-        return notification;
+        await Notification.findOneAndDelete({ userId });
+        return res.status(200).json({ message: 'Successfully deleted' })
     } catch (err) {
         console.error('Error saving game history:', err);
         throw err;
@@ -71,7 +75,7 @@ module.exports.getNotification = async (req, res) => {
         // console.log('notify', notify);
         const invite = notify.Invite.reverse();
         const friend = notify.Friends.reverse();
-        console.log('reversed', invite, friend)
+        // console.log('reversed', invite, friend)
         const notification = [...invite, ...friend].sort((a, b) => b.sendAt - a.sendAt);
         console.log(notification);
         return res.status(200).json(notification);
@@ -89,7 +93,7 @@ module.exports.postFriend = async (to, from) => {
         if (!isFriend) {
             const friend = await Notification.findOneAndUpdate(
                 { userId: from },
-                { $addToSet: { Friends: { requests: to } } },
+                { $push: { Friends: { requests: to } } },
                 { new: true, upsert: true }
             )
             return friend;
@@ -112,9 +116,12 @@ module.exports.AddStatusFriend = async (from, to, message) => {
                 userId: from,
                 "Friends.requests": to
             },
-            { "Friends.status": message },
+            {
+                $set: { "Friends.$.status": message }
+            },
             { new: true }
         )
+        console.log('line 124',friend)
         return friend;
         // if refuse then remove from the friend request 
         // if already avaiable in friend list then don't add check this too 

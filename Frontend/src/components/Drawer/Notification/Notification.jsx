@@ -47,11 +47,29 @@ function Notification({ open, onClose }) {
                 });
             }
         })
+        let updated = false;
+        const data = notify.map(n => {
+            if (!updated && n.opponent && n.opponent._id === opponent) {
+                updated = true;
+                return { ...n, status: "Accepted" };
+            }
+            return n;
+        });
+        setNotify(data);
     }
 
     const handleFriendRequest = async (to) => {
         const from = currentUser?._id;
-        socket.emit('accept-friend', { from, to })
+        socket.emit('accept-friend', { from, to });
+        let updated = false;
+        const data = notify.map(n => {
+            if (!updated && n.requests && n.requests._id === to) {
+                updated = true;
+                return { ...n, status: "Accepted" };
+            }
+            return n;
+        });
+        setNotify(data);
         // get in res the new data if want 
         // const newFriend = friend.filter(d => d._id !== to);
         // // console.log(newFriend);
@@ -63,6 +81,15 @@ function Notification({ open, onClose }) {
         socket.emit('reject-invite', { from: currentUser._id, to: opponent })
         // get the new in res then filter and set status here 
         // // filter 
+        let updated = false;
+        const data = notify.map(n => {
+            if (!updated && n.opponent && n.opponent._id === opponent) {
+                updated = true;
+                return { ...n, status: "Rejected" };
+            }
+            return n;
+        });
+        setNotify(data);
         // const newInvite = invite.filter(d => d.opponent._id !== opponent);
         // // console.log(newInvite);
         // setInvite(newInvite);
@@ -70,48 +97,117 @@ function Notification({ open, onClose }) {
 
     const handleRejectFriend = (to) => {
         const from = currentUser?._id;
-        socket.emit('refuse-friend', { from, to })
+        socket.emit('refuse-friend', { from, to });
+        let updated = false;
+        const data = notify.map(n => {
+            if (!updated && n.requests && n.requests._id === to) {
+                updated = true;
+                return { ...n, status: "Rejected" };
+            }
+            return n;
+        });
+        setNotify(data);
         // same for this get in res 
         // const newFriend = friend.filter(d => d._id !== to);
         // setFriend(newFriend);
     }
 
+    const handleClearClick = async () => {
+        const res = await api.deleteNotification(currentUser?._id);
+        console.log(res)
+        if (res.status === 200) {
+            setNotify([])
+        }
+    }
     // console.log(notification.length)
 
     // same table logic max-width of the span text is 120px
 
     return (
-        <Drawer open={open} onClose={onClose} className="notify-drawer">
+        <Drawer open={open} onClose={onClose} className="notify-drawer" anchor='right'>
             <h1 className="notify-heading">Notification</h1>
-            <div className="notify-sections">
-                {notification.length != 0 ? notify?.map((n, idx) => (
-                    n.roomId ?
-                        <div className="notify-section" key={n._id}>
-                            <div className="notify-container invite-container">
-                                <div key={n.opponent._id} className="single-notify">
-                                    <span>{n.opponent.name} send you game invite</span>
-                                    <button onClick={() => handleClick(n.opponent._id, n.roomId)} className="accept-btn">Accept</button>
-                                    <button onClick={() => handleReject(n.opponent._id)} className="reject-btn">Refuse</button>
-                                </div>
-                            </div>
-                        </div>
-                        :
-                        <div className="notify-section" key={n._id}>
-                            <div className="notify-container friend-container">
+            <table className="notify-sections">
+                <tbody>
+                    {notify?.length !== 0 ? (
+                        <>
+                            {notify?.map((n, idx) =>
+                                n.roomId ?
+                                    n.status != "" ? (
+                                        <tr key={idx} className="single-notify">
+                                            <td className='after-text'>{n.opponent.name} sent you a game invite</td>
+                                            <td className='status'>{n.status}</td>
+                                        </tr>
+                                    ) :
+                                        (
 
-                                <div key={n.requests._id} className="single-notify">
-                                    <span>{n.requests.name} send you friend request</span>
-                                    <button onClick={() => handleFriendRequest(n.requests._id)} className="accept-btn">Accept</button>
-                                    <button onClick={() => handleRejectFriend(n.requests._id)} className="reject-btn">Refuse</button>
-                                </div>
+                                            // here add the status too if status then show status else this 
+                                            <tr key={idx} className="single-notify">
+                                                <td className='text'>{n.opponent.name} sent you a game invite</td>
+                                                <td>
+                                                    <button
+                                                        onClick={() => handleClick(n.opponent._id, n.roomId)}
+                                                        className="accept-btn"
+                                                    >
+                                                        Accept
+                                                    </button>
+                                                </td>
+                                                <td>
+                                                    <button
+                                                        onClick={() => handleReject(n.opponent._id)}
+                                                        className="reject-btn"
+                                                    >
+                                                        Refuse
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ) :
+                                    n.status != "" ? (
+                                        <tr key={idx} className="single-notify">
+                                            <td className='after-text'>{n.requests.name} sent you a friend request</td>
+                                            <td className='status'>{n.status}</td>
+                                        </tr>
+                                    ) :
+                                        (
+                                            <tr key={idx} className="single-notify">
+                                                <td className='text'>{n.requests.name} sent you a friend request</td>
+                                                <td>
+                                                    <button
+                                                        onClick={() => handleFriendRequest(n.requests._id)}
+                                                        className="accept-btn"
+                                                    >
+                                                        Accept
+                                                    </button>
+                                                </td>
+                                                <td>
+                                                    <button
+                                                        onClick={() => handleRejectFriend(n.requests._id)}
+                                                        className="reject-btn"
+                                                    >
+                                                        Refuse
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        )
+                            )}
 
-                            </div>
-                        </div>
-                )) :
-                    <div className="no-notify">No Notification</div>
-                }
-            </div>
-        </Drawer>
+                            <tr>
+                                <td colSpan="3" className='clear-btn'>
+                                    <button className="clear-notify" onClick={handleClearClick}>
+                                        Clear Notification
+                                    </button>
+                                </td>
+                            </tr>
+                        </>
+                    ) : (
+                        <tr>
+                            <td colSpan="3" className="no-notify">
+                                No Notification
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+        </Drawer >
     )
 }
 
