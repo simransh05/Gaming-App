@@ -8,12 +8,16 @@
     border-collapse: collapse;
 }
 
+.space{
+    padding: 5px 0;
+}
+
 .other-friend,
 .active-opp {
     border: none;
     border-radius: 5px;
     margin: 3px;
-    padding: 4px;
+    padding: 6px;
     color: white;
     background-color: blueviolet;
     cursor: pointer;

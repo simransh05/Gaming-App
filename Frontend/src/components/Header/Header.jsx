@@ -28,7 +28,7 @@ function Header() {
         if (notification.length === 0) {
             setNumber(0);
         } else {
-            const total = notification?.invite?.length + notification?.friend?.length;
+            const total = notification.length;
             // console.log(total)
             setNumber(total)
         }
@@ -38,6 +38,12 @@ function Header() {
 
     useEffect(() => {
         if (loading) return;
+        if (!notifyDrawer) {
+            fetchNotification(currentUser?._id)
+        }
+    }, [loading, notifyDrawer])
+    useEffect(() => {
+        if (loading) return;
         fetchNotification(currentUser?._id);
     }, [loading])
     // console.log(notification)
@@ -45,43 +51,26 @@ function Header() {
     useEffect(() => {
         // for invite
         socket.on('receive-invite', ({ from }) => {
-            const have = notification?.invite?.some(u => u.opponent._id === from);
-            if (!have) {
+            const data = notification?.find(u => u.opponent._id === from);
+            console.log(data, data.status);
+            if (data && data.status != '') {
                 setNumber(prev => prev + 1)
             }
             // console.log(have);
         })
         // for friend invite
         socket.on('asked', ({ from }) => {
-            const friendInvite = notification?.friend?.some(u => u._id === from);
+            const data = notification?.some(u => u.requests._id === from);
             // console.log(friendInvite)
             // console.log(number)
-            if (!friendInvite) {
+            if (data && data.status != '') {
                 setNumber(prev => prev + 1);
             }
         })
-        // refuse invite
-        socket.on('you-refuse', () => {
-            setNumber(prev => prev - 1)
-        })
-        // refuse friend
-        socket.on('me-refuse', () => {
-            // console.log('here')
-            setNumber(prev => prev - 1)
-        })
-        socket.on('accepted', () => {
-            setNumber(prev => prev - 1)
-        })
-        socket.on('room-full', () => {
-            setNumber(prev => prev - 1)
-        })
+
         return () => {
             socket.off('receive-invite');
-            socket.off('you-refuse');
-            socket.off('me-refuse')
-            socket.off('acceptFriend');
             socket.off('asked');
-            socket.off('accepted');
             socket.off('room-full')
         }
     }, [notification])

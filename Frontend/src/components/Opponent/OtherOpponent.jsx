@@ -78,12 +78,12 @@ function OtherOpponent({ onSuccess }) {
                     {search && searchResult.length > 0 ? (
                         searchResult.map((u, idx) => (
                             <tr key={idx}>
-                                <td className='status'>
+                                <td className='status space'>
                                     <span className={activeUsers?.includes(u._id) ? 'active-now' : 'not-active-now'}></span>
                                 </td>
-                                <td className='name-friend'>{u.name}</td>
+                                <td className='name-friend space'>{u.name}</td>
 
-                                <td>
+                                <td className='space'>
                                     <button
                                         onClick={() => handleClick(u._id)}
                                         disabled={!activeUsers?.includes(u._id)}
@@ -93,7 +93,7 @@ function OtherOpponent({ onSuccess }) {
                                     </button>
                                 </td>
 
-                                <td>
+                                <td className='space'>
                                     <button
                                         onClick={() => handleFriend(u._id)}
                                         disabled={friendIds.has(u._id) || !activeUsers?.includes(u._id)}
