@@ -67,35 +67,29 @@ function MyFriendModal({ onSuccess }) {
                                     <span className={activeUsers?.includes(f?._id) ? 'active-now' : 'not-active-now'}></span>
                                 </td>
                                 <td className='name-friend'>{f?.name}</td>
-                                {activeUsers?.includes(f?._id) ?
-                                    <td>
+                                <td>
+                                    {activeUsers?.includes(f?._id) ?
                                         <button onClick={() => handleClick(f._id)} className='active'>
                                             Send Invite
                                         </button>
-                                    </td>
-
-                                    :
-                                    <td>
+                                        :
                                         <button disabled className='non-active'>
                                             Send Invite
                                         </button>
-                                    </td>
-                                }
+                                    }
+                                </td>
 
-                                {activeUsers?.includes(f?._id) ?
-                                    <td>
+                                <td>
+                                    {activeUsers?.includes(f?._id) ?
                                         <button onClick={() => handleUnfriend(f._id)} className='active'>
                                             Remove Friend
                                         </button>
-                                    </td>
-
-                                    :
-                                    <td>
+                                        :
                                         <button disabled className='non-active'>
                                             Remove Friend
                                         </button>
-                                    </td>
-                                }
+                                    }
+                                </td>
                             </tr>
                         )) :
                             (search && searchResult.length > 0) && (

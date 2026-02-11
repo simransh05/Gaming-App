@@ -347,10 +347,10 @@ module.exports = (io) => {
             const toId = activeMap.get(to);
             const fromName = await User.findById(from).lean();
             await controller1.postFriend(from, to);
-            const haveFriend1 = await controller2.checkFriend(from, to);
-            // console.log('haveFriend1', haveFriend1);
+            const inNotification = await controller1.checkNotification(from, to);
             // have in the friend list
-            if (haveFriend1) {
+            console.log('inNotification' , inNotification)
+            if (inNotification) {
                 // newAdd - in my list i have that if yes then accept it 
                 await controller1.AddStatusFriend(from, to, "Accepted")
             }
@@ -362,9 +362,8 @@ module.exports = (io) => {
             if (!inRoom) {
                 return;
             }
-            const haveFriend2 = await controller2.checkFriend(from, to);
-            // console.log('haveFriend2', haveFriend2);
-            if (haveFriend2) {
+            const haveFriend = await controller2.checkFriend(from, to);
+            if (haveFriend) {
                 return;
             }
             io.to(toId).emit('acceptFriend', { from: to, fromName, to: from })

@@ -1,14 +1,25 @@
 .notify-drawer .MuiDrawer-paper {
-    width: 100%;
     max-width: 300px;
-    padding: 8px;
-    height: 100%;
     border-bottom-left-radius: 10px;
     border-top-left-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
 .divider .MuiDivider-root {
     margin: 10px 0;
+}
+
+.notify-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.notify-scroll {
+    flex: 1;
+    overflow-y: auto;
 }
 
 .notify-heading {
@@ -20,6 +31,7 @@
     table-layout: fixed;
     border-collapse: collapse;
     width: 100%;
+    height: 70vh;
 }
 
 .invite-heading {
@@ -39,25 +51,26 @@
     padding-right: 0;
 }
 
-.status {
+.status-info {
     width: 25%;
     padding: 10px;
 }
 
-.clear-btn {
-    text-align: center;
-    padding: 10px;
+.clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .clear-notify {
     width: 50%;
+    padding: 10px;
+    margin: 10px 0;
     background-color: red;
     color: white;
     border: none;
     border-radius: 5px;
     height: 40px;
-    position: sticky;
-    bottom: 10px;
     cursor: pointer;
 }
 

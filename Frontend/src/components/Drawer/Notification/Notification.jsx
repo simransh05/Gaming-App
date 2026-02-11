@@ -71,7 +71,7 @@ function Notification({ open, onClose }) {
         });
         setNotify(data);
         // get in res the new data if want 
-        // const newFriend = friend.filter(d => d._id !== to);
+        // const newFriend = friend.filter(d => d._id != to);
         // // console.log(newFriend);
         // setFriend(newFriend);
         await api.postFriend(from, to);
@@ -90,7 +90,7 @@ function Notification({ open, onClose }) {
             return n;
         });
         setNotify(data);
-        // const newInvite = invite.filter(d => d.opponent._id !== opponent);
+        // const newInvite = invite.filter(d => d.opponent._id != opponent);
         // // console.log(newInvite);
         // setInvite(newInvite);
     }
@@ -108,7 +108,7 @@ function Notification({ open, onClose }) {
         });
         setNotify(data);
         // same for this get in res 
-        // const newFriend = friend.filter(d => d._id !== to);
+        // const newFriend = friend.filter(d => d._id != to);
         // setFriend(newFriend);
     }
 
@@ -125,88 +125,90 @@ function Notification({ open, onClose }) {
 
     return (
         <Drawer open={open} onClose={onClose} className="notify-drawer" anchor='right'>
-            <h1 className="notify-heading">Notification</h1>
-            <table className="notify-sections">
-                <tbody>
-                    {notify?.length !== 0 ? (
-                        <>
-                            {notify?.map((n, idx) =>
-                                n.roomId ?
-                                    n.status != "" ? (
-                                        <tr key={idx} className="single-notify">
-                                            <td className='after-text'>{n.opponent.name} sent you a game invite</td>
-                                            <td className='status'>{n.status}</td>
-                                        </tr>
-                                    ) :
-                                        (
+            <div className="notify-body">
+                <h1 className="notify-heading">Notification</h1>
+                <div className="notify-scroll">
+                    <table className="notify-sections">
+                        <tbody>
+                            {notify?.length != 0 ? (
+                                <>
+                                    {notify?.map((n, idx) =>
+                                        n.roomId ?
+                                            n.status != "" ? (
+                                                <tr key={idx} className="single-notify">
+                                                    <td className='after-text' colSpan={2}>{n.opponent.name} sent you a game invite</td>
+                                                    <td className='status-info'>{n.status}</td>
+                                                </tr>
+                                            ) :
+                                                (
 
-                                            // here add the status too if status then show status else this 
-                                            <tr key={idx} className="single-notify">
-                                                <td className='text'>{n.opponent.name} sent you a game invite</td>
-                                                <td>
-                                                    <button
-                                                        onClick={() => handleClick(n.opponent._id, n.roomId)}
-                                                        className="accept-btn"
-                                                    >
-                                                        Accept
-                                                    </button>
-                                                </td>
-                                                <td>
-                                                    <button
-                                                        onClick={() => handleReject(n.opponent._id)}
-                                                        className="reject-btn"
-                                                    >
-                                                        Refuse
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ) :
-                                    n.status != "" ? (
-                                        <tr key={idx} className="single-notify">
-                                            <td className='after-text'>{n.requests.name} sent you a friend request</td>
-                                            <td className='status'>{n.status}</td>
-                                        </tr>
-                                    ) :
-                                        (
-                                            <tr key={idx} className="single-notify">
-                                                <td className='text'>{n.requests.name} sent you a friend request</td>
-                                                <td>
-                                                    <button
-                                                        onClick={() => handleFriendRequest(n.requests._id)}
-                                                        className="accept-btn"
-                                                    >
-                                                        Accept
-                                                    </button>
-                                                </td>
-                                                <td>
-                                                    <button
-                                                        onClick={() => handleRejectFriend(n.requests._id)}
-                                                        className="reject-btn"
-                                                    >
-                                                        Refuse
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        )
+                                                    // here add the status too if status then show status else this 
+                                                    <tr key={idx} className="single-notify">
+                                                        <td className='text'>{n.opponent.name} sent you a game invite</td>
+                                                        <td>
+                                                            <button
+                                                                onClick={() => handleClick(n.opponent._id, n.roomId)}
+                                                                className="accept-btn"
+                                                            >
+                                                                Accept
+                                                            </button>
+                                                        </td>
+                                                        <td>
+                                                            <button
+                                                                onClick={() => handleReject(n.opponent._id)}
+                                                                className="reject-btn"
+                                                            >
+                                                                Refuse
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ) :
+                                            n.status != "" ? (
+                                                <tr key={idx} className="single-notify">
+                                                    <td className='after-text' colSpan={2}>{n.requests.name} sent you a friend request</td>
+                                                    <td className='status-info'>{n.status}</td>
+                                                </tr>
+                                            ) :
+                                                (
+                                                    <tr key={idx} className="single-notify">
+                                                        <td className='text'>{n.requests.name} sent you a friend request</td>
+                                                        <td>
+                                                            <button
+                                                                onClick={() => handleFriendRequest(n.requests._id)}
+                                                                className="accept-btn"
+                                                            >
+                                                                Accept
+                                                            </button>
+                                                        </td>
+                                                        <td>
+                                                            <button
+                                                                onClick={() => handleRejectFriend(n.requests._id)}
+                                                                className="reject-btn"
+                                                            >
+                                                                Refuse
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                    )}
+                                </>
+                            ) : (
+                                <tr>
+                                    <td colSpan="3" className="no-notify">
+                                        No Notification
+                                    </td>
+                                </tr>
                             )}
-
-                            <tr>
-                                <td colSpan="3" className='clear-btn'>
-                                    <button className="clear-notify" onClick={handleClearClick}>
-                                        Clear Notification
-                                    </button>
-                                </td>
-                            </tr>
-                        </>
-                    ) : (
-                        <tr>
-                            <td colSpan="3" className="no-notify">
-                                No Notification
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
+                        </tbody>
+                    </table>
+                </div>
+                {notification?.length > 0 &&
+                    <div className="clear">
+                        <button className="clear-notify" onClick={handleClearClick}>
+                            Clear Notification
+                        </button>
+                    </div>}
+            </div>
         </Drawer >
     )
 }
