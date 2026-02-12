@@ -260,16 +260,31 @@ function GameRoom() {
     const handleInfo = () => {
         socket.emit('getTime', ({ roomId }), (res) => {
             // console.log(res)
-            Swal.fire({
-                title: 'Game Rules',
-                html: `<div class="info-user-game">
+            if (res.players.length === 1) {
+                Swal.fire({
+                    title: 'Game Rules',
+                    html: `<div class="info-user-game">
+                <p>You can change the turn timer of the game</p>
                 <p><b>Turn Timer:</b> ${res.time} seconds per player</p>
                 <p><b>Mode:</b> 1 vs 1 match</p>
                 <p>If a player does not move in time, the turn is skipped.</p>
                 </div>`,
-                icon: 'info',
-                confirmButtonText: 'Got it'
-            })
+                    icon: 'info',
+                    confirmButtonText: 'Got it'
+                })
+            } else {
+                Swal.fire({
+                    title: 'Game Rules',
+                    html: `<div class="info-user-game">
+                <p><b>Turn Timer:</b> ${res.time} seconds per player</p>
+                <p><b>Mode:</b> 1 vs 1 match</p>
+                <p>If a player does not move in time, the turn is skipped.</p>
+                </div>`,
+                    icon: 'info',
+                    confirmButtonText: 'Got it'
+                })
+            }
+
         })
     }
 

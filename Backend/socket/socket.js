@@ -51,6 +51,11 @@ module.exports = (io) => {
             }
             const room = boards[roomId];
 
+            if (opponent) {
+                // console.log('me', opponent, me)
+                await controller1.addStatusInvite(me, opponent, "Accepted")
+            }
+
             const alreadyIn = room.players.some(u => u?._id.toString() === socket.userId);
             // console.log('here 67', alreadyIn)
             if (callback && alreadyIn) {
@@ -61,7 +66,6 @@ module.exports = (io) => {
             if (room.players.length >= 2) {
                 io.to(meId).emit('room-full');
                 // newAdd - add the notification status post request then get response (me , opp)
-                await controller1.addStatusInvite(me, opponent, "Accepted")
                 return callback({ roomFull: true })
             }
             // already in match
@@ -78,14 +82,6 @@ module.exports = (io) => {
 
             if (callback) {
                 callback({ joined: true })
-            }
-            if (opponent && room.players.length > 1) {
-                const from = socket.userId;
-                const to = room.players[0]?._id;
-                // newadd -  add the status here too before deleteNotification (from, to)
-                // await controller1.deleteNotification(from, to)
-                await controller1.addStatusInvite(from, to, "Accepted");
-                callback({ status: 200, message: "Accepted" })
             }
             // console.log(room)
 
@@ -119,7 +115,7 @@ module.exports = (io) => {
             }
             const time = boards[roomId].defaultTime;
             // console.log(time)
-            callback({ time })
+            callback({ time, players: boards[roomId].players })
         });
 
         socket.on('setNewTime', ({ roomId, time }) => {
@@ -349,7 +345,7 @@ module.exports = (io) => {
             await controller1.postFriend(from, to);
             const inNotification = await controller1.checkNotification(from, to);
             // have in the friend list
-            console.log('inNotification' , inNotification)
+            // console.log('inNotification', inNotification)
             if (inNotification) {
                 // newAdd - in my list i have that if yes then accept it 
                 await controller1.AddStatusFriend(from, to, "Accepted")

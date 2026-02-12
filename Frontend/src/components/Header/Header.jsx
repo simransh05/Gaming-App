@@ -42,17 +42,12 @@ function Header() {
             fetchNotification(currentUser?._id)
         }
     }, [loading, notifyDrawer])
-    useEffect(() => {
-        if (loading) return;
-        fetchNotification(currentUser?._id);
-    }, [loading])
     // console.log(notification)
 
     useEffect(() => {
         // for invite
         socket.on('receive-invite', ({ from }) => {
             const data = notification?.find(u => u.opponent._id === from);
-            console.log(data, data.status);
             if (data && data.status != '') {
                 setNumber(prev => prev + 1)
             }

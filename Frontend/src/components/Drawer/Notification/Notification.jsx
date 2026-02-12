@@ -30,8 +30,18 @@ function Notification({ open, onClose }) {
         onClose();
         const me = currentUser._id;
         // on click accept do that 
+        let updated = false;
+        const data = notify.map(n => {
+            if (!updated && n.opponent && n.opponent._id === opponent) {
+                updated = true;
+                return { ...n, status: "Accepted" };
+            }
+            return n;
+        });
+        setNotify(data);
+        // console.log(me, opponent)
         socket.emit('join', { roomId, opponent, me }, (res) => {
-            console.log(res);
+            // console.log(res);
             // get new notification in res 
             if (res.roomFull) {
                 return Swal.fire({ title: 'Room is Full ' });
@@ -47,15 +57,6 @@ function Notification({ open, onClose }) {
                 });
             }
         })
-        let updated = false;
-        const data = notify.map(n => {
-            if (!updated && n.opponent && n.opponent._id === opponent) {
-                updated = true;
-                return { ...n, status: "Accepted" };
-            }
-            return n;
-        });
-        setNotify(data);
     }
 
     const handleFriendRequest = async (to) => {
@@ -114,7 +115,7 @@ function Notification({ open, onClose }) {
 
     const handleClearClick = async () => {
         const res = await api.deleteNotification(currentUser?._id);
-        console.log(res)
+        // console.log(res)
         if (res.status === 200) {
             setNotify([])
         }
@@ -126,7 +127,7 @@ function Notification({ open, onClose }) {
     return (
         <Drawer open={open} onClose={onClose} className="notify-drawer" anchor='right'>
             <div className="notify-body">
-                <h1 className="notify-heading">Notification</h1>
+                <h2 className="notify-heading">Notification</h2>
                 <div className="notify-scroll">
                     <table className="notify-sections">
                         <tbody>

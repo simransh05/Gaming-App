@@ -145,13 +145,13 @@ module.exports.getIndividualHistory = async (req, res) => {
 module.exports.getIndividualDelete = async (req, res) => {
     const { userId } = req.params;
     // find where ever that user is in that if player1 or player2
-    console.log('userId', userId)
+    // console.log('userId', userId)
     try {
         if (!userId) {
             return res.status(400).json({ message: "No History" });
         }
 
-        const game = await Game.updateMany(
+        await Game.updateMany(
             {
                 $or: [
                     { playerI: userId },
@@ -165,7 +165,7 @@ module.exports.getIndividualDelete = async (req, res) => {
             },
             { new: true }
         );
-        console.log(game)
+        // console.log(game)
         return res.status(200).json({ message: 'Successfully deleted' })
     } catch (err) {
         res.status(500).json({ error: err.message });

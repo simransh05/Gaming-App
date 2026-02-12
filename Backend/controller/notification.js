@@ -9,13 +9,13 @@ module.exports.postNotification = async (from, to, roomId) => {
         const data = await Notification.findOne({
             userId: to,
         });
-        const last = data.Invite.reverse();
-        const exist = last.find(i => i.opponent.toString() === from);
+        const last = data?.Invite.reverse();
+        const exist = last?.find(i => i.opponent.toString() === from);
         // console.log('line 14', exist)
         if (exist && exist.status === "") {
             await Notification.updateOne(
                 { userId: to },
-                { $pull: { Invite: { _id: exist._id } } }
+                { $pull: { Invite: { _id: exist?._id } } }
             );
         }
 
@@ -48,7 +48,9 @@ module.exports.addStatusInvite = async (from, to, message) => {
         });
         // console.log(data)
         const last = data.Invite.reverse();
+        // console.log('last', last)
         const exist = last.find(i => i.opponent.toString() === to);
+        // console.log('exist', exist);
         const friend = await Notification.findOneAndUpdate(
             {
                 userId: from,
@@ -140,7 +142,7 @@ module.exports.postFriend = async (to, from) => {
 module.exports.checkNotification = async (from, to) => {
     try {
         const notify = await Notification.findOne({ userId: from });
-        if(!notify) {
+        if (!notify) {
             return false;
         }
         return notify.Friends.some(n => n.requests.toString() === to);

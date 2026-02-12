@@ -1,10 +1,11 @@
 .notify-drawer .MuiDrawer-paper {
-    max-width: 300px;
+    max-width: 350px;
     border-bottom-left-radius: 10px;
     border-top-left-radius: 10px;
     display: flex;
     flex-direction: column;
     height: 100vh;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
 
 .divider .MuiDivider-root {
@@ -24,14 +25,13 @@
 
 .notify-heading {
     text-align: center;
-    margin: 10px;
+    margin: 15px 10px;
 }
 
 .notify-sections {
     table-layout: fixed;
     border-collapse: collapse;
     width: 100%;
-    height: 70vh;
 }
 
 .invite-heading {
@@ -40,20 +40,20 @@
 }
 
 .text {
-    width: 50%;
+    width: 48%;
     padding: 10px;
     padding-right: 0;
 }
 
 .after-text {
-    width: 75%;
+    width: 70%;
     padding: 10px;
     padding-right: 0;
 }
 
 .status-info {
     width: 25%;
-    padding: 10px;
+    padding: 10px 0;
 }
 
 .clear {
@@ -86,7 +86,7 @@
 }
 
 .single-notify button {
-    margin: 5px;
+    margin: 4px;
 }
 
 .no-notify {
