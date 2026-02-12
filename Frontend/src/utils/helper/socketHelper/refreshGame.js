@@ -25,21 +25,6 @@ const refreshGame = (roomId, setUsers, setBoard, setCurrentPlayer, setStart, set
                 })
                 return navigate(ROUTES.HOME)
             }
-            if (!res.data.start && res.data.players.length === 1 && currentUser._id === res.data.players[0]._id) {
-                Swal.fire({
-                    title: 'Game rules',
-                    text: 'You can change the turn timer of the game',
-                    icon: 'info',
-                    showConfirmButton: true
-                })
-            } else if (!res.data.start && currentUser._id === res.data.players[1]._id) {
-                Swal.fire({
-                    title: 'Game rules',
-                    text: res.data.defaultTime === 10 ? 'The turn timer is 10sec per person' : `The turn timer is ${res.data.defaultTime}sec per person`,
-                    icon: 'info',
-                    showConfirmButton: true
-                })
-            }
         } else if (res.status === 404) {
             Swal.fire({
                 title: 'Not In',

@@ -35,7 +35,6 @@ function HomePage() {
         fetchNotification(currentUser._id);
 
         // requestInvite(currentUser, navigate);
-        rejectedInvite();
         // acceptFriend();
         refuseFriend();
     }, [currentUser, loading])

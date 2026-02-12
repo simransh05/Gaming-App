@@ -3,7 +3,7 @@
 }
 
 .history {
-    border: 1px solid black;
+    border: 1px solid grey;
     border-radius: 8px;
     padding: 5px;
     text-align: center;
@@ -24,10 +24,11 @@
 }
 
 .no-history {
-    border: 1px solid grey;
     border-radius: 10px;
     padding: 10px;
+    margin-top: 20px;
     text-align: center;
+    font-weight: 600;
 }
 
 .delete-btn {
