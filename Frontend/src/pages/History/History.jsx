@@ -77,7 +77,7 @@ function History() {
     }
 
 
-    console.log(history);
+    // console.log(history);
 
     return (
         <div className='history-full'>

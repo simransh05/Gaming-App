@@ -20,7 +20,7 @@ const requestGameInvite = (currentUser, navigate, anotherRoom) => {
                 // console.log(res);
                 if (res.roomFull) {
                     socket.emit('totalUser', { roomId: anotherRoom }, (res) => {
-                        console.log(res);
+                        // console.log(res);
                         if (res.players.length === 1) {
                             return Swal.fire({ title: 'Room is Full ' });
                         } else {

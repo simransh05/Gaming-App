@@ -39,7 +39,7 @@ function RoutesDrawer({ open, onClose, onSuccess }) {
     }, [loading]);
 
     const currentUserInfo = ranking?.find(r => r.userId === currentUser?._id);
-    console.log(currentUserInfo)
+    // console.log(currentUserInfo)
 
     return (
         <Drawer
