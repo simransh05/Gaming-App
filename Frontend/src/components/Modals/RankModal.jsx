@@ -45,29 +45,34 @@ function RankModal() {
                         {(!ranking || ranking?.length === 0) && "No leaderboard"}
                     </caption>
 
-                    <thead className='header-table'>
-                        <tr className='ind-rank'>
-                            <th>Rank</th>
-                            <th>Name</th>
-                            <th>Player Id</th>
-                            <th>Total Win</th>
-                            <th>Total Lose</th>
-                            <th>Draw</th>
-                        </tr>
-                    </thead>
+                    {ranking?.length > 0 &&
+                        <>
+                            <thead className='header-table'>
+                                <tr className='ind-rank'>
+                                    <th>Rank</th>
+                                    <th>Name</th>
+                                    <th>Player Id</th>
+                                    <th>Total Win</th>
+                                    <th>Total Lose</th>
+                                    <th>Draw</th>
+                                </tr>
+                            </thead>
 
-                    <tbody className='body-table'>
-                        {ranking?.map((r, index) => (
-                            <tr key={index} className='ind-rank'>
-                                <td>{r.rank}</td>
-                                <td>{r.name}</td>
-                                <td>{r.playerId}</td>
-                                <td>{r.totalWins}</td>
-                                <td>{r.totalLose}</td>
-                                <td>{r.totalDraw}</td>
-                            </tr>
-                        ))}
-                    </tbody>
+                            <tbody className='body-table'>
+                                {ranking?.map((r, index) => (
+                                    <tr key={index} className='ind-rank'>
+                                        <td>{r.rank}</td>
+                                        <td>{r.name}</td>
+                                        <td>{r.playerId}</td>
+                                        <td>{r.totalWins}</td>
+                                        <td>{r.totalLose}</td>
+                                        <td>{r.totalDraw}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </>
+                    }
+
                 </table>
 
             </div>
