@@ -55,8 +55,8 @@ module.exports.postLogin = async (req, res) => {
         // console.log(token)
         res.cookie("token", token, {
             httpOnly: true,
-            sameSite: 'Lax',
-            secure: false,
+            sameSite: 'None',
+            secure: true,
             maxAge: 24 * 60 * 60 * 1000
         });
         return res.status(200).json({ message: 'successful', user })
@@ -100,8 +100,8 @@ module.exports.postLogout = async (req, res) => {
     try {
         res.clearCookie("token", {
             httpOnly: true,
-            sameSite: "Lax",
-            secure: false,
+            sameSite: "None",
+            secure: true,
         });
         return res.status(200).json({ message: 'successfully logout' })
     }
