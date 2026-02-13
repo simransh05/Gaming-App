@@ -15,7 +15,7 @@ function Notification({ open, onClose }) {
     const [notify, setNotify] = useState(null);
     const navigate = useNavigate();
     // now we have notification
-    console.log(notification);
+    // console.log(notification);
 
 
     useEffect(() => {
