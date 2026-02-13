@@ -7,7 +7,7 @@ import { useState } from 'react'
 import socket from '../../socket/socket'
 import { friendStore } from '../Zustand/Friends'
 import { userStore } from '../Zustand/AllUsers'
-import './OtherOpponent.css'
+import './otherOpponent.css'
 import { useParams } from 'react-router-dom'
 import { FaSearch } from 'react-icons/fa'
 
